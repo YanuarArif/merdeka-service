@@ -1,0 +1,39 @@
+Step by step membuat project ini
+1. Installation
+  - install shadcn/ui
+  - 
+2. Membuat halaman login
+  - membuat komponen ui = authscreen.tsx, halamandepan.tsx
+  - membuat komponen re-usable = daftar-card.tsx, login-card.tsx
+
+3. Atur Authentication
+  - Menggunakan Convex
+    > Quickstart with Next.js
+      - bun create convex@latest
+      - buat file ConvexClientProvider.tsx dan ikuti sesuai docs: https://docs.convex.dev/quickstart/nextjs
+    > Mengatur Authentication dengan Convex Auth:
+      - https://labs.convex.dev/auth/setup
+      - Pilih Next.js
+      - lewati buat dari scratch
+      - install:
+        + bun install @convex-dev/auth @auth/core
+      - initialization command (membuat file auth.ts auth.config.ts, dll di folder convex)
+      - membuat schema.ts
+      - membuat react provider, pilih Next.js dan App Router with SSA
+      - warp layout dengan ConvexAuthNextjsServerProvider (ikuti dokumentasi)
+      - edit ConvexClientProvider.tsx
+      - ... ikuti dokumentasi
+      - membuat middleware.ts
+    > Editing file middleware.ts - supaya bisa redirect jika belum masuk/auth:
+      - https://labs.convex.dev/auth/authz/nextjs
+      - membuat function redirect untuk melindungi halaman yang harus registrasi dulu (dashboard, card, dll)
+      - membuat OAuth Google dan facebook developer
+      - console.cloud.google.com
+      - developers.facebook.com/apps
+      - configurasi OAuth di Convex: https://labs.convex.dev/auth/config/oauth
+      - edit auth.ts di folder convex
+      - ikuti langkah yg ada di docs
+4. Gagal menggunakan Convex karena Error saat menggunakan OAuth Convex
+  - Ganti ke supabase.co
+  - pekerjaan selama di convex telah di commit ke github
+      
