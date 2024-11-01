@@ -34,6 +34,7 @@ Step by step membuat project ini
       - edit auth.ts di folder convex
       - ikuti langkah yg ada di docs
 4. Gagal menggunakan Convex karena Error saat menggunakan OAuth Convex
-  - Ganti ke supabase.co
   - pekerjaan selama di convex telah di commit ke github
       
+5. Ganti ke supabase.co - Atur Authentication
+  - 
