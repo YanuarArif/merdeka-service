@@ -33,8 +33,16 @@ Step by step membuat project ini
       - configurasi OAuth di Convex: https://labs.convex.dev/auth/config/oauth
       - edit auth.ts di folder convex
       - ikuti langkah yg ada di docs
+*******************************************************
 4. Gagal menggunakan Convex karena Error saat menggunakan OAuth Convex
   - pekerjaan selama di convex telah di commit ke github
-      
+*******************************************************
 5. Ganti ke supabase.co - Atur Authentication
-  - 
+  - Daftar dan buat project di supabase
+    > Awali dengan Creating a Supabase client for SSR
+      - https://supabase.com/docs/guides/auth/server-side
+      - bun install @supabase/ssr @supabase/supabase-js, dan ikuti langkah"nya
+      - buat file env.local, middleware, client, server di folder baru utils -> supabase. Sesuai docs
+      - edit code sedikit di client (alasan belum paham, ubah function menjadi const)
+      - configurasi validasi form dengan zod
+      - bun i react-hook-form zod @hookform/resolvers

@@ -9,8 +9,8 @@ const AuthScreen = () => {
   const [state, setState] = useState<LoginFlow>("masuk");
 
   return (
-    <div className="h-full flex items-center justify-center">
-      <div className="md:h-auto md:w-[450px]">
+    <div className="h-full flex items-center justify-center bg-black/20">
+      <div className="md:h-auto md:w-[700px] transition-all duration-500 ease-in-out sm:w-[300px]">
         {state === "masuk" ? (
           <LoginCard setState={setState} />
         ) : (
