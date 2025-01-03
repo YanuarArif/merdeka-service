@@ -50,12 +50,12 @@ jobs:
           static_site_generator: next
 
       - name: Build with Next.js 🛠️
-        run: bun next build # Builds the Next.js application using Bun
+        run: bun run build # Builds the Next.js application using Bun
 
       - name: Upload artifact 📤
         uses: actions/upload-pages-artifact@v3 # Uploads the build output as an artifact
         with:
-          path: ./out # Path to the exported static site (Bun uses the "out" directory)
+          path: ./dist # Path to the exported static site (Bun uses the "out" directory)
 
   # Deployment job: deploys the built site to GitHub Pages
   deploy:
