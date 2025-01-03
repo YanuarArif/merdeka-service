@@ -58,7 +58,7 @@ const LoginCard = () => {
     await supabaseBrowserClient.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${location.origin}`,
+        redirectTo: `${location.origin}/login/callback`,
       },
     });
     setIsAuthenticating(false);

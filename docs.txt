@@ -52,4 +52,4 @@ Step by step membuat project ini
         + https://supabase.com/docs/guides/auth/social-login/auth-google
         + buat folder callback dan file route.ts didalam folder (authentication) dan edit sedikit sesuai video
         + buat function socialAuth provider
-        + sedang bermasalah dengan login dengan facebook, login dengan google berhasil (kemungkinan belum setting uri from supabase ke developer facebook) [sudah diketahui: butuh membuat dokumen privacy policy --- karena itu publish ke github pages]
+        + sedang bermasalah dengan login dengan facebook, login dengan google berhasil (kemungkinan belum setting uri from supabase ke developer facebook) [sudah diketahui: butuh membuat dokumen privacy policy --- karena itu publish ke github pages] (ternyata bisa tanpa dokumen privacy policy)
