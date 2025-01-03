@@ -26,11 +26,6 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Inject Environment Variables 🌍
-        run: |
-          echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" >> .env.local
-          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" >> .env.local
-
       - name: Install dependencies 📦
         run: bun install
 
@@ -45,7 +40,7 @@ jobs:
       - name: Upload artifact 📤
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./out
+          path: ./dist
 
   deploy:
     environment:
