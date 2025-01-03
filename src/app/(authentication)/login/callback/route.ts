@@ -19,9 +19,9 @@ export async function GET(request: NextRequest) {
         let redirectUrl = origin; // Default redirect URL
 
         if (isLocalEnv) {
-          redirectUrl = `${origin}${next}`;
+          redirectUrl = `${origin}`;
         } else if (forwardedHost) {
-          redirectUrl = `https://${forwardedHost}${next}`;
+          redirectUrl = `https://${forwardedHost}`;
         } else {
           redirectUrl = origin;
         }
