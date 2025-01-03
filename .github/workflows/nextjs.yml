@@ -50,7 +50,7 @@ jobs:
           static_site_generator: next
 
       - name: Build with Next.js 🛠️
-        run: bun run build # Builds the Next.js application using Bun
+        run: bun next build # Builds the Next.js application using Bun
 
       - name: Upload artifact 📤
         uses: actions/upload-pages-artifact@v3 # Uploads the build output as an artifact
