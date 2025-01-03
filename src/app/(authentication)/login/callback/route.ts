@@ -1,51 +1,30 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+// The client you created from the Server-Side Auth instructions
 import { createClient } from "@/utils/supabase/server";
 
-export async function GET(request: NextRequest) {
-  try {
-    const url = new URL(request.url);
-    const origin = url.origin;
-    const code = url.searchParams.get("code");
+export async function GET(request: Request) {
+  const { searchParams, origin } = new URL(request.url);
+  const code = searchParams.get("code");
+  // if "next" is in param, use it as the redirect URL
+  const next = searchParams.get("next") ?? "/";
 
-    if (!code) {
-      return NextResponse.redirect(
-        `${origin || process.env.NEXT_PUBLIC_BASE_URL || "/"}/auth/auth-code-error`
-      ); // Fallback for origin
-    }
-
-    try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
-
-      if (error) {
-        console.error("Supabase auth error:", error);
-        return NextResponse.redirect(
-          `${origin || process.env.NEXT_PUBLIC_BASE_URL || "/"}/auth/auth-code-error`
-        ); // Fallback here too
-      }
-
-      const forwardedHost = request.headers.get("x-forwarded-host");
+  if (code) {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error) {
+      const forwardedHost = request.headers.get("x-forwarded-host"); // original origin before load balancer
       const isLocalEnv = process.env.NODE_ENV === "development";
-
-      let redirectUrl = origin || process.env.NEXT_PUBLIC_BASE_URL || "/";
-
       if (isLocalEnv) {
-        redirectUrl = `${origin || process.env.NEXT_PUBLIC_BASE_URL || "/"}`;
+        // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
+        return NextResponse.redirect(`${origin}${next}`);
       } else if (forwardedHost) {
-        redirectUrl = `https://${forwardedHost}`;
+        return NextResponse.redirect(`https://${forwardedHost}${next}`);
+      } else {
+        return NextResponse.redirect(`${origin}`); // change from `${origin}${next}` to `${origin}`
       }
-
-      return NextResponse.redirect(redirectUrl);
-    } catch (supabaseError) {
-      console.error("Supabase client or auth error:", supabaseError);
-      return NextResponse.redirect(
-        `${origin || process.env.NEXT_PUBLIC_BASE_URL || "/"}/auth/auth-code-error`
-      );
     }
-  } catch (error) {
-    console.error("Error in /login/callback route:", error);
-    return NextResponse.redirect(
-      `${origin || process.env.NEXT_PUBLIC_BASE_URL || "/"}/auth/auth-code-error`
-    );
   }
+
+  // return the user to an error page with instructions
+  return NextResponse.redirect(`${origin}/auth/auth-code-error`);
 }
