@@ -11,11 +11,7 @@ const AuthScreen = () => {
   return (
     <div className="h-full flex items-center justify-center bg-black/20">
       <div className="md:h-auto md:w-[700px] transition-all duration-500 ease-in-out sm:w-[300px]">
-        {state === "masuk" ? (
-          <LoginCard setState={setState} />
-        ) : (
-          <DaftarCard setState={setState} />
-        )}
+        {state === "masuk" ? <LoginCard /> : <DaftarCard />}
       </div>
     </div>
   );
