@@ -13,17 +13,16 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { FaFacebookSquare } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { VscAccount } from "react-icons/vsc";
 import { MdOutlineLock } from "react-icons/md";
 import Image from "next/image";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import StyledText from "./styledtext";
