@@ -1,70 +1,59 @@
-# Sample workflow for building and deploying a Next.js site to GitHub Pages using Bun
-#
-# This workflow automates the process of building a Next.js application
-# using Bun as the package manager and deploying the static output to GitHub Pages.
-#
-# To get started with Next.js see: https://nextjs.org/docs/getting-started
-# To get started with Bun see: https://bun.sh/
-
 name: Deploy Next.js site with Bun to Pages
 
 on:
-  # Triggers the workflow on pushes to the main branch
   push:
     branches: ["main"]
-
-  # Allows manual triggering of the workflow from the Actions tab on GitHub
   workflow_dispatch:
 
-# Sets permissions for the workflow to interact with GitHub Pages
 permissions:
-  contents: read # Allows the workflow to checkout the code
-  pages: write # Allows the workflow to deploy to GitHub Pages
-  id-token: write # Required for deployment
+  contents: read
+  pages: write
+  id-token: write
 
-# Ensures only one deployment runs at a time, preventing conflicts
 concurrency:
-  group: "pages" # Groups deployments together
-  cancel-in-progress: false # Do not cancel in-progress deployments
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  # Build job: builds the Next.js application
   build:
-    runs-on: ubuntu-latest # Runs on a Ubuntu virtual machine
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code 🛎️
-        uses: actions/checkout@v4 # Checks out the repository code
+        uses: actions/checkout@v4
 
       - name: Setup Bun ⚙️
-        uses: oven-sh/setup-bun@v1 # Installs Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          bun-version: latest # Use the latest Bun version (or specify a version like 1.0.0)
+          bun-version: latest
+
+      - name: Inject Environment Variables 🌍
+        run: |
+          echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" >> .env.local
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" >> .env.local
 
       - name: Install dependencies 📦
-        run: bun install # Installs project dependencies using bun.lockb
+        run: bun install
 
       - name: Setup Pages ⚙️
-        uses: actions/configure-pages@v5 # Configures GitHub Pages for deployment
+        uses: actions/configure-pages@v5
         with:
-          # Tells GitHub Pages this is a Next.js static site
           static_site_generator: next
 
       - name: Build with Next.js 🛠️
-        run: bun next build # Builds the Next.js application using Bun
+        run: bun next build
 
       - name: Upload artifact 📤
-        uses: actions/upload-pages-artifact@v3 # Uploads the build output as an artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist # Path to the exported static site (Bun uses the "out" directory)
+          path: ./out
 
-  # Deployment job: deploys the built site to GitHub Pages
   deploy:
     environment:
-      name: github-pages # Sets the deployment environment
-      url: ${{ steps.deployment.outputs.page_url }} # Sets the deployment URL
-    runs-on: ubuntu-latest # Runs on a Ubuntu virtual machine
-    needs: build # This job depends on the "build" job completing successfully
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
     steps:
       - name: Deploy to GitHub Pages 🚀
         id: deployment
-        uses: actions/deploy-pages@v4 # Deploys the artifact to GitHub Pages
+        uses: actions/deploy-pages@v4
