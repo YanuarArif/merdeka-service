@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 // The client you created from the Server-Side Auth instructions
 import { createClient } from "@/utils/supabase/server";
 
+export const dynamic = "force-dynamic"; // Ensures dynamic behavior
+export const revalidate = 0; // No caching
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
