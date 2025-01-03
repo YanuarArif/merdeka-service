@@ -39,10 +39,17 @@ Step by step membuat project ini
 *******************************************************
 5. Ganti ke supabase.co - Atur Authentication
   - Daftar dan buat project di supabase
+    > Setting providers (login with sosmed) di Supabase
     > Awali dengan Creating a Supabase client for SSR
-      - https://supabase.com/docs/guides/auth/server-side
+      - https://supabase.com/docs/guides/auth/server-side/nextjs
       - bun install @supabase/ssr @supabase/supabase-js, dan ikuti langkah"nya
       - buat file env.local, middleware, client, server di folder baru utils -> supabase. Sesuai docs
       - edit code sedikit di client (alasan belum paham, ubah function menjadi const)
       - configurasi validasi form dengan zod
       - bun i react-hook-form zod @hookform/resolvers
+      - atur formSchema dari zod
+      - atur login dengan sosmed
+        + https://supabase.com/docs/guides/auth/social-login/auth-google
+        + buat folder callback dan file route.ts didalam folder (authentication) dan edit sedikit sesuai video
+        + buat function socialAuth provider
+        + sedang bermasalah dengan login dengan facebook, login dengan google berhasil (kemungkinan belum setting uri from supabase ke developer facebook) [sudah diketahui: butuh membuat dokumen privacy policy --- karena itu publish ke github pages]

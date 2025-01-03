@@ -1,4 +1,4 @@
-import AuthScreen from "../ui/authscreen";
+import AuthScreen from "../../layout/authscreen";
 
 const Login = () => {
   return <AuthScreen />;

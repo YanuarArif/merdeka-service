@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import LoginCard from "../components/login-card";
-import { LoginFlow } from "../components/types";
+import { LoginFlow } from "../types/auth";
 import DaftarCard from "../components/daftar-card";
 
 const AuthScreen = () => {

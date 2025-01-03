@@ -8,23 +8,62 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { FaFacebookSquare } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-import { LoginFlow } from "./types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { VscAccount } from "react-icons/vsc";
 import { MdOutlineLock } from "react-icons/md";
 import Image from "next/image";
+import { set, useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import StyledText from "./styledtext";
+import { Provider } from "@supabase/supabase-js";
+import { supabaseBrowserClient } from "@/utils/supabase/client";
 
-interface LoginCardProps {
-  setState: (state: LoginFlow) => void;
-}
+const LoginCard = () => {
+  // fungsi untuk login via sosmed
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
-const LoginCard = ({ setState }: LoginCardProps) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [pending, setPending] = useState(false);
+  const formScrema = z.object({
+    email: z.string().email({ message: "Email tidak valid" }),
+    password: z
+      .string()
+      .min(1, { message: "Password wajib diisi" })
+      .min(6, "Password minimal 6 karakter"),
+  });
+  const form = useForm<z.infer<typeof formScrema>>({
+    resolver: zodResolver(formScrema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  // fungsi untuk submit form
+  async function onSubmit(values: z.infer<typeof formScrema>) {
+    console.log(values);
+  }
+  // fungsi untuk supabase OAuth
+  async function socialAuth(provider: Provider) {
+    setIsAuthenticating(true);
+    await supabaseBrowserClient.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${location.origin}`,
+      },
+    });
+    setIsAuthenticating(false);
+  }
 
   return (
     <Card className="w-full h-full md:flex">
@@ -36,69 +75,90 @@ const LoginCard = ({ setState }: LoginCardProps) => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <form>
-            <div className="flex relative items-center">
-              <VscAccount className="absolute left-3" />
-              <Input
-                required
-                disabled={pending}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Username/Email"
-                type="email"
-                className="pl-10"
-              />
-            </div>
-          </form>
-          <form>
-            <div className="flex relative items-center">
-              <MdOutlineLock className="absolute left-3" />
-              <Input
-                required
-                disabled={pending}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                type="password"
-                className="pl-10"
-              />
-            </div>
-          </form>
-          <Button type="submit" disabled={pending} className="w-full">
-            Login
-          </Button>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+              <div className="relative overflow-visible">
+                <FormField
+                  disabled={isAuthenticating}
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className="flex relative items-center">
+                          <VscAccount className="absolute left-3" />
+                          <Input
+                            className="pl-10"
+                            placeholder="Email"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage className="text-center top-10 font-bold text-xs bg-white" />
+                    </FormItem>
+                  )}
+                ></FormField>
+              </div>
+              <div className="relative">
+                <FormField
+                  disabled={isAuthenticating}
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className="flex relative items-center">
+                          <MdOutlineLock className="absolute left-3" />
+                          <Input
+                            className="pl-10"
+                            placeholder="Password"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage className="text-center font-bold text-xs bg-white" />
+                    </FormItem>
+                  )}
+                ></FormField>
+              </div>
+              <Button
+                type="submit"
+                disabled={isAuthenticating}
+                className="w-full"
+              >
+                <p>Masuk</p>
+              </Button>
+            </form>
+          </Form>
           <div className="flex items-center">
             <div className="border-t mr-[10px] flex-1" />
-            <p>atau login dengan</p>
+            <StyledText variant="p" text="atau login dengan" />
             <div className="border-t ml-[10px] flex-1" />
           </div>
           <div className="flex flex-col space-y-3">
             <Button
-              disabled={pending}
-              onClick={() => providerLogin("google")}
+              disabled={isAuthenticating}
+              onClick={() => socialAuth("google")}
               variant={"outline"}
               className=""
             >
               <FcGoogle />
-              <p>Login dengan Google</p>
+              <StyledText variant="p" text="Login dengan Google" />
             </Button>
             <Button
-              disabled={pending}
-              onClick={() => providerLogin("facebook")}
+              disabled={isAuthenticating}
+              onClick={() => socialAuth("facebook")}
               variant={"outline"}
               className=""
             >
               <FaFacebookSquare className="text-blue-600" />
-              <p>Login dengan Facebook</p>
+              <StyledText variant="p" text="Login dengan Facebook" />
             </Button>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">
               Belum punya akun?{" "}
-              <span
-                onClick={() => setState("daftar")}
-                className="cursor-pointer text-blue-500 hover:underline"
-              >
+              <span className="cursor-pointer text-blue-500 hover:underline">
                 Daftar
               </span>
             </p>
