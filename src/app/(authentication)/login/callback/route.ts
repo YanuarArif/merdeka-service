@@ -6,41 +6,46 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url);
     const origin = url.origin;
     const code = url.searchParams.get("code");
-    // const next = url.searchParams.get("next") ?? "/";
 
-    if (code) {
-      const supabase = await createClient();
+    if (!code) {
+      return NextResponse.redirect(
+        `${origin || process.env.NEXT_PUBLIC_BASE_URL || "/"}/auth/auth-code-error`
+      ); // Fallback for origin
+    }
+
+    try {
+      const supabase = createClient();
       const { error } = await supabase.auth.exchangeCodeForSession(code);
 
-      if (!error) {
-        const forwardedHost = request.headers.get("x-forwarded-host");
-        const isLocalEnv = process.env.NODE_ENV === "development";
-
-        let redirectUrl = origin; // Default redirect URL
-
-        if (isLocalEnv) {
-          redirectUrl = `${origin}`;
-        } else if (forwardedHost) {
-          redirectUrl = `https://${forwardedHost}`;
-        } else {
-          redirectUrl = origin;
-        }
-
-        return NextResponse.redirect(redirectUrl);
+      if (error) {
+        console.error("Supabase auth error:", error);
+        return NextResponse.redirect(
+          `${origin || process.env.NEXT_PUBLIC_BASE_URL || "/"}/auth/auth-code-error`
+        ); // Fallback here too
       }
-    }
 
-    // Handle cases where code is missing or Supabase error occurs
-    return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+      const forwardedHost = request.headers.get("x-forwarded-host");
+      const isLocalEnv = process.env.NODE_ENV === "development";
+
+      let redirectUrl = origin || process.env.NEXT_PUBLIC_BASE_URL || "/";
+
+      if (isLocalEnv) {
+        redirectUrl = `${origin || process.env.NEXT_PUBLIC_BASE_URL || "/"}`;
+      } else if (forwardedHost) {
+        redirectUrl = `https://${forwardedHost}`;
+      }
+
+      return NextResponse.redirect(redirectUrl);
+    } catch (supabaseError) {
+      console.error("Supabase client or auth error:", supabaseError);
+      return NextResponse.redirect(
+        `${origin || process.env.NEXT_PUBLIC_BASE_URL || "/"}/auth/auth-code-error`
+      );
+    }
   } catch (error) {
     console.error("Error in /login/callback route:", error);
-    // Handle the error gracefully during build or runtime
-    if (process.env.NODE_ENV === "development") {
-      // During development, re-throw the error for easier debugging
-      throw error;
-    } else {
-      // During build or production, redirect to a safe fallback
-      return NextResponse.redirect(`${origin}/auth/auth-code-error`);
-    }
+    return NextResponse.redirect(
+      `${origin || process.env.NEXT_PUBLIC_BASE_URL || "/"}/auth/auth-code-error`
+    );
   }
 }
