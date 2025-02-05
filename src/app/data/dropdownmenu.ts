@@ -1,71 +1,35 @@
-// Define types for dropdown items
-interface DropdownItems {
-  [category: string]: string[];
-}
+export const categories = [
+  "Groceries",
+  "Premium Fruits",
+  "Home & Kitchen",
+  "Fashion",
+  "Electronics",
+  "Beauty",
+  "Home Improvement",
+  "Sports, Toys & Luggage",
+];
 
-export const dropdownItems: DropdownItems = {
-  Groceries: [
-    "Fresh Produce",
-    "Pantry Staples",
-    "Beverages",
-    "Snacks",
-    "Dairy & Eggs",
-    "Meat & Seafood",
-  ],
-  "Premium Fruits": [
-    "Exotic Fruits",
-    "Berries",
-    "Citrus",
-    "Melons",
-    "Tropical Fruits",
-    "Stone Fruits",
-  ],
-  "Home & Kitchen": [
-    "Cookware",
-    "Bakeware",
-    "Kitchen Appliances",
-    "Dining & Entertaining",
-    "Home Decor",
-    "Bedding & Bath",
-  ],
-  Fashion: [
-    "Men's Wear",
-    "Women's Wear",
-    "Kids' Fashion",
-    "Shoes",
-    "Accessories",
-    "Bags & Luggage",
-  ],
-  Electronics: [
-    "Mobile Phones",
-    "Laptops",
-    "Desktops",
-    "TV & Home Theater",
-    "Audio",
-    "Cameras",
-  ],
-  Beauty: [
-    "Makeup",
-    "Skin Care",
-    "Hair Care",
-    "Fragrances",
-    "Bath & Body",
-    "Beauty Tools",
-  ],
-  "Home Improvement": [
-    "Tools",
-    "Hardware",
-    "Paint & Supplies",
-    "Electrical",
-    "Plumbing",
-    "Building Materials",
-  ],
-  "Sports, Toys & Luggage": [
-    "Sports & Fitness",
-    "Outdoor Recreation",
-    "Toys & Games",
-    "Luggage & Travel Gear",
-    "Baby & Kids",
-    "Hobbies",
-  ],
-};
+export const dropdownItems = [
+  {
+    title: "MULTIMEDIA",
+    items: ["PORTFOLIO", "BLOG", "SHOP", "CONTACTS"],
+  },
+  {
+    title: "ICON & DESCRIPTION",
+    items: [
+      "Nostrud exercitation ullamco laboris",
+      "Duis aute irure dolor",
+      "Lorem ipsum dolor sit amet",
+      "Elusmod teQmpor",
+    ],
+  },
+  {
+    title: "LIST ITEM WITH DESCRIPTION",
+    items: [
+      "Exercitation ullamco laboris",
+      "Enim ad minim veniams",
+      "Laboris nisi ut aliquip",
+      "Commodo consequat",
+    ],
+  },
+];

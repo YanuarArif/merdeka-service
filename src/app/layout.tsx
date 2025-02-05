@@ -3,6 +3,7 @@ import { Rubik } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "./components/theme-provider";
 import NavbarPage from "./layout/navbarpage";
+import { FooterComponent } from "@/components/footer-section";
 
 const rubik = Rubik({
   subsets: ["latin"],
@@ -30,6 +31,7 @@ export default function RootLayout({
         >
           <NavbarPage />
           {children}
+          <FooterComponent />
         </ThemeProvider>
       </body>
     </html>

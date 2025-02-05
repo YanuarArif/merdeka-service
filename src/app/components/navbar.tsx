@@ -1,115 +1,200 @@
 "use client";
 
-import {
-  Search,
-  MapPin,
-  Package,
-  Gift,
-  Menu,
-  ChevronDown,
-  ShoppingCart,
-  User,
-} from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-
+import { FiSearch, FiUser, FiShoppingCart, FiMapPin } from "react-icons/fi";
+import { BiMenuAltLeft } from "react-icons/bi";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import Image from "next/image";
+import { LucidePackageSearch } from "lucide-react";
+import { TbRosetteDiscount } from "react-icons/tb";
+import { categories } from "../data/dropdownmenu";
+import { useState, useRef, useEffect } from "react";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
-export default function Navbar() {
+const Navbar = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [showArrows, setShowArrows] = useState({
+    left: false,
+    right: false,
+  });
+
+  const checkScroll = () => {
+    if (containerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
+      setShowArrows({
+        left: scrollLeft > 0,
+        right: scrollLeft < scrollWidth - clientWidth - 1,
+      });
+    }
+  };
+
+  const scroll = (direction: "left" | "right") => {
+    if (containerRef.current) {
+      const scrollAmount = direction === "left" ? -200 : 200;
+      containerRef.current.scrollBy({
+        left: scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container) {
+      // Initial check
+      checkScroll();
+
+      // Add event listener
+      container.addEventListener("scroll", checkScroll);
+
+      // Cleanup
+      return () => container.removeEventListener("scroll", checkScroll);
+    }
+  }, []);
+
   return (
-    <header className="w-full border-b">
-      {/* Top banner */}
-      <div className="hidden h-10 w-full items-center justify-between bg-gray-50 px-4 text-sm md:flex">
-        <div>Selamat datang di Merdeka Service</div>
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4" />
-            <span>Bobotsari, Purbalingga</span>
-            <span className="font-medium">423651</span>
+    <nav className="bg-white dark:bg-gray-900 shadow-md dark:shadow-lg">
+      {/* Top Header */}
+      <div className="bg-gray-100 dark:bg-gray-800 py-2 px-4 hidden md:flex justify-between text-sm">
+        <div className="flex container justify-between">
+          <div className="flex items-center gap-1 dark:text-gray-300">
+            <span>Selamat datang di Merdeka Service</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Package className="h-4 w-4" />
-            <Link href="#" className="text-blue-500 hover:underline">
-              Lacak Pesanan
-            </Link>
-          </div>
-          <div className="flex items-center gap-2">
-            <Gift className="h-4 w-4" />
-            <Link href="#" className="text-blue-500 hover:underline">
-              Diskon
-            </Link>
+          <div className="flex items-center gap-4 dark:text-gray-300">
+            <div className="flex items-center gap-1">
+              <FiMapPin className="text-gray-600 dark:text-gray-400" />
+              <span>Bobotsari, Purbalingga</span>
+            </div>
+            <span className="dark:text-gray-500">|</span>
+            <div className="flex justify-center items-center gap-1">
+              <LucidePackageSearch
+                size={20}
+                className="flex-shrink-0 dark:text-gray-400"
+              />
+              <button className="hover:text-gray-600 dark:hover:text-gray-400">
+                Lacak Pesanan
+              </button>
+            </div>
+            <span className="dark:text-gray-500">|</span>
+            <div className="flex justify-center items-center gap-1">
+              <TbRosetteDiscount
+                size={20}
+                className="flex-shrink-0 dark:text-gray-400"
+              />
+              <button className="hover:text-gray-600 dark:hover:text-gray-400">
+                Diskon
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Main header */}
-      <div className="flex h-20 items-center justify-between px-4">
-        <div className="flex items-center gap-8">
-          <Button variant="ghost" size="icon" className="md:hidden">
-            <Menu className="h-6 w-6" />
-          </Button>
-          <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/images/merdeka-logo-cut.png"
-              alt="MegaMart"
-              width={140}
-              height={32}
-              className="h-16 w-auto"
-            />
-          </Link>
-        </div>
-
-        <div className="hidden flex-1 items-center justify-center px-8 md:flex">
-          <div className="relative w-full max-w-2xl">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <Input
-              type="search"
-              placeholder="Apa yang ingin kamu cari?"
-              className="w-full pl-10"
-            />
+      {/* Main Navbar */}
+      <div className="px-4 py-1">
+        <div className="flex items-center justify-between gap-4 container">
+          {/* Logo */}
+          <div className="flex flex-[1] items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="bg-blue-50 dark:bg-gray-800"
+            >
+              <BiMenuAltLeft className="!w-8 !h-8 cursor-pointer dark:text-gray-300" />
+            </Button>
+            <h1 className="flex-1 text-2xl font-bold text-blue-600 dark:text-blue-400 relative">
+              <Image
+                src="/images/merdeka-logo-cut.png"
+                alt="Logo"
+                width={200}
+                height={100}
+                className="w-40 h-auto"
+              />
+            </h1>
           </div>
-        </div>
 
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" className="hidden gap-2 md:flex">
-            <User className="h-5 w-5" />
-            Masuk/Daftar
-          </Button>
-          <Button variant="ghost" size="icon">
-            <ShoppingCart className="h-5 w-5" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <nav className="hidden border-t md:block">
-        <ul className="flex items-center gap-8 px-4">
-          {[
-            "Groceries",
-            "Premium Fruits",
-            "Home & Kitchen",
-            "Fashion",
-            "Electronics",
-            "Beauty",
-            "Home Improvement",
-            "Sports, Toys & Luggage",
-          ].map((category) => (
-            <li key={category}>
+          {/* Search Bar, Auth + Cart */}
+          <div className="flex flex-[2] items-center gap-4 justify-between">
+            {/* Search Bar */}
+            <div className="relative flex-auto">
+              <div className="flex">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiSearch className="text-gray-400 dark:text-gray-500" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search essentials, groceries and more..."
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 bg-transparent dark:bg-gray-800 dark:text-gray-300"
+                />
+              </div>
+            </div>
+            {/* Auth + Cart */}
+            <div className="flex flex-none items-center sm:gap-4">
               <Button
-                variant="ghost"
-                className="h-12 gap-1 font-normal hover:bg-transparent hover:text-blue-500"
-                asChild
+                variant={"ghost"}
+                className="flex items-center gap-1 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300"
               >
-                <Link href="#">
-                  {category}
-                  <ChevronDown className="h-4 w-4" />
-                </Link>
+                <FiUser className="text-xl" />
+                <span className="hidden md:inline">Sign Up/Sign In</span>
               </Button>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </header>
+              <span className="dark:text-gray-500">|</span>
+              <Button
+                variant={"ghost"}
+                className="flex items-center gap-1 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300"
+              >
+                <FiShoppingCart className="text-xl" />
+                <span className="hidden md:inline">Cart</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Categories Navigation */}
+      <div className="relative flex justify-around">
+        {/* Scroll buttons */}
+        <div className="md:hidden absolute inset-y-0 left-0 flex items-center z-10">
+          <button
+            onClick={() => scroll("left")}
+            className={`p-2 bg-white dark:bg-gray-800 shadow-md rounded-full transition-opacity ${
+              showArrows.left ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
+            aria-label="Scroll left"
+          >
+            <FiChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+          </button>
+        </div>
+
+        <div className="md:hidden absolute inset-y-0 right-0 flex items-center z-10">
+          <button
+            onClick={() => scroll("right")}
+            className={`p-2 bg-white dark:bg-gray-800 shadow-md rounded-full transition-opacity ${
+              showArrows.right ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
+            aria-label="Scroll right"
+          >
+            <FiChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+          </button>
+        </div>
+
+        {/* Navigation container */}
+        <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700 w-full overflow-hidden">
+          <div
+            ref={containerRef}
+            className="flex items-center gap-6 overflow-x-auto text-sm container scrollbar-hide"
+            style={{ scrollBehavior: "smooth" }}
+          >
+            {categories.map((category) => (
+              <button
+                key={category}
+                className="flex-shrink-0 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 border-b-2 border-transparent hover:border-blue-600 dark:hover:border-blue-400 dark:text-gray-300"
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </nav>
   );
-}
+};
+
+export default Navbar;
