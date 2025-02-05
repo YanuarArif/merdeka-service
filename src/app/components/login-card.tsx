@@ -9,8 +9,6 @@ import { MdOutlineLock } from "react-icons/md";
 import { set, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Provider } from "@supabase/supabase-js";
-import { supabaseBrowserClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import StyledText from "./styledtext";
@@ -37,34 +35,6 @@ const LoginCard = () => {
   const [isLogin, setIsLogin] = useState(false);
   const router = useRouter();
 
-  // cek session login
-  useEffect(() => {
-    const getUserSession = async () => {
-      try {
-        const {
-          data: { session },
-          error,
-        } = await supabaseBrowserClient.auth.getSession();
-
-        if (error) {
-          console.error("Error fetching session:", error);
-          return;
-        }
-
-        console.log("Session data:", session);
-
-        if (session) {
-          router.push("/");
-        }
-      } catch (err) {
-        console.error("Unexpected error:", err);
-      }
-    };
-
-    getUserSession();
-    setIsLogin(true);
-  }, [router]);
-
   // form schema from zod
   const formScrema = z.object({
     email: z.string().email({ message: "Email tidak valid" }),
@@ -84,17 +54,6 @@ const LoginCard = () => {
   // fungsi untuk submit form
   async function onSubmit(values: z.infer<typeof formScrema>) {
     console.log(values);
-  }
-  // fungsi untuk supabase OAuth
-  async function socialAuth(provider: Provider) {
-    setIsAuthenticating(true);
-    await supabaseBrowserClient.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${location.origin}/login/callback`,
-      },
-    });
-    setIsAuthenticating(false);
   }
 
   if (!isLogin) return null;
@@ -172,7 +131,7 @@ const LoginCard = () => {
           <div className="flex flex-col space-y-3">
             <Button
               disabled={isAuthenticating}
-              onClick={() => socialAuth("google")}
+              // onClick={() => socialAuth("google")}
               variant={"outline"}
               className=""
             >
@@ -181,7 +140,7 @@ const LoginCard = () => {
             </Button>
             <Button
               disabled={isAuthenticating}
-              onClick={() => socialAuth("facebook")}
+              // onClick={() => socialAuth("facebook")}
               variant={"outline"}
               className=""
             >
