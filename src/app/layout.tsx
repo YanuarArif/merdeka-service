@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
-import { Lato } from "next/font/google";
+import { Rubik } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "./components/theme-provider";
+import NavbarPage from "./layout/navbarpage";
 
-const lato = Lato({
+const rubik = Rubik({
   subsets: ["latin"],
-  weight: ["100", "300", "400", "700", "900"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -18,8 +20,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${lato.className}`}>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${rubik.className}`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <NavbarPage />
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

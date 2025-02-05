@@ -53,3 +53,7 @@ Step by step membuat project ini
         + buat folder callback dan file route.ts didalam folder (authentication) dan edit sedikit sesuai video
         + buat function socialAuth provider
         + sedang bermasalah dengan login dengan facebook, login dengan google berhasil (kemungkinan belum setting uri from supabase ke developer facebook) [sudah diketahui: butuh membuat dokumen privacy policy --- karena itu publish ke github pages] (ternyata bisa tanpa dokumen privacy policy)
+      - edit file login/callback dan menambah file eslint.config.mjs untuk ignore variable yang tidak dipakai (karena kalau tidak ignore unused variable, saat proses deploy akan error)
+      - selesai atur login via google dan facebook dan SUKSES!
+      - ******* TIDAK SETTING LOGIN VIA EMAIL DULU, KARENA TERLALU RUMIT *******
+    > Membuat table sql di supabase >> dashboard >> SQL Editor >> ketik kode SQL (sudah aku tulis sendiri format sql supabase ke file sql.text di root)

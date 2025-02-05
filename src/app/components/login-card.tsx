@@ -1,6 +1,20 @@
 "use client";
 
+import { Input } from "@/components/ui/input";
+import { FaFacebookSquare } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
+import { useEffect, useState } from "react";
+import { VscAccount } from "react-icons/vsc";
+import { MdOutlineLock } from "react-icons/md";
+import { set, useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Provider } from "@supabase/supabase-js";
+import { supabaseBrowserClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import StyledText from "./styledtext";
+
 import {
   Card,
   CardContent,
@@ -15,24 +29,43 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { FaFacebookSquare } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
-import { useState } from "react";
-import { VscAccount } from "react-icons/vsc";
-import { MdOutlineLock } from "react-icons/md";
-import Image from "next/image";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import StyledText from "./styledtext";
-import { Provider } from "@supabase/supabase-js";
-import { supabaseBrowserClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 const LoginCard = () => {
-  // fungsi untuk login via sosmed
+  // fungsi untuk login via sosmed auth
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
+  const router = useRouter();
 
+  // cek session login
+  useEffect(() => {
+    const getUserSession = async () => {
+      try {
+        const {
+          data: { session },
+          error,
+        } = await supabaseBrowserClient.auth.getSession();
+
+        if (error) {
+          console.error("Error fetching session:", error);
+          return;
+        }
+
+        console.log("Session data:", session);
+
+        if (session) {
+          router.push("/");
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
+      }
+    };
+
+    getUserSession();
+    setIsLogin(true);
+  }, [router]);
+
+  // form schema from zod
   const formScrema = z.object({
     email: z.string().email({ message: "Email tidak valid" }),
     password: z
@@ -63,6 +96,8 @@ const LoginCard = () => {
     });
     setIsAuthenticating(false);
   }
+
+  if (!isLogin) return null;
 
   return (
     <Card className="w-full h-full md:flex">

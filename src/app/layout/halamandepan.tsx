@@ -1,9 +1,10 @@
-import React from "react";
+import { ModeToggle } from "../components/themetoggle";
 
 const HalamanDepan = () => {
   return (
-    <main className="h-full flex items-center justify-center">
+    <main className="h-full flex flex-col items-center justify-center">
       HalamanDepan
+      <ModeToggle />
     </main>
   );
 };
