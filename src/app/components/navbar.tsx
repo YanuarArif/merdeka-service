@@ -21,23 +21,23 @@ export default function Navbar() {
     <header className="w-full border-b">
       {/* Top banner */}
       <div className="hidden h-10 w-full items-center justify-between bg-gray-50 px-4 text-sm md:flex">
-        <div>Welcome to worldwide Megamart!</div>
+        <div>Selamat datang di Merdeka Service</div>
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <MapPin className="h-4 w-4" />
-            <span>Deliver to</span>
+            <span>Bobotsari, Purbalingga</span>
             <span className="font-medium">423651</span>
           </div>
           <div className="flex items-center gap-2">
             <Package className="h-4 w-4" />
             <Link href="#" className="text-blue-500 hover:underline">
-              Track your order
+              Lacak Pesanan
             </Link>
           </div>
           <div className="flex items-center gap-2">
             <Gift className="h-4 w-4" />
             <Link href="#" className="text-blue-500 hover:underline">
-              All Offers
+              Diskon
             </Link>
           </div>
         </div>
@@ -55,7 +55,7 @@ export default function Navbar() {
               alt="MegaMart"
               width={140}
               height={32}
-              className="h-14 w-auto"
+              className="h-16 w-auto"
             />
           </Link>
         </div>
@@ -65,7 +65,7 @@ export default function Navbar() {
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <Input
               type="search"
-              placeholder="Search essentials, groceries and more..."
+              placeholder="Apa yang ingin kamu cari?"
               className="w-full pl-10"
             />
           </div>
@@ -74,7 +74,7 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           <Button variant="ghost" className="hidden gap-2 md:flex">
             <User className="h-5 w-5" />
-            Sign Up/Sign In
+            Masuk/Daftar
           </Button>
           <Button variant="ghost" size="icon">
             <ShoppingCart className="h-5 w-5" />
