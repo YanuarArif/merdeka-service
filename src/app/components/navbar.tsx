@@ -37,6 +37,15 @@ const Navbar = () => {
     }
   };
 
+  const handleWheel = (e: WheelEvent) => {
+    if (containerRef.current) {
+      // prevent vertical scrolling
+      e.preventDefault();
+      const deltaY = e.deltaY || e.detail || (e as any).wheelDelta;
+      containerRef.current.scrollLeft += deltaY * 2;
+    }
+  };
+
   useEffect(() => {
     const container = containerRef.current;
     if (container) {
@@ -45,9 +54,13 @@ const Navbar = () => {
 
       // Add event listener
       container.addEventListener("scroll", checkScroll);
+      container.addEventListener("wheel", handleWheel, { passive: false });
 
       // Cleanup
-      return () => container.removeEventListener("scroll", checkScroll);
+      return () => {
+        container.removeEventListener("scroll", checkScroll);
+        container.removeEventListener("wheel", handleWheel);
+      };
     }
   }, []);
 
@@ -149,7 +162,7 @@ const Navbar = () => {
       </div>
 
       {/* Categories Navigation */}
-      <div className="relative flex justify-around">
+      <div className="relative container flex justify-around">
         {/* Scroll buttons */}
         <div className="md:hidden absolute inset-y-0 left-0 flex items-center z-10">
           <button
