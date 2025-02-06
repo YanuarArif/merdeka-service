@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 
 function FooterComponent() {
-  const [isDarkMode, setIsDarkMode] = React.useState(true);
+  const [isDarkMode, setIsDarkMode] = React.useState(false);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
 
   React.useEffect(() => {

@@ -162,7 +162,7 @@ const Navbar = () => {
       </div>
 
       {/* Categories Navigation */}
-      <div className="relative container flex justify-around">
+      <div className="relative container flex">
         {/* Scroll buttons */}
         <div className="md:hidden absolute inset-y-0 left-0 flex items-center z-10">
           <button
