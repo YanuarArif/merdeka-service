@@ -11,7 +11,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import StyledText from "./styledtext";
 
 import {
   Card,
@@ -125,7 +124,7 @@ const LoginCard = () => {
           </Form>
           <div className="flex items-center">
             <div className="border-t mr-[10px] flex-1" />
-            <StyledText variant="p" text="atau login dengan" />
+            <p className="mx-2">atau login dengan</p>
             <div className="border-t ml-[10px] flex-1" />
           </div>
           <div className="flex flex-col space-y-3">
@@ -136,7 +135,7 @@ const LoginCard = () => {
               className=""
             >
               <FcGoogle />
-              <StyledText variant="p" text="Login dengan Google" />
+              <p>Login dengan Google</p>
             </Button>
             <Button
               disabled={isAuthenticating}
@@ -145,7 +144,7 @@ const LoginCard = () => {
               className=""
             >
               <FaFacebookSquare className="text-blue-600" />
-              <StyledText variant="p" text="Login dengan Facebook" />
+              <p>Login dengan Facebook</p>
             </Button>
           </div>
           <div>
