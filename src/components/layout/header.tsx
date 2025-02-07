@@ -1,10 +1,12 @@
 import React from "react";
-import Navbar from "../header";
+import HeaderUi from "../header";
+import CategoriesHeader from "../categories-header";
 
 const Header = () => {
   return (
     <header className="">
-      <Navbar />
+      <HeaderUi />
+      {/* <CategoriesHeader /> */}
     </header>
   );
 };
