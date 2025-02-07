@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronRight } from "lucide-react";
-import { phones } from "../data/phone";
+import { phones } from "../app/(main)/data/phone";
 
 export default function SmartphoneDeals() {
   const desktopPhones = phones.slice(0, 5); // Select only the first 5 phones for desktop view

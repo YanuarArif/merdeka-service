@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { LucidePackageSearch } from "lucide-react";
 import { TbRosetteDiscount } from "react-icons/tb";
-import { categories } from "../data/dropdownmenu";
+import { categories } from "../app/(main)/data/dropdownmenu";
 import { useState, useRef, useEffect } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
+  const route = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [showArrows, setShowArrows] = useState({
     left: false,
@@ -142,6 +144,9 @@ const Navbar = () => {
             {/* Auth + Cart */}
             <div className="flex flex-none items-center sm:gap-4">
               <Button
+                onClick={() => {
+                  route.push("/login");
+                }}
                 variant={"ghost"}
                 className="flex items-center gap-1 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300"
               >

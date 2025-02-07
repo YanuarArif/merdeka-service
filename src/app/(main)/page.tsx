@@ -1,4 +1,4 @@
-import HalamanDepan from "./layout/halamandepan";
+import HalamanDepan from "@/components/layout/halamandepan";
 
 export default function Home() {
   return <HalamanDepan />;

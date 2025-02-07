@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import LoginCard from "../components/login-card";
+import LoginCard from "../../components/login-card";
 import { LoginFlow } from "../types/auth";
-import DaftarCard from "../components/daftar-card";
+import DaftarCard from "../../components/daftar-card";
 
 const AuthScreen = () => {
   const [state, setState] = useState<LoginFlow>("masuk");

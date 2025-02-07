@@ -1,8 +1,8 @@
+import "./globals.css";
+import Header from "@/src/components/layout/header";
 import type { Metadata } from "next";
 import { Rubik } from "next/font/google";
-import "./globals.css";
-import { ThemeProvider } from "./components/theme-provider";
-import NavbarPage from "./layout/navbarpage";
+import { ThemeProvider } from "../components/theme-provider";
 import { FooterComponent } from "@/components/footer-section";
 
 const rubik = Rubik({
@@ -15,23 +15,23 @@ export const metadata: Metadata = {
   description: "Service dan Jual Beli Komputer & Laptop",
 };
 
+interface RootLayoutProps {
+  children: React.ReactNode;
+}
+
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${rubik.className}`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
-          <NavbarPage />
           {children}
-          <FooterComponent />
         </ThemeProvider>
       </body>
     </html>

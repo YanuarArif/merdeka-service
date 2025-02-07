@@ -1,6 +1,6 @@
-import Carousel from "../components/carousel";
-import ProductGrid from "../components/productgrid1";
-import { ModeToggle } from "../components/themetoggle";
+import Carousel from "../../components/carousel";
+import ProductGrid from "../../components/productgrid1";
+import { ModeToggle } from "../../components/themetoggle";
 
 const HalamanDepan = () => {
   return (
