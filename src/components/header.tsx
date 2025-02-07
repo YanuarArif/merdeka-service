@@ -6,9 +6,6 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { LucidePackageSearch } from "lucide-react";
 import { TbRosetteDiscount } from "react-icons/tb";
-import { categories } from "../app/(main)/data/dropdownmenu";
-import { useState, useRef, useEffect } from "react";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 
 const HeaderUi = () => {
