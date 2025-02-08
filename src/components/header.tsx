@@ -7,12 +7,13 @@ import Image from "next/image";
 import { LucidePackageSearch } from "lucide-react";
 import { TbRosetteDiscount } from "react-icons/tb";
 import { useRouter } from "next/navigation";
+import { Navbar1 } from "./ui/shadcnblocks-com-navbar1";
 
 const HeaderUi = () => {
   const route = useRouter();
 
   return (
-    <nav className="sticky top-0 bg-white dark:bg-gray-900 shadow-md dark:shadow-lg">
+    <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-md dark:shadow-lg">
       {/* Top Header */}
       <div className="bg-gray-100 dark:bg-gray-800 py-2 px-4 hidden md:flex justify-between text-sm">
         <div className="flex container justify-between">
@@ -48,7 +49,7 @@ const HeaderUi = () => {
         </div>
       </div>
 
-      {/* Main HeaderUi */}
+      {/* Main Header */}
       <div className="px-4 py-1">
         <div className="flex items-center justify-between gap-4 container">
           {/* Logo */}
@@ -111,7 +112,8 @@ const HeaderUi = () => {
         </div>
       </div>
 
-      {/* Categories Navigation */}
+      {/* Categories Header */}
+      <Navbar1 />
     </nav>
   );
 };

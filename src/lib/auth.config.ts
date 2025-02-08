@@ -2,7 +2,7 @@
 import Google from "next-auth/providers/google";
 import { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { LoginSchema } from "../../schemas/zod";
+import { LoginSchema } from "../schemas/zod";
 import { database } from "./database";
 import bcrypt from "bcryptjs";
 

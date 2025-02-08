@@ -30,7 +30,7 @@ import {
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { DaftarSchema } from "@/schemas/zod";
-import { register } from "@/app/(main)/actions/register";
+import { register } from "@/app/actions/register";
 import { ErrorMessage } from "../ui/errormessage";
 import { SuccessMessage } from "../ui/successmessage";
 // import { useRouter } from "next/navigation";

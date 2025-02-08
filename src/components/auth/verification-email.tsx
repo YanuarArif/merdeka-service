@@ -12,7 +12,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { validateToken } from "@/app/(main)/actions/verify-token";
+import { validateToken } from "@/app/actions/verify-token";
 
 export default function VerificationEmail() {
   const searchParams = useSearchParams();

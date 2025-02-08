@@ -4,7 +4,7 @@ import { z } from "zod";
 import { LoginSchema } from "@/schemas/zod";
 import { signIn } from "@/lib/auth";
 import { AuthError } from "next-auth";
-import { getUserByEmail } from "@/app/(main)/data/user";
+import { getUserByEmail } from "@/lib/user";
 import { database } from "@/lib/database";
 
 export const login = async (values: z.infer<typeof LoginSchema>) => {

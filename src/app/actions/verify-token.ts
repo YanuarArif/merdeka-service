@@ -1,7 +1,7 @@
 "use server";
 
-import { getUserByEmail } from "@/app/(main)/data/user";
-import { getVerificationTokenByToken } from "@/app/(main)/data/validate-token";
+import { getUserByEmail } from "@/lib/user";
+import { getVerificationTokenByToken } from "@/lib/validate-token";
 import { database } from "@/lib/database";
 
 // Security improvement: Custom error class

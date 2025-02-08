@@ -1,9 +1,9 @@
 import "./globals.css";
-import Header from "@/src/components/layout/header";
 import type { Metadata } from "next";
 import { Rubik } from "next/font/google";
 import { ThemeProvider } from "../components/theme-provider";
-import { FooterComponent } from "@/components/footer-section";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { Toaster } from "@/components/ui/toaster";
 
 const rubik = Rubik({
   subsets: ["latin"],
@@ -19,9 +19,7 @@ interface RootLayoutProps {
   children: React.ReactNode;
 }
 
-export default function RootLayout({
-  children,
-}: RootLayoutProps) {
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${rubik.className}`}>
@@ -31,7 +29,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <NuqsAdapter>
+            <Toaster />
+            {children}
+          </NuqsAdapter>
         </ThemeProvider>
       </body>
     </html>
