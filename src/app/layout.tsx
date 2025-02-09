@@ -4,6 +4,8 @@ import { Rubik } from "next/font/google";
 import { ThemeProvider } from "../components/theme-provider";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "@/components/ui/toaster";
+import Providers from "@/components/layout/providers";
+import { auth } from "@/lib/auth";
 
 const rubik = Rubik({
   subsets: ["latin"],
@@ -19,21 +21,17 @@ interface RootLayoutProps {
   children: React.ReactNode;
 }
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default async function RootLayout({ children }: RootLayoutProps) {
+  const session = await auth();
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${rubik.className}`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <NuqsAdapter>
+        <NuqsAdapter>
+          <Providers session={session}>
             <Toaster />
             {children}
-          </NuqsAdapter>
-        </ThemeProvider>
+          </Providers>
+        </NuqsAdapter>
       </body>
     </html>
   );
