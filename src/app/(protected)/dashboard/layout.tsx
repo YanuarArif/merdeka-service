@@ -1,3 +1,4 @@
+import KBar from "@/components/kbar";
 import AppSidebar from "@/components/layout/app-sidebar";
 import DashboardHeader from "@/components/layout/dashboard-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -14,13 +15,15 @@ export default async function DashboardLayout({
   const defaultOpen = cookieStore.get("sidebar:state")?.value === "true";
 
   return (
-    <SidebarProvider defaultOpen={defaultOpen}>
-      <NextTopLoader showSpinner={false} />
-      <AppSidebar />
-      <SidebarInset>
-        <DashboardHeader />
-        {children}
-      </SidebarInset>
-    </SidebarProvider>
+    <KBar>
+      <SidebarProvider defaultOpen={defaultOpen}>
+        <NextTopLoader showSpinner={false} />
+        <AppSidebar />
+        <SidebarInset>
+          <DashboardHeader />
+          {children}
+        </SidebarInset>
+      </SidebarProvider>
+    </KBar>
   );
 }
