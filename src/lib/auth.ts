@@ -14,7 +14,10 @@ const combinedProviders = [
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: combinedProviders,
   adapter: PrismaAdapter(database),
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
   pages: { signIn: "/login" },
   // Callbacks untuk pengganti middleware
   callbacks: {
@@ -40,39 +43,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
 
-    // Simpan role ke JWT
-    jwt({ token, user }) {
-      if (user) token.role = user.role;
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+        token.id = user.id;
+      }
       return token;
     },
 
-    // Simpan role ke session
-    session({ session, token }) {
-      session.user.role = token.role;
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.role = token.role;
+        session.user.id = token.id;
+      }
       return session;
     },
 
-    // Callback untuk menambahkan logika tambahan setelah autentikasi berhasil
     async signIn({ user, account }) {
-      // Block Google login if email exists but isn't verified
-      if (account?.provider === "google") {
-        const existingUser = await database.user.findUnique({
-          where: { email: user.email! },
-        });
+      if (account?.type !== "credentials") return true;
 
-        if (
-          existingUser &&
-          existingUser.provider === "credentials" &&
-          !existingUser.emailVerified
-        ) {
-          await database.user.update({
-            where: { id: existingUser.id },
-            data: {
-              emailVerified: new Date(),
-            },
-          });
-        }
+      const existingUser = await database.user.findUnique({
+        where: { id: user.id },
+      });
+
+      if (!existingUser?.emailVerified) {
+        return false;
       }
+
       return true;
     },
   },
