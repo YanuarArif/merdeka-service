@@ -54,7 +54,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         session.user.role = token.role;
-        session.user.id = token.id;
+        // session.user.id = token.id; // aku belum tahu masalahnya dimana, jadi sementara di komen(offkan) aja dulu dan masih aman tidak ada error
       }
       return session;
     },

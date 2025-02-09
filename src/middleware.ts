@@ -16,7 +16,7 @@ export default auth((req) => {
 
   // Allow public routes and API routes
   if (isPublicRoute || isApiRoute) {
-    return null;
+    return;
   }
 
   // Redirect to login if accessing protected route while not authenticated
@@ -26,7 +26,7 @@ export default auth((req) => {
     return Response.redirect(redirectUrl);
   }
 
-  return null;
+  return;
 });
 
 // Configure middleware matcher
