@@ -8,9 +8,17 @@ import { LucidePackageSearch } from "lucide-react";
 import { TbRosetteDiscount } from "react-icons/tb";
 import { useRouter } from "next/navigation";
 import { Navbar1 } from "./ui/shadcnblocks-com-navbar1";
+import { useCartStore } from "@/stores/useCartStore";
+import ShoppingCart from "./shopping-cart";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 const HeaderUi = () => {
   const route = useRouter();
+  const cartItemCount = useCartStore((state) => state.getTotalPrice());
 
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-md dark:shadow-lg">
@@ -100,13 +108,26 @@ const HeaderUi = () => {
                 <span className="hidden md:inline">Masuk/Daftar</span>
               </Button>
               <span className="dark:text-gray-500">|</span>
-              <Button
-                variant={"ghost"}
-                className="flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300"
-              >
-                <FiShoppingCart className="text-xl" />
-                <span className="hidden md:inline">Keranjang</span>
-              </Button>
+              {/* Cart Icon with Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant={"ghost"}
+                    className="flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300"
+                  >
+                    <FiShoppingCart className="text-xl" />
+                    <span className="hidden md:inline">Keranjang</span>
+                    {cartItemCount > 0 && (
+                      <div className="abolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-destructive text-white text-xs rounded-full px-2 py-0.5">
+                        {cartItemCount}
+                      </div>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <ShoppingCart />
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>

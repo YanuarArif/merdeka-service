@@ -61,7 +61,8 @@
     "sonner": "^1.7.4",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.4.0",

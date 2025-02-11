@@ -63,3 +63,16 @@ model VerificationToken {
   @@unique([email, token])
   @@map("verification_tokens")
 }
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  imageUrl    String?  @map("image_url")
+  category    String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("products")
+}
