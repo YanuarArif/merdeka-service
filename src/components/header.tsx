@@ -13,12 +13,19 @@ import ShoppingCart from "./shopping-cart";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { useSession, signOut } from "next-auth/react";
 
 const HeaderUi = () => {
   const route = useRouter();
+  const { data: session, status } = useSession();
   const cartItemCount = useCartStore((state) => state.getTotalPrice());
+
+  const handleLogout = async () => {
+    await signOut({ redirectTo: "/" });
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-md dark:shadow-lg">
@@ -96,25 +103,61 @@ const HeaderUi = () => {
               </div>
             </div>
             {/* Auth + Cart */}
-            <div className="flex flex-none items-center sm:gap-4">
-              <Button
-                onClick={() => {
-                  route.push("/login");
-                }}
-                variant={"ghost"}
-                className="flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300"
-              >
-                <FiUser className="text-xl" />
-                <span className="hidden md:inline">Masuk/Daftar</span>
-              </Button>
+            <div className="flex flex-none items-center sm:gap-2">
+              {status === "loading" ? (
+                <span>Loading...</span>
+              ) : session?.user ? (
+                // Jika user sudah login, tampilkan dropdown component
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center text-sm hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300">
+                      <Image
+                        src={session.user.image || "/images/default-avatar.png"}
+                        alt="User Avatar"
+                        width={30}
+                        height={30}
+                        className="rounded-full mr-2"
+                      />
+                      <span className="hidden md:inline">
+                        {session.user.email}
+                      </span>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-45" align="end">
+                    <DropdownMenuItem
+                      onClick={() => route.push("/dashboard")}
+                      className="hover:cursor-pointer"
+                    >
+                      Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        handleLogout();
+                      }}
+                      className="hover:cursor-pointer"
+                    >
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                // Jika user belum masuk
+
+                <button
+                  onClick={() => {
+                    route.push("/login");
+                  }}
+                  className="flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 text-sm"
+                >
+                  <FiUser className="text-xl" />
+                  <span className="hidden md:inline">Masuk/Daftar</span>
+                </button>
+              )}
               <span className="dark:text-gray-500">|</span>
               {/* Cart Icon with Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant={"ghost"}
-                    className="flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300"
-                  >
+                  <button className="flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 text-sm ml-2">
                     <FiShoppingCart className="text-xl" />
                     <span className="hidden md:inline">Keranjang</span>
                     {cartItemCount > 0 && (
@@ -122,7 +165,7 @@ const HeaderUi = () => {
                         {cartItemCount}
                       </div>
                     )}
-                  </Button>
+                  </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <ShoppingCart />
