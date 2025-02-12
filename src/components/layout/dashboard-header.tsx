@@ -19,8 +19,8 @@ export default function DashboardHeader() {
         <div className="hidden md:flex">
           <SearchInput />
         </div>
-        <UserNav />
         <ThemeToggle />
+        <UserNav />
       </div>
     </header>
   );

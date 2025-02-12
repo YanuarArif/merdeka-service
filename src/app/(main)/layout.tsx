@@ -1,5 +1,5 @@
-import Header from "@/src/components/layout/header";
 import { FooterComponent } from "@/components/footer-section";
+import HeaderUi from "@/components/header";
 
 export default function MainLayout({
   children,
@@ -8,7 +8,7 @@ export default function MainLayout({
 }) {
   return (
     <>
-      <Header />
+      <HeaderUi />
       <main>{children}</main>
       <FooterComponent />
     </>
