@@ -16,3 +16,11 @@ export const DaftarSchema = z.object({
     .min(1, { message: "Password wajib diisi" })
     .min(6, "Password minimal 6 karakter"),
 });
+
+export const ProductSchema = z.object({
+  name: z.string().min(1, { message: "Nama wajib diisi" }),
+  description: z.string().min(1, { message: "Deskripsi wajib diisi" }),
+  price: z.coerce.number(),
+  category: z.string(),
+  imageUrl: z.string().optional(),
+});
