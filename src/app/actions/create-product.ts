@@ -4,7 +4,6 @@ import { z } from "zod";
 import { ProductSchema } from "@/schemas/zod";
 import { database } from "@/lib/database";
 import { revalidatePath } from "next/cache";
-import { put } from "@vercel/blob";
 
 export const createProduct = async (values: z.infer<typeof ProductSchema>) => {
   const validatedFields = ProductSchema.safeParse(values);

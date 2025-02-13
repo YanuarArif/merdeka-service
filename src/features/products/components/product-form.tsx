@@ -141,7 +141,6 @@ export default function ProductForm({
                                 newFiles[0].name,
                                 newFiles[0],
                                 {
-                                  token: process.env.BLOB_READ_WRITE_TOKEN,
                                   access: "public",
                                 }
                               );
