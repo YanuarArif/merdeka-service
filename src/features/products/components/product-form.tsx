@@ -87,6 +87,23 @@ export default function ProductForm({
   // using uploadthing
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>("");
 
+  const uploadFiles = async (files: File[]) => {
+    if (!files || files.length === 0) return;
+
+    setUploadingImg(true);
+    try {
+      const blob = await put(files[0].name, files[0], {
+        access: "public",
+      });
+      setUploadedImageUrl(blob.url);
+      form.setValue("imageUrl", blob.url);
+      toast.success("Image uploaded successfully!"); // Optional success toast
+      return Promise.resolve(); // Indicate successful upload
+    } catch (uploadError: any) {
+      console.error("Error uploading image:", uploadError);
+    }
+  };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     startTransition(async () => {
@@ -131,41 +148,9 @@ export default function ProductForm({
                       <FileUploader
                         value={field.value}
                         onValueChange={async (files) => {
-                          const newFiles = files as File[];
-                          field.onChange(newFiles);
-
-                          if (newFiles && newFiles.length > 0) {
-                            setUploadingImg(true);
-                            try {
-                              const blob = await put(
-                                newFiles[0].name,
-                                newFiles[0],
-                                {
-                                  access: "public",
-                                }
-                              );
-                              setUploadedImageUrl(blob.url);
-                              form.setValue("imageUrl", blob.url);
-                            } catch (uploadError) {
-                              console.error(
-                                "Error uploading image:",
-                                uploadError
-                              );
-                              toast.error("Error uploading image");
-                              setUploadedImageUrl(null);
-                              form.setValue("imageUrl", "undefined");
-                            } finally {
-                              setUploadingImg(false);
-                            }
-                          } else {
-                            setUploadedImageUrl(null);
-                            form.setValue("imageUrl", "undefined");
-                          }
-                          console.log(
-                            "BLOB_READ_WRITE_TOKEN:",
-                            process.env.BLOB_READ_WRITE_TOKEN
-                          );
+                          field.onChange(files);
                         }}
+                        onUpload={uploadFiles}
                         accept={{ "image/*": ACCEPTED_IMAGE_TYPES }}
                         maxFiles={4}
                         maxSize={4 * 1024 * 1024}
@@ -173,7 +158,6 @@ export default function ProductForm({
                         // disabled={loading}
                         // progresses={progresses}
                         // pass the onUpload function here for direct upload
-                        // onUpload={uploadFiles}
                         // disabled={isUploading}
                       />
                     </FormControl>
