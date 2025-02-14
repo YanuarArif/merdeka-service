@@ -58,7 +58,7 @@ const formSchema = z.object({
   description: z.string().min(10, {
     message: "Description must be at least 10 characters.",
   }),
-  imageUrl: z.string().optional(),
+  imageUrl: z.string().min(1, "Image URL is required").optional(),
 });
 
 export default function ProductForm({
@@ -84,15 +84,18 @@ export default function ProductForm({
   const [isPending, startTransition] = useTransition();
   const route = useRouter();
   const [uploadingImg, setUploadingImg] = useState(false);
-  // using uploadthing
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>("");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
     startTransition(async () => {
       let imageUrlToSubmit = values.imageUrl;
-      if (!imageUrlToSubmit && uploadedImageUrl) {
+      if (uploadedImageUrl) {
         imageUrlToSubmit = uploadedImageUrl;
+      }
+
+      if (!imageUrlToSubmit) {
+        toast.error("Please upload an image");
+        return;
       }
 
       const result = await createProduct({
@@ -142,6 +145,9 @@ export default function ProductForm({
                                 newFiles[0],
                                 {
                                   access: "public",
+                                  token:
+                                    process.env
+                                      .NEXT_PUBLIC_BLOB_READ_WRITE_TOKEN,
                                 }
                               );
                               setUploadedImageUrl(blob.url);
@@ -153,28 +159,19 @@ export default function ProductForm({
                               );
                               toast.error("Error uploading image");
                               setUploadedImageUrl(null);
-                              form.setValue("imageUrl", "undefined");
+                              form.setValue("imageUrl", "");
                             } finally {
                               setUploadingImg(false);
                             }
                           } else {
                             setUploadedImageUrl(null);
-                            form.setValue("imageUrl", "undefined");
+                            form.setValue("imageUrl", "");
                           }
-                          console.log(
-                            "BLOB_READ_WRITE_TOKEN:",
-                            process.env.BLOB_READ_WRITE_TOKEN
-                          );
                         }}
                         accept={{ "image/*": ACCEPTED_IMAGE_TYPES }}
                         maxFiles={4}
                         maxSize={4 * 1024 * 1024}
                         disabled={uploadingImg}
-                        // disabled={loading}
-                        // progresses={progresses}
-                        // pass the onUpload function here for direct upload
-                        // onUpload={uploadFiles}
-                        // disabled={isUploading}
                       />
                     </FormControl>
                     <FormMessage />
@@ -210,7 +207,7 @@ export default function ProductForm({
                     <FormLabel>Category</FormLabel>
                     <Select
                       onValueChange={(value) => field.onChange(value)}
-                      value={field.value[field.value.length - 1]}
+                      value={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
