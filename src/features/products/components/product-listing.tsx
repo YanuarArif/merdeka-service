@@ -1,28 +1,60 @@
-import { Product } from '@/constants/data';
-import { fakeProducts } from '@/constants/mock-api';
-import { searchParamsCache } from '@/lib/searchparams';
-import { DataTable as ProductTable } from '@/components/ui/table/data-table';
-import { columns } from './product-tables/columns';
+import { Product } from "@/constants/data";
+import { searchParamsCache } from "@/lib/searchparams";
+import { DataTable as ProductTable } from "@/components/ui/table/data-table";
+import { columns } from "./product-tables/columns";
+import { database } from "@/lib/database";
 
 type ProductListingPage = {};
 
 export default async function ProductListingPage({}: ProductListingPage) {
   // Showcasing the use of search params cache in nested RSCs
-  const page = searchParamsCache.get('page');
-  const search = searchParamsCache.get('q');
-  const pageLimit = searchParamsCache.get('limit');
-  const categories = searchParamsCache.get('categories');
+  const page = Number(searchParamsCache.get("page") || "1");
+  const search = searchParamsCache.get("q");
+  const pageLimit = Number(searchParamsCache.get("limit") || "10");
+  const categories = searchParamsCache.get("categories");
 
-  const filters = {
-    page,
-    limit: pageLimit,
-    ...(search && { search }),
-    ...(categories && { categories: categories })
-  };
+  // Get total count for pagination
+  const totalProducts = await database.product.count({
+    where: {
+      OR: search
+        ? [
+            { name: { contains: search, mode: "insensitive" } },
+            { description: { contains: search, mode: "insensitive" } },
+          ]
+        : undefined,
+      category: categories ? { in: categories.split(".") } : undefined,
+    },
+  });
 
-  const data = await fakeProducts.getProducts(filters);
-  const totalProducts = data.total_products;
-  const products: Product[] = data.products;
+  // Get paginated products with filters
+  const dbProducts = await database.product.findMany({
+    skip: (page - 1) * pageLimit,
+    take: pageLimit,
+    where: {
+      OR: search
+        ? [
+            { name: { contains: search, mode: "insensitive" } },
+            { description: { contains: search, mode: "insensitive" } },
+          ]
+        : undefined,
+      category: categories ? { in: categories.split(".") } : undefined,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  // Transform database products to match Product interface
+  const products: Product[] = dbProducts.map((product) => ({
+    id: product.id,
+    name: product.name,
+    description: product.description,
+    price: product.price,
+    imageUrl: product.imageUrl,
+    category: product.category,
+    createdAt: product.createdAt.toISOString(),
+    updatedAt: product.updatedAt.toISOString(),
+  }));
 
   return (
     <ProductTable

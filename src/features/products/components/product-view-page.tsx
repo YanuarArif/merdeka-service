@@ -1,23 +1,41 @@
-import { fakeProducts, Product } from '@/constants/mock-api';
-import { notFound } from 'next/navigation';
-import ProductForm from './product-form';
+import { Product } from "@/constants/data";
+import { database } from "@/lib/database";
+import { notFound } from "next/navigation";
+import ProductForm from "./product-form";
 
 type TProductViewPageProps = {
   productId: string;
 };
 
 export default async function ProductViewPage({
-  productId
+  productId,
 }: TProductViewPageProps) {
   let product = null;
-  let pageTitle = 'Create New Product';
+  let pageTitle = "Create New Product";
 
-  if (productId !== 'new') {
-    const data = await fakeProducts.getProductById(Number(productId));
-    product = data.product as Product;
-    if (!product) {
+  if (productId !== "new") {
+    const dbProduct = await database.product.findUnique({
+      where: {
+        id: productId,
+      },
+    });
+
+    if (!dbProduct) {
       notFound();
     }
+
+    // Transform database product to match Product interface
+    product = {
+      id: dbProduct.id,
+      name: dbProduct.name,
+      description: dbProduct.description || "",
+      price: dbProduct.price,
+      imageUrl: dbProduct.imageUrl,
+      category: dbProduct.category,
+      createdAt: dbProduct.createdAt.toISOString(),
+      updatedAt: dbProduct.updatedAt.toISOString(),
+    };
+
     pageTitle = `Edit Product`;
   }
 
