@@ -1,14 +1,23 @@
 import { database } from "@/lib/database";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { productId: string } }
-) {
+interface RouteContext {
+  params: {
+    productId: string;
+  };
+}
+
+export async function DELETE(req: NextRequest, { params }: RouteContext) {
   try {
+    const { productId } = await params;
+
+    if (!productId) {
+      return new NextResponse("Product ID is required", { status: 400 });
+    }
+
     const product = await database.product.delete({
       where: {
-        id: params.productId,
+        id: productId,
       },
     });
 
