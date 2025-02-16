@@ -1,16 +1,32 @@
 import { database } from "@/lib/database";
 import { NextRequest, NextResponse } from "next/server";
 import { del } from "@vercel/blob";
+import { auth } from "@/lib/auth";
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ productId: string }> }
+  { params }: { params: { productId: string } }
 ) {
   try {
-    const { productId } = await params;
+    const session = await auth();
+    
+    if (!session?.user?.email) {
+      return new NextResponse("Unauthorized - Please login first", { status: 401 });
+    }
+
+    const { productId } = params;
 
     if (!productId) {
       return new NextResponse("Product ID is required", { status: 400 });
+    }
+
+    // Get user ID
+    const user = await database.user.findUnique({
+      where: { email: session.user.email }
+    });
+
+    if (!user) {
+      return new NextResponse("User not found", { status: 404 });
     }
 
     // Get product details before deletion to get the image URL
@@ -22,6 +38,11 @@ export async function DELETE(
 
     if (!product) {
       return new NextResponse("Product not found", { status: 404 });
+    }
+
+    // Check if the product belongs to the user
+    if (product.userId !== user.id) {
+      return new NextResponse("Unauthorized - This product belongs to another user", { status: 403 });
     }
 
     // If product has an image URL, delete it from blob storage

@@ -20,6 +20,7 @@ model User {
   token         String?   @unique
   accounts      Account[]
   sessions      Session[]
+  products      Product[]
 
   @@map("users")
 }
@@ -73,6 +74,8 @@ model Product {
   category    String?
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("products")
 }

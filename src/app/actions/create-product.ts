@@ -4,17 +4,33 @@ import { z } from "zod";
 import { ProductSchema } from "@/schemas/zod";
 import { database } from "@/lib/database";
 import { revalidatePath } from "next/cache";
+import { auth } from "@/lib/auth";
 
 export const createProduct = async (values: z.infer<typeof ProductSchema>) => {
-  const validatedFields = ProductSchema.safeParse(values);
-
-  if (!validatedFields.success) {
-    return { error: validatedFields.error.flatten().fieldErrors };
-  }
-
-  const { name, description, price, category, imageUrl } = validatedFields.data;
-
   try {
+    const session = await auth();
+    
+    if (!session?.user?.email) {
+      return { error: "Unauthorized - Please login first" };
+    }
+
+    const validatedFields = ProductSchema.safeParse(values);
+
+    if (!validatedFields.success) {
+      return { error: validatedFields.error.flatten().fieldErrors };
+    }
+
+    const { name, description, price, category, imageUrl } = validatedFields.data;
+
+    // Get user ID from email
+    const user = await database.user.findUnique({
+      where: { email: session.user.email }
+    });
+
+    if (!user) {
+      return { error: "User not found" };
+    }
+
     await database.product.create({
       data: {
         name,
@@ -22,6 +38,7 @@ export const createProduct = async (values: z.infer<typeof ProductSchema>) => {
         price,
         category,
         imageUrl,
+        userId: user.id,
       },
     });
 
