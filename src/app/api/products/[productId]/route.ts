@@ -2,15 +2,12 @@ import { database } from "@/lib/database";
 import { NextRequest, NextResponse } from "next/server";
 import { del } from "@vercel/blob";
 
-interface RouteContext {
-  params: {
-    productId: string;
-  };
-}
-
-export async function DELETE(req: NextRequest, { params }: RouteContext) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ productId: string }> }
+) {
   try {
-    const { productId } = params;
+    const { productId } = await params;
 
     if (!productId) {
       return new NextResponse("Product ID is required", { status: 400 });
