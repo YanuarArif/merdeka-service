@@ -5,16 +5,18 @@ import { auth } from "@/lib/auth";
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { productId: string } }
+  { params }: { params: Promise<{ productId: string }> }
 ) {
   try {
     const session = await auth();
-    
+
     if (!session?.user?.email) {
-      return new NextResponse("Unauthorized - Please login first", { status: 401 });
+      return new NextResponse("Unauthorized - Please login first", {
+        status: 401,
+      });
     }
 
-    const { productId } = params;
+    const { productId } = await params;
 
     if (!productId) {
       return new NextResponse("Product ID is required", { status: 400 });
@@ -22,7 +24,7 @@ export async function DELETE(
 
     // Get user ID
     const user = await database.user.findUnique({
-      where: { email: session.user.email }
+      where: { email: session.user.email },
     });
 
     if (!user) {
@@ -42,7 +44,10 @@ export async function DELETE(
 
     // Check if the product belongs to the user
     if (product.userId !== user.id) {
-      return new NextResponse("Unauthorized - This product belongs to another user", { status: 403 });
+      return new NextResponse(
+        "Unauthorized - This product belongs to another user",
+        { status: 403 }
+      );
     }
 
     // If product has an image URL, delete it from blob storage
