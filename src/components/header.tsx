@@ -18,7 +18,7 @@ import {
 } from "./ui/dropdown-menu";
 import { useSession, signOut } from "next-auth/react";
 
-const HeaderUi = () => {
+const Header = () => {
   const route = useRouter();
   const { data: session, status } = useSession();
   const cartItemCount = useCartStore((state) => state.getTotalPrice());
@@ -182,4 +182,4 @@ const HeaderUi = () => {
   );
 };
 
-export default HeaderUi;
+export default Header;

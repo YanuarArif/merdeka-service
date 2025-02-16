@@ -47,9 +47,9 @@ import * as React from "react";
 import { Icons } from "../icons";
 
 export const company = {
-  name: "Acme Inc",
+  name: "Merdeka Service",
   logo: GalleryVerticalEnd,
-  plan: "Enterprise",
+  plan: "Admin Dashboard",
 };
 
 export default function AppSidebar() {

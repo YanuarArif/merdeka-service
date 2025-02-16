@@ -31,11 +31,13 @@ import {
   UserPen,
   UserX2Icon,
   X,
+  House,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
 
 export const Icons = {
+  home: House,
   dashboard: LayoutDashboardIcon,
   logo: Command,
   login: LogIn,
