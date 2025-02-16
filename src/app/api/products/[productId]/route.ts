@@ -1,15 +1,12 @@
 import { database } from "@/lib/database";
 import { NextRequest, NextResponse } from "next/server";
 
-interface RouteContext {
-  params: {
-    productId: string;
-  };
-}
-
-export async function DELETE(req: NextRequest, { params }: RouteContext) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { productId: string } }
+) {
   try {
-    const { productId } = await params;
+    const { productId } = params; // ❌ Removed 'await' (params is not a Promise)
 
     if (!productId) {
       return new NextResponse("Product ID is required", { status: 400 });
