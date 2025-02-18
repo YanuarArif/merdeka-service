@@ -28,9 +28,9 @@ const Header = () => {
   };
 
   return (
-    <nav className="z-50 bg-white dark:bg-gray-900 shadow-md dark:shadow-lg">
-      {/* Top Header */}
-      <div className="bg-gray-100 dark:bg-gray-800 py-2 px-4 hidden md:flex justify-between text-sm">
+    <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-md dark:shadow-lg">
+      {/* Top Header/announcement */}
+      {/* <div className="bg-gray-100 dark:bg-gray-800 py-2 px-4 hidden md:flex justify-between text-sm">
         <div className="flex container justify-between">
           <div className="flex items-center gap-1 dark:text-gray-300">
             <span>Selamat datang di Merdeka Service</span>
@@ -62,7 +62,7 @@ const Header = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Main Header */}
       <div className="px-4 py-1">
