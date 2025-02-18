@@ -69,14 +69,17 @@ const Header = () => {
         <div className="flex items-center justify-between gap-4 container">
           {/* Logo */}
           <div className="flex flex-[1] items-center gap-2">
-            <Button
+            {/* <Button
               variant="ghost"
               size="icon"
               className="bg-blue-50 dark:bg-gray-800"
             >
               <BiMenuAltLeft className="!w-8 !h-8 cursor-pointer dark:text-gray-300" />
-            </Button>
-            <div className="cursor-pointer" onClick={() => route.push("/")}>
+            </Button> */}
+            <div
+              className="cursor-pointer mx-1 my-1"
+              onClick={() => route.push("/")}
+            >
               <Image
                 src="/images/merdeka-logo-cut.png"
                 alt="Logo"
