@@ -243,7 +243,7 @@ const LoginCard = () => {
               <p className="text-sm text-muted-foreground">
                 Belum punya akun?{" "}
                 <span
-                  onClick={() => router.push("/register")}
+                  onClick={() => router.push("/registrasi")}
                   className="cursor-pointer text-blue-500 hover:underline font-bold"
                 >
                   Daftar

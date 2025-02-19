@@ -20,11 +20,11 @@ export default auth((req) => {
   }
 
   // Redirect to login if accessing protected route while not authenticated
-  if (!isAuthenticated) {
-    const redirectUrl = new URL("/login", nextUrl);
-    redirectUrl.searchParams.set("callbackUrl", nextUrl.pathname);
-    return Response.redirect(redirectUrl);
-  }
+  // if (!isAuthenticated) {
+  //   const redirectUrl = new URL("/login", nextUrl);
+  //   redirectUrl.searchParams.set("callbackUrl", nextUrl.pathname);
+  //   return Response.redirect(redirectUrl);
+  // }
 
   return;
 });

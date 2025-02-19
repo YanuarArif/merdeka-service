@@ -3,7 +3,6 @@ import LoginCard from "@/components/auth/login-card";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import React from "react";
-import AuthLayout from "../layout";
 
 const LoginPage = async () => {
   const session = await auth();
