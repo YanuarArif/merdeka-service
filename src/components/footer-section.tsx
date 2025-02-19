@@ -34,6 +34,14 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  infoToko,
+  jasaServices,
+  laptops,
+  printers,
+  smartphones,
+} from "@/constants/footerlinks";
+import { Separator } from "./ui/separator";
 
 function FooterComponent() {
   const [isDarkMode, setIsDarkMode] = React.useState(false);
@@ -49,10 +57,10 @@ function FooterComponent() {
 
   return (
     <footer className="container relative border-t bg-background text-foreground transition-colors duration-300">
-      <div className="container mx-auto px-4 py-12 md:px-6 lg:px-8">
-        {/* Logo */}
-        <div className="my-2 gap-4 flex flex-col md:flex-row justify-between">
-          <div>
+      <div className="py-10">
+        {/* Logo & Social Media */}
+        <div className="my-2 gap-4 flex flex-col lg:flex-row justify-between">
+          <div className="flex items-center justify-center lg:items-start">
             <Image
               className="items-center"
               src="/images/merdeka-logo-cut.png"
@@ -70,13 +78,19 @@ function FooterComponent() {
                     variant="outline"
                     size="icon"
                     className="rounded-full"
+                    onClick={() =>
+                      window.open(
+                        "https://www.facebook.com/profile.php?id=100047452784576",
+                        "_blank"
+                      )
+                    }
                   >
                     <Facebook className="h-4 w-4" />
                     <span className="sr-only">Facebook</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Follow us on Facebook</p>
+                  <p>Ikuti kami di Facebook</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -93,7 +107,7 @@ function FooterComponent() {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Follow us on Twitter</p>
+                  <p>Follow Twitter</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -110,26 +124,27 @@ function FooterComponent() {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Follow us on Instagram</p>
+                  <p>Ikuti kami di Instagram</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
         </div>
+        <Separator className="my-8" />
         {/* Grid */}
         <div className="grid md:grid-cols-1 lg:grid-cols-7">
           {/* Grid/Column 1 */}
           <div
             className="relative flex flex-col items-start
-            w-full gap-4 col-span-1 lg:col-span-2"
+            w-full gap-4 col-span-1 lg:col-span-2 mb-4 lg:mb-0 text-base"
           >
-            <div>
+            <div className="mr-4 xl:mr-0">
               <div className="flex gap-2">
                 <div>
                   <CalendarHeart />
                 </div>
                 <div>
-                  <p>Jam Buka Toko</p>
+                  <p className="font-semibold">Jam Buka Toko</p>
                   <p>Senin - Jumat: 08.00 - 16.00</p>
                 </div>
               </div>
@@ -138,7 +153,7 @@ function FooterComponent() {
                   <FaWhatsapp size={25} />
                 </div>
                 <div>
-                  <p>Whatsapp</p>
+                  <p className="font-semibold">Whatsapp</p>
                   <p>0895 3767 06611</p>
                 </div>
               </div>
@@ -147,7 +162,7 @@ function FooterComponent() {
                   <MapPin />
                 </div>
                 <div>
-                  <p>Alamat Toko</p>
+                  <p className="font-semibold">Alamat Toko</p>
                   <p>
                     Jl. Mekarjaya no 08, Kec. Bobotsari, Kab. Purbalingga (Barat
                     SMP N 1 Bobotsari)
@@ -159,154 +174,95 @@ function FooterComponent() {
                   <MailCheck />
                 </div>
                 <div>
-                  <p>Email</p>
+                  <p className="font-semibold">Email</p>
                   <p>merdekaservice@gmail.com</p>
                 </div>
               </div>
             </div>
           </div>
           {/* Grid/Column 2 - Jasa Service */}
-          <div>
-            {/* Accordion Version (Mobile) */}
-            <Accordion type="single" collapsible className="block lg:hidden">
-              <AccordionItem value="item-1">
-                <AccordionTrigger>Jasa Service</AccordionTrigger>
-                <AccordionContent>
-                  <nav className="space-y-2 text-sm">
-                    <a
-                      href="#"
-                      className="block transition-colors hover:text-primary"
-                    >
-                      Home
-                    </a>
-                    <a
-                      href="#"
-                      className="block transition-colors hover:text-primary"
-                    >
-                      About Us
-                    </a>
-                    <a
-                      href="#"
-                      className="block transition-colors hover:text-primary"
-                    >
-                      Services
-                    </a>
-                    <a
-                      href="#"
-                      className="block transition-colors hover:text-primary"
-                    >
-                      Products
-                    </a>
-                    <a
-                      href="#"
-                      className="block transition-colors hover:text-primary"
-                    >
-                      Contact
-                    </a>
-                  </nav>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-            {/* Regular Version (Desktop) */}
-            <div className="hidden lg:block">
-              <h3 className="mb-4 text-lg font-semibold">Jasa Service</h3>
+          <div className="lg:grid hidden">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-lg font-semibold">Jasa Service</h3>
               <nav className="space-y-2 text-sm">
-                <a
-                  href="#"
-                  className="block transition-colors hover:text-primary"
-                >
-                  Home
-                </a>
-                <a
-                  href="#"
-                  className="block transition-colors hover:text-primary"
-                >
-                  About Us
-                </a>
-                <a
-                  href="#"
-                  className="block transition-colors hover:text-primary"
-                >
-                  Services
-                </a>
-                <a
-                  href="#"
-                  className="block transition-colors hover:text-primary"
-                >
-                  Products
-                </a>
-                <a
-                  href="#"
-                  className="block transition-colors hover:text-primary"
-                >
-                  Contact
-                </a>
+                {jasaServices.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    className="flex flex-col transition-colors hover:text-blue-500 items-start"
+                  >
+                    {link.label}
+                  </a>
+                ))}
               </nav>
             </div>
           </div>
           {/* Grid/Column 3 - Laptop */}
-          <div>
-            {/* Accordion Version (Mobile) */}
-            <Accordion type="single" collapsible className="block lg:hidden">
-              <AccordionItem value="item-2">
-                <AccordionTrigger>Laptop</AccordionTrigger>
-                <AccordionContent>
-                  <address className="space-y-2 text-sm not-italic"></address>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-            {/* Regular Version (Desktop) */}
-            <div className="hidden lg:block">
-              <h3 className="mb-4 text-lg font-semibold">Laptop</h3>
-              <address className="space-y-2 text-sm not-italic"></address>
+          <div className="lg:grid hidden">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-lg font-semibold">Laptops</h3>
+              <nav className="space-y-2 text-sm">
+                {laptops.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    className="flex flex-col transition-colors hover:text-blue-500 items-start"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </nav>
             </div>
           </div>
           {/* Grid/Column 4 - Smartphone */}
-          <div className="relative">
-            {/* Accordion Version (Mobile) */}
-            <Accordion type="single" collapsible className="block lg:hidden">
-              <AccordionItem value="item-3">
-                <AccordionTrigger>Smartphone</AccordionTrigger>
-                <AccordionContent>
-                  <h3 className="mb-4 text-lg font-semibold">Smartphone</h3>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-            {/* Regular Version (Desktop) */}
-            <div className="hidden lg:block">
-              <h3 className="mb-4 text-lg font-semibold">Smartphone</h3>
+          <div className="lg:grid hidden">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-lg font-semibold">Smartphone</h3>
+              <nav className="space-y-2 text-sm">
+                {smartphones.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    className="flex flex-col transition-colors hover:text-blue-500 items-start"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </nav>
             </div>
           </div>
           {/* Grid/Column 5 - Printer */}
-          <div className="relative">
-            {/* Accordion Version (Mobile) */}
-            <Accordion type="single" collapsible className="block lg:hidden">
-              <AccordionItem value="item-4">
-                <AccordionTrigger>Printer</AccordionTrigger>
-                <AccordionContent>
-                  <h3 className="mb-4 text-lg font-semibold">Printer</h3>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-            {/* Regular Version (Desktop) */}
-            <div className="hidden lg:block">
-              <h3 className="mb-4 text-lg font-semibold">Printer</h3>
+          <div className="lg:grid hidden">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-lg font-semibold">Printer</h3>
+              <nav className="space-y-2 text-sm">
+                {printers.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    className="flex flex-col transition-colors hover:text-blue-500 items-start"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </nav>
             </div>
           </div>
           {/* Grid/Column 6 - Info Toko */}
-          <div className="relative">
-            {/* Accordion Version (Mobile) */}
-            <Accordion type="single" collapsible className="block lg:hidden">
-              <AccordionItem value="item-4">
-                <AccordionTrigger>Info Toko</AccordionTrigger>
-                <AccordionContent>
-                  <h3 className="mb-4 text-lg font-semibold">Info Toko</h3>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-            {/* Regular Version (Desktop) */}
-            <div className="hidden lg:block">
-              <h3 className="mb-4 text-lg font-semibold">Info Toko</h3>
+          <div className="lg:grid hidden">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-lg font-semibold">Info Toko</h3>
+              <nav className="space-y-2 text-sm">
+                {infoToko.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    className="flex flex-col transition-colors hover:text-blue-500 items-start"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </nav>
             </div>
           </div>
         </div>
