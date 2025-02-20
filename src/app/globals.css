@@ -93,3 +93,17 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Menhilangkan scroll indicator */
+.custom-scroll {
+  -ms-overflow-style: none; /* Hides scrollbar in IE/Edge */
+  scrollbar-width: none; /* Hides scrollbar in Firefox */
+  overflow-x: scroll
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

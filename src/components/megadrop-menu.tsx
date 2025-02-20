@@ -15,64 +15,11 @@ import {
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-function Demo() {
+function MegaDropDownMenu() {
   return (
-    <div className="relative top-20 gap-5 flex flex-col items-center justify-center">
-      <TabsDemo />
+    <div className="relative gap-5 flex flex-col items-center justify-center py-2 ">
       <NavigationDemo />
     </div>
-  );
-}
-
-function TabsDemo() {
-  const ITEMS = [
-    { id: 1, tile: "Overview" },
-    { id: 2, tile: "Integrations" },
-    { id: 3, tile: "Activity" },
-    { id: 4, tile: "Domains" },
-    { id: 5, tile: "Usage" },
-    { id: 6, tile: "AI" },
-    { id: 7, tile: "Settings" },
-  ];
-
-  const [active, setActive] = useState(ITEMS[0]);
-  const [isHover, setIsHover] = useState<(typeof ITEMS)[0] | null>(null);
-
-  return (
-    <ul className="flex items-center justify-center">
-      {ITEMS.map((item) => (
-        <button
-          key={item.id}
-          className="py-2 relative duration-300 transition-colors hover:text-foreground"
-          onClick={() => setActive(item)}
-          onMouseEnter={() => setIsHover(item)}
-          onMouseLeave={() => setIsHover(null)}
-        >
-          <div className="px-5 py-2 relative">
-            {item.tile}
-            {isHover?.id === item.id && (
-              <motion.div
-                layoutId="hover-bg"
-                className="absolute bottom-0 left-0 right-0 w-full h-full bg-primary/10"
-                style={{ borderRadius: 6 }}
-              />
-            )}
-          </div>
-          {active.id === item.id && (
-            <motion.div
-              layoutId="active"
-              className="absolute bottom-0 left-0 right-0 w-full h-0.5 bg-primary"
-            />
-          )}
-          {isHover?.id === item.id && (
-            <motion.div
-              layoutId="hover"
-              className="absolute bottom-0 left-0 right-0 w-full h-0.5 bg-primary"
-            />
-          )}
-        </button>
-      ))}
-    </ul>
   );
 }
 
@@ -271,4 +218,4 @@ function NavigationDemo() {
   return <DropdownNavigation navItems={NAV_ITEMS} />;
 }
 
-export { Demo };
+export { MegaDropDownMenu };

@@ -37,7 +37,7 @@ import {
   MenuItem,
   mobileExtraLinks,
 } from "@/constants/menu-links";
-import { Demo } from "./megadrop-menu";
+import { MegaDropDownMenu } from "./megadrop-menu";
 
 const Header = () => {
   const route = useRouter();
@@ -58,11 +58,6 @@ const Header = () => {
             {/* Menu icon mobile */}
             <div className="lg:hidden">
               <div className="flex items-center justify-between">
-                {/* Logo Section Mobile */}
-                {/* <a href={logo.url} className="flex items-center gap-2">
-                  <img src={logo.src} className="w-8" alt={logo.alt} />
-                  <span className="text-lg font-semibold">{logo.title}</span>
-                </a> */}
                 <Sheet>
                   <SheetTrigger asChild>
                     <Button variant="outline" size="icon">
@@ -218,8 +213,7 @@ const Header = () => {
       </div>
 
       {/* Categories Header */}
-      {/* <MegaDropDownMenu /> */}
-      <Demo />
+      <MegaDropDownMenu />
     </nav>
   );
 };
