@@ -40,18 +40,35 @@ import {
 import { MegaDropDownMenu } from "./megadrop-menu";
 import { Separator } from "./ui/separator";
 import { MegaDropDownMenuMobile } from "./megadropmenu-mobile";
+import { useEffect, useState } from "react";
 
 const Header = () => {
   const route = useRouter();
   const { data: session, status } = useSession();
   const cartItemCount = useCartStore((state) => state.getTotalPrice());
+  const [isSticky, setIsSticky] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 100) {
+        setIsSticky(true);
+      } else {
+        setIsSticky(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleLogout = async () => {
     await signOut({ redirectTo: "/" });
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-md dark:shadow-lg">
+    <nav
+      className={`sticky top-0 z-[9999] bg-white dark:bg-gray-900 shadow-md dark:shadow-lg ${isSticky ? "sticky top-0" : ""}`}
+    >
       {/* Main Header */}
       <div className="px-4 py-1">
         <div className="flex items-center justify-between gap-4 container">
@@ -62,7 +79,11 @@ const Header = () => {
               <div className="flex items-center justify-between">
                 <Sheet>
                   <SheetTrigger asChild>
-                    <Button variant="outline" size="icon">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="bg-transparent"
+                    >
                       <BiMenuAltLeft className="!w-8 !h-8" />
                     </Button>
                   </SheetTrigger>
@@ -199,7 +220,7 @@ const Header = () => {
                     <FiShoppingCart className="text-xl" />
                     <span className="hidden md:inline">Keranjang</span>
                     {cartItemCount > 0 && (
-                      <div className="abolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-destructive text-white text-xs rounded-full px-2 py-0.5">
+                      <div className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-destructive text-white text-xs rounded-full px-2 py-0.5">
                         {cartItemCount}
                       </div>
                     )}
