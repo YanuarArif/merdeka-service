@@ -38,6 +38,8 @@ import {
   mobileExtraLinks,
 } from "@/constants/menu-links";
 import { MegaDropDownMenu } from "./megadrop-menu";
+import { Separator } from "./ui/separator";
+import { MegaDropDownMenuMobile } from "./megadropmenu-mobile";
 
 const Header = () => {
   const route = useRouter();
@@ -211,9 +213,14 @@ const Header = () => {
           </div>
         </div>
       </div>
-
+      <Separator />
       {/* Categories Header */}
-      <MegaDropDownMenu />
+      <div className="hidden md:block">
+        <MegaDropDownMenu />
+      </div>
+      <div className="md:hidden">
+        <MegaDropDownMenuMobile />
+      </div>
     </nav>
   );
 };
