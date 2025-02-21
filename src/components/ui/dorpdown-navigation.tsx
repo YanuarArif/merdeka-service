@@ -119,17 +119,3 @@ export function DropdownNavigation({ navItems }: Props) {
     </main>
   );
 }
-
-// type Props = {
-//   id: number;
-//   label: string;
-//   subMenus?: {
-//     title: string;
-//     items: {
-//       label: string;
-//       description: string;
-//       icon: React.ElementType;
-//     }[];
-//   }[];
-//   link?: string;
-// };
