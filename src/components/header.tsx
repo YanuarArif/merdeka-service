@@ -67,7 +67,7 @@ const Header = () => {
 
   return (
     <nav
-      className={`sticky top-0 z-[9999] bg-white dark:bg-gray-900 shadow-md dark:shadow-lg ${isSticky ? "sticky top-0" : ""}`}
+      className={`sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-md dark:shadow-lg ${isSticky ? "sticky top-0" : ""}`}
     >
       {/* Main Header */}
       <div className="px-4 py-1">
