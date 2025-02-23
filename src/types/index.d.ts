@@ -1,6 +1,6 @@
 import { Icons } from "@/components/icons";
 
-export interface NavItem {
+export interface SideItem {
   title: string;
   url: string;
   disabled?: boolean;
@@ -10,14 +10,14 @@ export interface NavItem {
   label?: string;
   description?: string;
   isActive?: boolean;
-  items?: NavItem[];
+  items?: SideItem[];
 }
 
-export interface NavItemWithChildren extends NavItem {
+export interface NavItemWithChildren extends SideItem {
   items: NavItemWithChildren[];
 }
 
-export interface NavItemWithOptionalChildren extends NavItem {
+export interface NavItemWithOptionalChildren extends SideItem {
   items?: NavItemWithChildren[];
 }
 

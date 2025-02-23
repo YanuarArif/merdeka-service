@@ -1,16 +1,16 @@
-'use client';
-import { navItems } from '@/constants/data';
+"use client";
+import { sidebarItems } from "@/constants/data";
 import {
   KBarAnimator,
   KBarPortal,
   KBarPositioner,
   KBarProvider,
-  KBarSearch
-} from 'kbar';
-import { useRouter } from 'next/navigation';
-import { useMemo } from 'react';
-import RenderResults from './render-result';
-import useThemeSwitching from './use-theme-switching';
+  KBarSearch,
+} from "kbar";
+import { useRouter } from "next/navigation";
+import { useMemo } from "react";
+import RenderResults from "./render-result";
+import useThemeSwitching from "./use-theme-switching";
 
 export default function KBar({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -22,31 +22,31 @@ export default function KBar({ children }: { children: React.ReactNode }) {
   // These action are for the navigation
   const actions = useMemo(
     () =>
-      navItems.flatMap((navItem) => {
-        // Only include base action if the navItem has a real URL and is not just a container
+      sidebarItems.flatMap((sidebarItems) => {
+        // Only include base action if the sidebarItems has a real URL and is not just a container
         const baseAction =
-          navItem.url !== '#'
+          sidebarItems.url !== "#"
             ? {
-                id: `${navItem.title.toLowerCase()}Action`,
-                name: navItem.title,
-                shortcut: navItem.shortcut,
-                keywords: navItem.title.toLowerCase(),
-                section: 'Navigation',
-                subtitle: `Go to ${navItem.title}`,
-                perform: () => navigateTo(navItem.url)
+                id: `${sidebarItems.title.toLowerCase()}Action`,
+                name: sidebarItems.title,
+                shortcut: sidebarItems.shortcut,
+                keywords: sidebarItems.title.toLowerCase(),
+                section: "Navigation",
+                subtitle: `Go to ${sidebarItems.title}`,
+                perform: () => navigateTo(sidebarItems.url),
               }
             : null;
 
         // Map child items into actions
         const childActions =
-          navItem.items?.map((childItem) => ({
+          sidebarItems.items?.map((childItem) => ({
             id: `${childItem.title.toLowerCase()}Action`,
             name: childItem.title,
             shortcut: childItem.shortcut,
             keywords: childItem.title.toLowerCase(),
-            section: navItem.title,
+            section: sidebarItems.title,
             subtitle: `Go to ${childItem.title}`,
-            perform: () => navigateTo(childItem.url)
+            perform: () => navigateTo(childItem.url),
           })) ?? [];
 
         // Return only valid actions (ignoring null base actions for containers)
@@ -67,11 +67,11 @@ const KBarComponent = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <KBarPortal>
-        <KBarPositioner className='scrollbar-hide fixed inset-0 z-[99999] bg-black/80 !p-0 backdrop-blur-sm'>
-          <KBarAnimator className='relative !mt-64 w-full max-w-[600px] !-translate-y-12 overflow-hidden rounded-lg border bg-background text-foreground shadow-lg'>
-            <div className='bg-background'>
-              <div className='border-x-0 border-b-2'>
-                <KBarSearch className='w-full border-none bg-background px-6 py-4 text-lg outline-none focus:outline-none focus:ring-0 focus:ring-offset-0' />
+        <KBarPositioner className="scrollbar-hide fixed inset-0 z-[99999] bg-black/80 !p-0 backdrop-blur-sm">
+          <KBarAnimator className="relative !mt-64 w-full max-w-[600px] !-translate-y-12 overflow-hidden rounded-lg border bg-background text-foreground shadow-lg">
+            <div className="bg-background">
+              <div className="border-x-0 border-b-2">
+                <KBarSearch className="w-full border-none bg-background px-6 py-4 text-lg outline-none focus:outline-none focus:ring-0 focus:ring-offset-0" />
               </div>
               <RenderResults />
             </div>

@@ -26,7 +26,7 @@ export default async function ProductViewPage({
   }
 
   let product = null;
-  let pageTitle = "Create New Product";
+  let pageTitle = "Tambah Produk Baru";
 
   if (productId !== "new") {
     const dbProduct = await database.product.findUnique({

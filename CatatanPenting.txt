@@ -1,3 +1,5 @@
 Catatan Penting Menganai Project ini
 1. product-from.tsx
-  File untuk create dan edit produk
+  File tampilan untuk create dan edit produk
+2. data-table.tsx
+  Blueprint table product list

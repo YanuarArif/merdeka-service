@@ -1,7 +1,7 @@
-import { NavItem } from "@/types";
+import { SideItem } from "@/types";
 
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
-export const navItems: NavItem[] = [
+export const sidebarItems: SideItem[] = [
   {
     title: "Dashboard",
     url: "/dashboard/overview",
@@ -11,18 +11,29 @@ export const navItems: NavItem[] = [
     items: [], // Empty array as there are no child items for Dashboard
   },
   {
-    title: "Product",
-    url: "/dashboard/product",
+    title: "Products",
+    url: "/dashboard/products",
     icon: "product",
     shortcut: ["p", "p"],
     isActive: false,
-    items: [], // No child items
+    items: [
+      {
+        title: "Daftar Produk",
+        shortcut: ["l", "l"],
+        url: "/dashboard/products/",
+      },
+      {
+        title: "Tambah Produk",
+        shortcut: ["t", "t"],
+        url: "/dashboard/products/new",
+      },
+    ], // No child items
   },
   {
     title: "Settings",
     url: "#", // Placeholder as there is no direct link for the parent
     icon: "settings",
-    isActive: true,
+    isActive: false,
 
     items: [
       {
