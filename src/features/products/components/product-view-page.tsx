@@ -1,4 +1,3 @@
-import { Product } from "@/constants/data";
 import { database } from "@/lib/database";
 import { notFound, redirect } from "next/navigation";
 import ProductForm from "./product-form";
@@ -12,14 +11,14 @@ export default async function ProductViewPage({
   productId,
 }: TProductViewPageProps) {
   const session = await auth();
-  
+
   if (!session?.user?.email) {
     redirect("/auth/login");
   }
 
   // Get current user
   const user = await database.user.findUnique({
-    where: { email: session.user.email }
+    where: { email: session.user.email },
   });
 
   if (!user) {
@@ -46,9 +45,13 @@ export default async function ProductViewPage({
       id: dbProduct.id,
       name: dbProduct.name,
       description: dbProduct.description || "",
-      price: dbProduct.price,
+      price: dbProduct.price.toNumber(),
       imageUrl: dbProduct.imageUrl || "",
-      category: dbProduct.category || "",
+      categories: Array.isArray(dbProduct.categories)
+        ? (dbProduct.categories as string[]).filter(
+            (cat): cat is string => typeof cat === "string"
+          )
+        : [],
       createdAt: dbProduct.createdAt.toISOString(),
       updatedAt: dbProduct.updatedAt.toISOString(),
     };

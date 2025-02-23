@@ -1,4 +1,0 @@
-1. 31 Oktober 2024 - 19:00
-  - sedang setting login via google, terjadi error di console log (belum selesai, lanjut besok)
-2. 1 November 2024 - 14:30
-  - berhenti dulu karena ada petir. video sampai ke menit 01:14:00

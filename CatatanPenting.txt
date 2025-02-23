@@ -1,0 +1,3 @@
+Catatan Penting Menganai Project ini
+1. product-from.tsx
+  File untuk create dan edit produk

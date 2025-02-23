@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Product } from "@/constants/data";
+import { Product } from "@/types/product";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -53,7 +53,7 @@ const formSchema = z.object({
   name: z.string().min(2, {
     message: "Product name must be at least 2 characters.",
   }),
-  category: z.string(),
+  categories: z.string(),
   price: z.coerce.number(),
   description: z.string().min(10, {
     message: "Description must be at least 10 characters.",
@@ -70,7 +70,7 @@ export default function ProductForm({
 }) {
   const defaultValues = {
     name: initialData?.name || "",
-    category: initialData?.category || "",
+    categories: initialData?.categories.join(", ") || "",
     price: initialData?.price || 0,
     description: initialData?.description || "",
     imageUrl: initialData?.imageUrl || "",
@@ -201,10 +201,10 @@ export default function ProductForm({
               />
               <FormField
                 control={form.control}
-                name="category"
+                name="categories"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>Categories</FormLabel>
                     <Select
                       onValueChange={(value) => field.onChange(value)}
                       value={field.value}

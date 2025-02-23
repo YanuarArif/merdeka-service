@@ -36,13 +36,13 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        DateTime?
-  token_type        String?
+  refreshToken      String?   @map("refresh_token")
+  accessToken       String?   @map("access_token")
+  expiresAt         DateTime? @map("expires_at")
+  tokenType         String?   @map("token_type")
   scope             String?
-  id_token          String?
-  session_state     String?
+  idToken           String?   @map("id_token")
+  sessionState      String?   @map("session_state")
   user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
@@ -70,6 +70,7 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
+// Optional: Keep this if you use it elsewhere or for app-level validation
 enum Category {
   LAPTOP
   SMARTPHONE
@@ -77,21 +78,21 @@ enum Category {
 }
 
 model Product {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
   description String?
   price       Decimal
-  stock       Int       @default(0)
-  imageUrl    String?   @map("image_url")
-  category    Category?
+  stock       Int      @default(0)
+  imageUrl    String?  @map("image_url")
+  categories  Json?
   attributes  Json?
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  userId      String    @map("user_id")
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   reviews     Review[]
 
-  @@index([category])
+  @@index([categories])
   @@map("products")
 }
 

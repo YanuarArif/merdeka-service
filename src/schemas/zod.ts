@@ -1,3 +1,4 @@
+import { categories } from "@/app/(main)/constants/dropdownmenu";
 import { z } from "zod";
 
 export const LoginSchema = z.object({
@@ -21,6 +22,6 @@ export const ProductSchema = z.object({
   name: z.string().min(1, { message: "Nama wajib diisi" }),
   description: z.string().min(1, { message: "Deskripsi wajib diisi" }),
   price: z.coerce.number(),
-  category: z.string(),
+  categories: z.string(),
   imageUrl: z.string().optional(),
 });

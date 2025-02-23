@@ -1,4 +1,4 @@
-import { Product } from "@/constants/data";
+import { Product } from "@/types/product";
 import { searchParamsCache } from "@/lib/searchparams";
 import { DataTable as ProductTable } from "@/components/ui/table/data-table";
 import { columns } from "./product-tables/columns";
@@ -10,14 +10,14 @@ type ProductListingPage = {};
 
 export default async function ProductListingPage({}: ProductListingPage) {
   const session = await auth();
-  
+
   if (!session?.user?.email) {
     redirect("/auth/login");
   }
 
   // Get current user
   const user = await database.user.findUnique({
-    where: { email: session.user.email }
+    where: { email: session.user.email },
   });
 
   if (!user) {
@@ -40,7 +40,14 @@ export default async function ProductListingPage({}: ProductListingPage) {
             { description: { contains: search, mode: "insensitive" } },
           ]
         : undefined,
-      category: categories ? { in: categories.split(".") } : undefined,
+      // filter by category using JSON array contains
+      ...(categories
+        ? {
+            categories: {
+              array_contains: categories.split("."),
+            },
+          }
+        : {}),
     },
   });
 
@@ -56,7 +63,14 @@ export default async function ProductListingPage({}: ProductListingPage) {
             { description: { contains: search, mode: "insensitive" } },
           ]
         : undefined,
-      category: categories ? { in: categories.split(".") } : undefined,
+      // filter by category using JSON array contains
+      ...(categories
+        ? {
+            categories: {
+              array_contains: categories.split("."),
+            },
+          }
+        : {}),
     },
     orderBy: {
       createdAt: "desc",
@@ -68,9 +82,9 @@ export default async function ProductListingPage({}: ProductListingPage) {
     id: product.id,
     name: product.name,
     description: product.description || null,
-    price: product.price,
+    price: Number(product.price),
     imageUrl: product.imageUrl || null,
-    category: product.category || null,
+    categories: (product.categories as string[]) || [],
     createdAt: product.createdAt.toISOString(),
     updatedAt: product.updatedAt.toISOString(),
   }));
