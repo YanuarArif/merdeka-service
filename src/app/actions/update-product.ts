@@ -1,4 +1,3 @@
-// @/app/actions/update-product.ts
 "use server";
 
 import { z } from "zod";
@@ -30,7 +29,8 @@ export const updateProduct = async (
       price,
       stock,
       imageUrl,
-      categories,
+      category,
+      subCategory,
       weight,
       length,
       breadth,
@@ -46,20 +46,31 @@ export const updateProduct = async (
       return { error: "User not found" };
     }
 
+    // Fetch existing product to preserve imageUrl if not provided
+    const existingProduct = await database.product.findUnique({
+      where: { id: productId, userId: user.id },
+      select: { imageUrl: true },
+    });
+
+    if (!existingProduct) {
+      return { error: "Product not found" };
+    }
+
     await database.product.update({
       where: { id: productId, userId: user.id },
       data: {
         name,
-        description,
+        description: description || null, // Prisma allows null
         price,
         stock: stock || 0,
-        imageUrl,
-        categories: categories || undefined,
-        weight: weight || undefined,
-        length: length || undefined,
-        breadth: breadth || undefined,
-        width: width || undefined,
-        sku: sku || undefined,
+        imageUrl: imageUrl || existingProduct.imageUrl || null, // Preserve or allow null
+        category: category || null, // Prisma allows null, though form requires it
+        subCategory: subCategory || null,
+        weight: weight || null,
+        length: length || null,
+        breadth: breadth || null,
+        width: width || null,
+        sku: sku || null,
       },
     });
 

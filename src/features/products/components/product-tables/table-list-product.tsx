@@ -22,7 +22,6 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import {
-  ColumnDef,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
@@ -32,75 +31,7 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { parseAsInteger, useQueryState } from "nuqs";
 import { Product } from "@/types/product";
-import { Checkbox } from "@/components/ui/checkbox";
-
-// Define columns for the product table
-const columns: ColumnDef<Product>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "name",
-    header: "Product Name",
-    cell: ({ row }) => {
-      const name = row.getValue("name") as string;
-      const imageUrl = row.original.imageUrl; // Access imageUrl from the original row data
-      return (
-        <div className="flex items-center space-x-2">
-          {imageUrl ? (
-            <img src={imageUrl} alt={name} className="h-10 w-10 object-cover" />
-          ) : (
-            <div className="h-10 w-10 bg-gray-200 flex items-center justify-center">
-              -
-            </div>
-          )}
-          <span>{name}</span>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "price",
-    header: "Price",
-    cell: ({ row }) => (
-      <div>${(row.getValue("price") as number).toFixed(2)}</div>
-    ),
-  },
-  {
-    accessorKey: "categories",
-    header: "Category",
-    cell: ({ row }) => {
-      const categories = row.getValue("categories") as string[] | null;
-      return categories?.length ? categories.join(", ") : "-";
-    },
-  },
-  {
-    accessorKey: "stock",
-    header: "Stock",
-    cell: ({ row }) => <div>{row.getValue("stock")}</div>,
-  },
-  {
-    accessorKey: "sku",
-    header: "SKU",
-    cell: ({ row }) => <div>{row.getValue("sku") || "-"}</div>,
-  },
-];
+import { columns } from "../product-tables/columns"; // Import columns from new file
 
 interface TableListProductProps {
   data: Product[];

@@ -79,25 +79,26 @@ enum Category {
 
 model Product {
   id          String   @id @default(cuid())
-  name        String
-  description String?
-  price       Decimal
-  stock       Int      @default(0)
+  name        String   @map("name")
+  description String?  @map("description")
+  price       Decimal  @map("price")
+  stock       Int      @default(0) @map("stock")
   imageUrl    String?  @map("image_url")
-  categories  Json?
-  attributes  Json?
-  weight      Float?
-  length      Float?
-  breadth     Float?
-  width       Float?
-  sku         String?
+  category    String?  @map("category") // Main category, e.g., "Laptop"
+  subCategory String?  @map("sub_category") // Subcategory, e.g., "Gaming Laptop"
+  attributes  Json?    @map("attributes")
+  weight      Float?   @map("weight")
+  length      Float?   @map("length")
+  breadth     Float?   @map("breadth")
+  width       Float?   @map("width")
+  sku         String?  @map("sku")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
   userId      String   @map("user_id")
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   reviews     Review[]
 
-  @@index([categories])
+  @@index([category]) // Index on category for faster filtering
   @@map("products")
 }
 

@@ -26,7 +26,8 @@ export const createProduct = async (values: z.infer<typeof ProductSchema>) => {
       price,
       stock,
       imageUrl, // Expecting a single URL from the form
-      categories,
+      category, // Updated field
+      subCategory, // Updated field
       weight,
       length,
       breadth,
@@ -50,7 +51,8 @@ export const createProduct = async (values: z.infer<typeof ProductSchema>) => {
         price,
         stock: stock || 0, // Default to 0 if not provided
         imageUrl, // Single URL
-        categories: categories ? categories : undefined, // Ensure null if empty
+        category: category || undefined, // Ensure null if empty
+        subCategory: subCategory || undefined, // Ensure null if empty
         weight: weight || undefined,
         length: length || undefined,
         breadth: breadth || undefined,

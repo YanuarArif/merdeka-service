@@ -14,7 +14,6 @@ export default async function ProductListingPage({}: ProductListingPage) {
     redirect("/auth/login");
   }
 
-  // Get current user
   const user = await database.user.findUnique({
     where: { email: session.user.email },
   });
@@ -23,13 +22,13 @@ export default async function ProductListingPage({}: ProductListingPage) {
     redirect("/auth/login");
   }
 
-  // Showcasing the use of search params cache in nested RSCs
   const page = Number(searchParamsCache.get("page") || "1");
   const search = searchParamsCache.get("q");
   const pageLimit = Number(searchParamsCache.get("limit") || "10");
   const categories = searchParamsCache.get("categories");
 
-  // Get total count for pagination
+  const categoryArray = categories ? categories.split(".") : [];
+
   const totalProducts = await database.product.count({
     where: {
       userId: user.id,
@@ -39,17 +38,17 @@ export default async function ProductListingPage({}: ProductListingPage) {
             { description: { contains: search, mode: "insensitive" } },
           ]
         : undefined,
-      ...(categories
+      ...(categoryArray.length > 0
         ? {
-            categories: {
-              array_contains: categories.split("."),
-            },
+            OR: [
+              { category: { in: categoryArray } },
+              { subCategory: { in: categoryArray } },
+            ],
           }
         : {}),
     },
   });
 
-  // Get paginated products with filters
   const dbProducts = await database.product.findMany({
     skip: (page - 1) * pageLimit,
     take: pageLimit,
@@ -61,11 +60,12 @@ export default async function ProductListingPage({}: ProductListingPage) {
             { description: { contains: search, mode: "insensitive" } },
           ]
         : undefined,
-      ...(categories
+      ...(categoryArray.length > 0
         ? {
-            categories: {
-              array_contains: categories.split("."),
-            },
+            OR: [
+              { category: { in: categoryArray } },
+              { subCategory: { in: categoryArray } },
+            ],
           }
         : {}),
     },
@@ -74,50 +74,25 @@ export default async function ProductListingPage({}: ProductListingPage) {
     },
   });
 
-  // Transform database products to match Product interface
-  const products: Product[] = dbProducts.map((product) => {
-    let parsedCategories: string[] = [];
-    if (product.categories) {
-      if (Array.isArray(product.categories)) {
-        parsedCategories = product.categories as string[];
-      } else if (typeof product.categories === "string") {
-        try {
-          // Try parsing as JSON first
-          parsedCategories = JSON.parse(product.categories);
-          if (!Array.isArray(parsedCategories)) {
-            // If parsed result isn’t an array, treat it as a comma-separated string
-            parsedCategories = product.categories
-              .split(",")
-              .map((cat) => cat.trim());
-          }
-        } catch (e) {
-          // If JSON.parse fails (e.g., "health,beauty"), split by comma
-          parsedCategories = product.categories
-            .split(",")
-            .map((cat) => cat.trim());
-        }
-      }
-    }
-
-    return {
-      id: product.id,
-      name: product.name,
-      description: product.description || null,
-      price: product.price.toNumber(),
-      stock: product.stock,
-      imageUrl: product.imageUrl || null,
-      categories: parsedCategories,
-      weight: product.weight || null,
-      length: product.length || null,
-      breadth: product.breadth || null,
-      width: product.width || null,
-      sku: product.sku || null,
-      attributes: product.attributes || null,
-      createdAt: product.createdAt,
-      updatedAt: product.updatedAt,
-      userId: product.userId,
-    };
-  });
+  const products: Product[] = dbProducts.map((product) => ({
+    id: product.id,
+    name: product.name,
+    description: product.description || null,
+    price: product.price.toNumber(),
+    stock: product.stock,
+    imageUrl: product.imageUrl || null,
+    category: product.category || "",
+    subCategory: product.subCategory || undefined,
+    weight: product.weight || null,
+    length: product.length || null,
+    breadth: product.breadth || null,
+    width: product.width || null,
+    sku: product.sku || null,
+    attributes: product.attributes as Record<string, any> | null,
+    createdAt: product.createdAt,
+    updatedAt: product.updatedAt,
+    userId: product.userId,
+  }));
 
   return (
     <TableListProduct

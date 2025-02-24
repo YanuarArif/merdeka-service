@@ -6,7 +6,8 @@ export interface Product {
   price: number;
   stock: number;
   imageUrl?: string | null;
-  categories?: string[] | null;
+  category: string;
+  subCategory?: string;
   weight?: number | null;
   length?: number | null;
   breadth?: number | null;

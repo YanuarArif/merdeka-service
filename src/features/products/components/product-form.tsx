@@ -1,11 +1,11 @@
 "use client";
 
 import { createProduct } from "@/app/actions/create-product";
+import { updateProduct } from "@/app/actions/update-product";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import MultipleSelector, { Option } from "@/components/ui/multiple-selector";
 import { Separator } from "@/components/ui/separator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Upload, ArrowLeft, Info } from "lucide-react";
@@ -17,7 +17,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 import { put } from "@vercel/blob";
-import { updateProduct } from "@/app/actions/update-product";
 import { Product } from "@/types/product";
 
 const MAX_FILE_SIZE = 5000000;
@@ -28,7 +27,7 @@ const ACCEPTED_IMAGE_TYPES = [
   "image/webp",
 ];
 
-const CATEGORY_OPTIONS: Option[] = [
+const CATEGORY_OPTIONS = [
   { label: "Health & Medicine", value: "health" },
   { label: "Beauty", value: "beauty" },
   { label: "Electronics", value: "electronics" },
@@ -41,7 +40,10 @@ const formSchema = z.object({
     .custom<File[]>()
     .optional()
     .default([])
-    .refine((files) => files.length >= 1, "At least one image is required")
+    .refine(
+      (files) => files.length <= 1,
+      "Only one image can be uploaded at a time"
+    )
     .refine(
       (files) => files.every((file) => file.size <= MAX_FILE_SIZE),
       `Max file size is 5MB`
@@ -51,25 +53,21 @@ const formSchema = z.object({
         files.every((file) => ACCEPTED_IMAGE_TYPES.includes(file.type)),
       ".jpg, .jpeg, .png and .webp files are accepted"
     ),
-  name: z.string().min(2, {
-    message: "Product name must be at least 2 characters",
-  }),
-  categories: z.array(z.string()).min(1, "At least one category is required"),
+  name: z.string().min(1, "Name is required"),
+  category: z.string().min(1, "Category is required"),
+  subCategory: z.string().optional(),
   price: z.coerce.number().min(0, "Price must be positive"),
-  description: z.string().min(10, {
-    message: "Description must be at least 10 characters",
-  }),
+  description: z.string().optional(),
   weight: z.coerce.number().min(0).optional(),
   length: z.coerce.number().min(0).optional(),
   breadth: z.coerce.number().min(0).optional(),
   width: z.coerce.number().min(0).optional(),
-  stock: z.coerce.number().min(0).optional(), // Replaced quantity with stock
+  stock: z.coerce.number().int().min(0).default(0),
   sku: z.string().optional(),
-  imageUrls: z
-    .array(z.string())
-    .min(1, "At least one image URL is required")
-    .optional(),
+  imageUrls: z.array(z.string()).optional(),
 });
+
+type FormData = z.infer<typeof formSchema>;
 
 export default function ProductForm({
   initialData,
@@ -80,23 +78,21 @@ export default function ProductForm({
 }) {
   const defaultValues = {
     name: initialData?.name || "",
-    categories: initialData?.categories
-      ? Array.isArray(initialData.categories)
-        ? initialData.categories
-        : JSON.parse(initialData.categories || "[]")
-      : [],
+    category: initialData?.category || "",
+    subCategory: initialData?.subCategory || "",
     price: initialData?.price || 0,
     description: initialData?.description || "",
     imageUrls: initialData?.imageUrl ? [initialData.imageUrl] : [],
-    weight: initialData?.weight || 0,
-    length: initialData?.length || 0,
-    breadth: initialData?.breadth || 0,
-    width: initialData?.width || 0,
-    stock: initialData?.stock || 0, // Replaced quantity with stock
+    weight: initialData?.weight || undefined,
+    length: initialData?.length || undefined,
+    breadth: initialData?.breadth || undefined,
+    width: initialData?.width || undefined,
+    stock: initialData?.stock || 0,
     sku: initialData?.sku || "",
+    images: [],
   };
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
@@ -105,13 +101,12 @@ export default function ProductForm({
   const router = useRouter();
   const [uploadingImg, setUploadingImg] = useState(false);
   const [images, setImages] = useState<string[]>(defaultValues.imageUrls);
+  const [customCategory, setCustomCategory] = useState("");
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files) {
-      await Promise.all(
-        Array.from(files).map((file) => handleFileUpload(file))
-      );
+    if (files && files.length > 0) {
+      await handleFileUpload(files[0]);
     }
   };
 
@@ -119,9 +114,7 @@ export default function ProductForm({
     e.preventDefault();
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
-      await Promise.all(
-        Array.from(files).map((file) => handleFileUpload(file))
-      );
+      await handleFileUpload(files[0]);
     }
   };
 
@@ -133,19 +126,14 @@ export default function ProductForm({
     setUploadingImg(true);
     try {
       const currentFiles = form.getValues("images") || [];
-      form.setValue("images", [...currentFiles, file], {
-        shouldValidate: true,
-      });
+      form.setValue("images", [file], { shouldValidate: true });
       const blob = await put(file.name, file, {
         access: "public",
         token: process.env.NEXT_PUBLIC_BLOB_READ_WRITE_TOKEN,
       });
       const newImageUrl = blob.url;
-      setImages((prev) => [...prev, newImageUrl]);
-      form.setValue("imageUrls", [
-        ...(form.getValues("imageUrls") || []),
-        newImageUrl,
-      ]);
+      setImages([newImageUrl]);
+      form.setValue("imageUrls", [newImageUrl], { shouldValidate: true });
     } catch (error) {
       console.error("Error uploading image:", error);
       toast.error("Error uploading image");
@@ -159,12 +147,14 @@ export default function ProductForm({
     const currentUrls = form.getValues("imageUrls") || [];
     form.setValue(
       "imageUrls",
-      currentUrls.filter((_, i) => i !== index)
+      currentUrls.filter((_, i) => i !== index),
+      { shouldValidate: true }
     );
     const currentFiles = form.getValues("images") || [];
     form.setValue(
       "images",
-      currentFiles.filter((_, i) => i !== index)
+      currentFiles.filter((_, i) => i !== index),
+      { shouldValidate: true }
     );
   };
 
@@ -182,35 +172,54 @@ export default function ProductForm({
     }
   };
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const handleAddCustomCategory = () => {
+    if (customCategory.trim()) {
+      form.setValue("subCategory", customCategory);
+      setCustomCategory("");
+    }
+  };
+
+  async function onSubmit(values: FormData) {
     startTransition(async () => {
       try {
+        // Ensure imageUrlToUse is string | undefined, not null
+        const imageUrlToUse =
+          values.imageUrls?.[0] ||
+          (initialData ? initialData.imageUrl ?? undefined : undefined);
+
+        if (!initialData && !imageUrlToUse) {
+          toast.error("An image is required for new products");
+          return;
+        }
+
         const result = initialData
           ? await updateProduct(initialData.id, {
               name: values.name,
-              description: values.description,
+              description: values.description || undefined,
               price: values.price,
               stock: values.stock || 0,
-              imageUrl: values.imageUrls?.[0],
-              categories: values.categories,
-              weight: values.weight,
-              length: values.length,
-              breadth: values.breadth,
-              width: values.width,
-              sku: values.sku,
+              imageUrl: imageUrlToUse, // Now correctly typed as string | undefined
+              category: values.category,
+              subCategory: values.subCategory || undefined,
+              weight: values.weight || undefined,
+              length: values.length || undefined,
+              breadth: values.breadth || undefined,
+              width: values.width || undefined,
+              sku: values.sku || undefined,
             })
           : await createProduct({
               name: values.name,
-              description: values.description,
+              description: values.description || undefined,
               price: values.price,
               stock: values.stock || 0,
-              imageUrl: values.imageUrls?.[0],
-              categories: values.categories,
-              weight: values.weight,
-              length: values.length,
-              breadth: values.breadth,
-              width: values.width,
-              sku: values.sku,
+              imageUrl: imageUrlToUse,
+              category: values.category,
+              subCategory: values.subCategory || undefined,
+              weight: values.weight || undefined,
+              length: values.length || undefined,
+              breadth: values.breadth || undefined,
+              width: values.width || undefined,
+              sku: values.sku || undefined,
             });
 
         if (result?.error) {
@@ -251,8 +260,8 @@ export default function ProductForm({
       </div>
 
       <div className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column - Description and Category */}
+        <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] gap-8">
+          {/* Left Column - Description and Shipping */}
           <div className="space-y-6">
             <div className="space-y-4 border p-4 rounded-md shadow-sm">
               <h2 className="text-lg font-medium">Description</h2>
@@ -289,7 +298,7 @@ export default function ProductForm({
                   </div>
                   <Textarea
                     id="description"
-                    placeholder="Enter product description"
+                    placeholder="Enter product description (optional)"
                     className="min-h-[120px]"
                     {...form.register("description")}
                   />
@@ -303,37 +312,53 @@ export default function ProductForm({
             </div>
 
             <div className="space-y-4 border p-4 rounded-md shadow-sm">
-              <h2 className="text-lg font-medium">Categories</h2>
-              <div className="space-y-4">
-                <div>
-                  <Label>Product Categories</Label>
-                  <MultipleSelector
-                    value={CATEGORY_OPTIONS.filter((option) =>
-                      form.getValues("categories").includes(option.value)
-                    )}
-                    onChange={(selected) => {
-                      const selectedValues = selected.map((opt) => opt.value);
-                      form.setValue("categories", selectedValues);
-                    }}
-                    defaultOptions={CATEGORY_OPTIONS}
-                    placeholder="Select product categories..."
-                    emptyIndicator={
-                      <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
-                        No results found.
-                      </p>
-                    }
+              <h2 className="text-lg font-medium">Shipping and Delivery</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="weight">Weight (kg)</Label>
+                  <Input
+                    id="weight"
+                    type="number"
+                    step="0.01"
+                    placeholder="0.00"
+                    {...form.register("weight")}
                   />
-                  {form.formState.errors.categories?.message && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {form.formState.errors.categories.message}
-                    </p>
-                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="length">Length (in)</Label>
+                  <Input
+                    id="length"
+                    type="number"
+                    step="0.01"
+                    placeholder="0.00"
+                    {...form.register("length")}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="breadth">Breadth (in)</Label>
+                  <Input
+                    id="breadth"
+                    type="number"
+                    step="0.01"
+                    placeholder="0.00"
+                    {...form.register("breadth")}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="width">Width (in)</Label>
+                  <Input
+                    id="width"
+                    type="number"
+                    step="0.01"
+                    placeholder="0.00"
+                    {...form.register("width")}
+                  />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column - Images and Other Details */}
+          {/* Right Column - Images, Categories, Inventory, Pricing */}
           <div className="space-y-6">
             <div className="space-y-4 border p-4 rounded-md shadow-sm">
               <div className="flex items-center gap-2">
@@ -358,7 +383,6 @@ export default function ProductForm({
                     className="hidden"
                     onChange={handleImageUpload}
                     accept="image/*"
-                    multiple
                     disabled={uploadingImg}
                   />
                 </label>
@@ -388,54 +412,60 @@ export default function ProductForm({
               </div>
               {form.formState.errors.images?.message && (
                 <p className="text-sm text-red-500 mt-1">
-                  {form.formState.errors.images?.message?.toString()}
+                  {form.formState.errors.images?.message}
                 </p>
               )}
             </div>
 
             <div className="space-y-4 border p-4 rounded-md shadow-sm">
-              <h2 className="text-lg font-medium">Shipping and Delivery</h2>
-              <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
-                <div>
-                  <Label htmlFor="weight">Items Weight</Label>
-                  <Input
-                    id="weight"
-                    type="number"
-                    placeholder="0.00 kg"
-                    {...form.register("weight")}
-                    className="w-full"
-                  />
+              <h2 className="text-lg font-medium">Categories</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Category</Label>
+                  <select
+                    className="w-full border rounded-md p-2"
+                    {...form.register("category")}
+                  >
+                    <option value="">Select category</option>
+                    {CATEGORY_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  {form.formState.errors.category?.message && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {form.formState.errors.category.message}
+                    </p>
+                  )}
                 </div>
-                <div>
-                  <Label htmlFor="length">Length</Label>
-                  <Input
-                    id="length"
-                    type="number"
-                    placeholder="0.00 in"
-                    {...form.register("length")}
-                    className="w-full"
-                  />
+                <div className="space-y-2">
+                  <Label>Sub Category</Label>
+                  <select
+                    className="w-full border rounded-md p-2"
+                    {...form.register("subCategory")}
+                  >
+                    <option value="">Select sub category (optional)</option>
+                    {CATEGORY_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  {form.formState.errors.subCategory?.message && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {form.formState.errors.subCategory.message}
+                    </p>
+                  )}
                 </div>
-                <div>
-                  <Label htmlFor="breadth">Breadth</Label>
-                  <Input
-                    id="breadth"
-                    type="number"
-                    placeholder="0.00 in"
-                    {...form.register("breadth")}
-                    className="w-full"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="width">Width</Label>
-                  <Input
-                    id="width"
-                    type="number"
-                    placeholder="0.00 in"
-                    {...form.register("width")}
-                    className="w-full"
-                  />
-                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Input
+                  placeholder="Add custom sub category"
+                  value={customCategory}
+                  onChange={(e) => setCustomCategory(e.target.value)}
+                />
+                <Button onClick={handleAddCustomCategory}>Add</Button>
               </div>
             </div>
 

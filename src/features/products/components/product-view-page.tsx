@@ -41,21 +41,16 @@ export default async function ProductViewPage({
       notFound();
     }
 
-    // Transform database product to match Product interface
+    // Transform database product to match the updated Product interface
     product = {
       id: dbProduct.id,
       name: dbProduct.name,
-      description: dbProduct.description || "",
+      description: dbProduct.description || null,
       price: dbProduct.price.toNumber(), // Convert Decimal to number
-      stock: dbProduct.stock, // Always a number due to Prisma default
-      imageUrl: dbProduct.imageUrl || "",
-      categories: dbProduct.categories
-        ? Array.isArray(dbProduct.categories)
-          ? (dbProduct.categories as string[]).filter(
-              (cat): cat is string => typeof cat === "string"
-            )
-          : JSON.parse(dbProduct.categories as string) // Parse JSON if stored as string
-        : [],
+      stock: dbProduct.stock,
+      imageUrl: dbProduct.imageUrl || null,
+      category: dbProduct.category || "",
+      subCategory: dbProduct.subCategory || undefined,
       weight: dbProduct.weight || null,
       length: dbProduct.length || null,
       breadth: dbProduct.breadth || null,
