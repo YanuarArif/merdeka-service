@@ -1,10 +1,9 @@
 import { Product } from "@/types/product";
 import { searchParamsCache } from "@/lib/searchparams";
-import { DataTable as ProductTable } from "@/components/ui/table/data-table";
-import { columns } from "./product-tables/columns";
 import { database } from "@/lib/database";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { TableListProduct } from "./product-tables/table-list-product";
 
 type ProductListingPage = {};
 
@@ -33,14 +32,13 @@ export default async function ProductListingPage({}: ProductListingPage) {
   // Get total count for pagination
   const totalProducts = await database.product.count({
     where: {
-      userId: user.id, // Only count user's products
+      userId: user.id,
       OR: search
         ? [
             { name: { contains: search, mode: "insensitive" } },
             { description: { contains: search, mode: "insensitive" } },
           ]
         : undefined,
-      // filter by category using JSON array contains
       ...(categories
         ? {
             categories: {
@@ -56,14 +54,13 @@ export default async function ProductListingPage({}: ProductListingPage) {
     skip: (page - 1) * pageLimit,
     take: pageLimit,
     where: {
-      userId: user.id, // Only get user's products
+      userId: user.id,
       OR: search
         ? [
             { name: { contains: search, mode: "insensitive" } },
             { description: { contains: search, mode: "insensitive" } },
           ]
         : undefined,
-      // filter by category using JSON array contains
       ...(categories
         ? {
             categories: {
@@ -78,22 +75,55 @@ export default async function ProductListingPage({}: ProductListingPage) {
   });
 
   // Transform database products to match Product interface
-  const products: Product[] = dbProducts.map((product) => ({
-    id: product.id,
-    name: product.name,
-    description: product.description || null,
-    price: Number(product.price),
-    imageUrl: product.imageUrl || null,
-    categories: (product.categories as string[]) || [],
-    createdAt: product.createdAt.toISOString(),
-    updatedAt: product.updatedAt.toISOString(),
-  }));
+  const products: Product[] = dbProducts.map((product) => {
+    let parsedCategories: string[] = [];
+    if (product.categories) {
+      if (Array.isArray(product.categories)) {
+        parsedCategories = product.categories as string[];
+      } else if (typeof product.categories === "string") {
+        try {
+          // Try parsing as JSON first
+          parsedCategories = JSON.parse(product.categories);
+          if (!Array.isArray(parsedCategories)) {
+            // If parsed result isn’t an array, treat it as a comma-separated string
+            parsedCategories = product.categories
+              .split(",")
+              .map((cat) => cat.trim());
+          }
+        } catch (e) {
+          // If JSON.parse fails (e.g., "health,beauty"), split by comma
+          parsedCategories = product.categories
+            .split(",")
+            .map((cat) => cat.trim());
+        }
+      }
+    }
+
+    return {
+      id: product.id,
+      name: product.name,
+      description: product.description || null,
+      price: product.price.toNumber(),
+      stock: product.stock,
+      imageUrl: product.imageUrl || null,
+      categories: parsedCategories,
+      weight: product.weight || null,
+      length: product.length || null,
+      breadth: product.breadth || null,
+      width: product.width || null,
+      sku: product.sku || null,
+      attributes: product.attributes || null,
+      createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
+      userId: product.userId,
+    };
+  });
 
   return (
-    <ProductTable
-      columns={columns}
+    <TableListProduct
       data={products}
       totalItems={totalProducts}
+      pageSizeOptions={[10, 20, 30, 40, 50]}
     />
   );
 }

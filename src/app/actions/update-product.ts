@@ -1,3 +1,4 @@
+// @/app/actions/update-product.ts
 "use server";
 
 import { z } from "zod";
@@ -6,7 +7,10 @@ import { database } from "@/lib/database";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 
-export const createProduct = async (values: z.infer<typeof ProductSchema>) => {
+export const updateProduct = async (
+  productId: string,
+  values: z.infer<typeof ProductSchema>
+) => {
   try {
     const session = await auth();
 
@@ -25,7 +29,7 @@ export const createProduct = async (values: z.infer<typeof ProductSchema>) => {
       description,
       price,
       stock,
-      imageUrl, // Expecting a single URL from the form
+      imageUrl,
       categories,
       weight,
       length,
@@ -34,7 +38,6 @@ export const createProduct = async (values: z.infer<typeof ProductSchema>) => {
       sku,
     } = validatedFields.data;
 
-    // Get user ID from email
     const user = await database.user.findUnique({
       where: { email: session.user.email },
     });
@@ -43,27 +46,27 @@ export const createProduct = async (values: z.infer<typeof ProductSchema>) => {
       return { error: "User not found" };
     }
 
-    await database.product.create({
+    await database.product.update({
+      where: { id: productId, userId: user.id },
       data: {
         name,
         description,
         price,
-        stock: stock || 0, // Default to 0 if not provided
-        imageUrl, // Single URL
-        categories: categories ? categories : undefined, // Ensure null if empty
+        stock: stock || 0,
+        imageUrl,
+        categories: categories || undefined,
         weight: weight || undefined,
         length: length || undefined,
         breadth: breadth || undefined,
         width: width || undefined,
         sku: sku || undefined,
-        userId: user.id,
       },
     });
 
     revalidatePath("/dashboard/products");
-    return { success: "Produk berhasil ditambahkan" };
+    return { success: "Produk berhasil diperbarui" };
   } catch (error: any) {
-    console.error("Gagal membuat produk:", error);
-    return { error: "Gagal membuat produk, silahkan coba lagi" };
+    console.error("Gagal memperbarui produk:", error);
+    return { error: "Gagal memperbarui produk, silahkan coba lagi" };
   }
 };
