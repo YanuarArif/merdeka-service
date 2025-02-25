@@ -31,19 +31,19 @@ model User {
 }
 
 model Account {
-  id                String    @id @default(cuid())
+  id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refreshToken      String?   @map("refresh_token")
-  accessToken       String?   @map("access_token")
-  expiresAt         DateTime? @map("expires_at")
-  tokenType         String?   @map("token_type")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
   scope             String?
-  idToken           String?   @map("id_token")
-  sessionState      String?   @map("session_state")
-  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
