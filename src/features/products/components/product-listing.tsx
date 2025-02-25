@@ -11,7 +11,7 @@ export default async function ProductListingPage({}: ProductListingPage) {
   const session = await auth();
 
   if (!session?.user?.email) {
-    redirect("/auth/login");
+    redirect("/login");
   }
 
   const user = await database.user.findUnique({
