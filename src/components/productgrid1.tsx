@@ -23,9 +23,7 @@ export default function LaptopGrid() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(
-          "/api/products?category=electronics&limit=5"
-        );
+        const response = await fetch("/api/products?category=laptop");
         if (!response.ok) throw new Error("Failed to fetch products");
         const data = await response.json();
         setProducts(data);
@@ -97,64 +95,76 @@ export default function LaptopGrid() {
             products.map((product) => (
               <Card
                 key={product.id}
-                className="hover:shadow-lg hover:border-blue-400 hover:cursor-pointer transition-shadow"
+                className="hover:shadow-lg hover:border-blue-400 transition-shadow"
+                onClick={(e) => {
+                  // Prevent navigation when clicking the add to cart button
+                  if ((e.target as HTMLElement).closest("button")) {
+                    e.preventDefault();
+                  }
+                }}
               >
-                <CardContent className="p-2 flex flex-col justify-between h-full">
-                  <div className="relative">
-                    <div className="absolute top-0 left-0 z-10 bg-blue-500 text-white text-xs px-2 py-1 rounded-br-lg"></div>
-                    <Image
-                      src={
-                        product.imageUrl || "/images/laptops/lenovo-laptop.jpg"
-                      }
-                      alt={product.name}
-                      width={200}
-                      height={500}
-                      className="mx-auto mb-4 h-30 w-auto"
-                      // style={{ width: "auto", height: "auto" }}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="font-medium text-sm">{product.name}</h3>
-                    <div className="flex items-baseline gap-2 justify-between">
-                      <span className="text-base font-bold">
-                        {new Intl.NumberFormat("id-ID", {
-                          style: "currency",
-                          currency: "IDR",
-                          minimumFractionDigits: 0,
-                        }).format(
-                          typeof product.price === "number"
-                            ? product.price
-                            : parseFloat(product.price.toString())
-                        )}
-                      </span>
-                      {/* Tombol tambah ke Keranjang */}
-                      <Button
-                        variant="outline"
-                        className="p-2 m-1 rounded-lg !w-10 !h-8"
-                        onClick={() => handleAddToCart(product)}
-                      >
-                        <ShoppingCart className="" />
-                      </Button>
+                <Link
+                  href={`/product/${product.id}`}
+                  className="cursor-pointer"
+                >
+                  <CardContent className="p-2 flex flex-col justify-between h-full">
+                    <div className="relative">
+                      <div className="absolute top-0 left-0 z-10 bg-blue-500 text-white text-xs px-2 py-1 rounded-br-lg"></div>
+                      <Image
+                        src={
+                          product.imageUrl ||
+                          "/images/laptops/lenovo-laptop.jpg"
+                        }
+                        alt={product.name}
+                        width={200}
+                        height={500}
+                        className="mx-auto mb-4 h-30 w-auto"
+                        // style={{ width: "auto", height: "auto" }}
+                      />
                     </div>
-                    {/* ⭐ Rating */}
-                    <div className="flex items-center gap-1">
-                      {[...Array(5)].map((_, index) => (
-                        <Star
-                          key={index}
-                          size={14}
-                          className={
-                            index < Math.round(product.rating)
-                              ? "text-yellow-500 fill-yellow-500"
-                              : "text-gray-300"
-                          }
-                        />
-                      ))}
-                      <span className="text-xs text-gray-500">
-                        ({product.rating.toFixed(1)})
-                      </span>
+                    <div className="space-y-2">
+                      <h3 className="font-medium text-sm">{product.name}</h3>
+                      <div className="flex items-baseline gap-2 justify-between">
+                        <span className="text-base font-bold">
+                          {new Intl.NumberFormat("id-ID", {
+                            style: "currency",
+                            currency: "IDR",
+                            minimumFractionDigits: 0,
+                          }).format(
+                            typeof product.price === "number"
+                              ? product.price
+                              : parseFloat(product.price.toString())
+                          )}
+                        </span>
+                        {/* Tombol tambah ke Keranjang */}
+                        <Button
+                          variant="outline"
+                          className="p-2 m-1 rounded-lg !w-10 !h-8"
+                          onClick={() => handleAddToCart(product)}
+                        >
+                          <ShoppingCart className="" />
+                        </Button>
+                      </div>
+                      {/* ⭐ Rating */}
+                      <div className="flex items-center gap-1">
+                        {[...Array(5)].map((_, index) => (
+                          <Star
+                            key={index}
+                            size={14}
+                            className={
+                              index < Math.round(product.rating)
+                                ? "text-yellow-500 fill-yellow-500"
+                                : "text-gray-300"
+                            }
+                          />
+                        ))}
+                        <span className="text-xs text-gray-500">
+                          ({product.rating.toFixed(1)})
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
+                  </CardContent>
+                </Link>
               </Card>
             ))
           )}

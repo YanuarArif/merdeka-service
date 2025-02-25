@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, Star, Truck, Shield, Clock } from "lucide-react";
@@ -14,19 +14,83 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function ProductDetail() {
-  const [mainImage, setMainImage] = useState(
-    "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-sLET6nnOIeCNEnscMpVD395ySl5uSS.png"
-  );
+interface ProductDetailProps {
+  productId: string;
+}
 
-  const thumbnails = [
-    "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-sLET6nnOIeCNEnscMpVD395ySl5uSS.png",
-    "/placeholder.svg?height=100&width=100",
-    "/placeholder.svg?height=100&width=100",
-    "/placeholder.svg?height=100&width=100",
-    "/placeholder.svg?height=100&width=100",
-    "/placeholder.svg?height=100&width=100",
-  ];
+interface ProductData {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  imageUrl: string | null;
+  category: string | null;
+  subCategory: string | null;
+  stock: number;
+  averageRating: number;
+  reviews: Array<{
+    id: string;
+    rating: number;
+    comment: string | null;
+    createdAt: string;
+    user: {
+      name: string | null;
+      image: string | null;
+    };
+  }>;
+}
+
+export default function ProductDetail({ productId }: ProductDetailProps) {
+  const [product, setProduct] = useState<ProductData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [mainImage, setMainImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch(`/api/products/${productId}`);
+        if (!response.ok) throw new Error("Failed to fetch product");
+        const data = await response.json();
+        setProduct(data);
+        setMainImage(data.imageUrl || "/images/laptops/lenovo-laptop.jpg");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load product");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [productId]);
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8 animate-pulse">
+        <div className="h-4 bg-gray-200 w-1/3 mb-8" />
+        <div className="grid lg:grid-cols-2 gap-8">
+          <div className="bg-gray-200 aspect-square rounded-lg" />
+          <div className="space-y-4">
+            <div className="h-8 bg-gray-200 w-3/4" />
+            <div className="h-4 bg-gray-200 w-1/4" />
+            <div className="h-12 bg-gray-200 w-1/3" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center text-red-500">
+          {error || "Product not found"}
+        </div>
+      </div>
+    );
+  }
+
+  const thumbnails = [mainImage || "/images/laptops/lenovo-laptop.jpg"];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -37,10 +101,10 @@ export default function ProductDetail() {
         </Link>
         <ChevronRight className="h-4 w-4" />
         <Link href="/category" className="hover:text-primary">
-          Business, Industry & Science
+          {product.category || "All Products"}
         </Link>
         <ChevronRight className="h-4 w-4" />
-        <span className="text-foreground">Sneaker Dryer Bag</span>
+        <span className="text-foreground">{product.name}</span>
       </nav>
 
       <div className="grid lg:grid-cols-2 gap-8">
@@ -84,26 +148,34 @@ export default function ProductDetail() {
               <Truck className="w-4 h-4 mr-1" />
               Local warehouse
             </div>
-            <h1 className="text-2xl font-semibold mb-4">
-              Sneaker Dryer Bag, Durable Shoe Washing Bag With Elastic Straps
-            </h1>
+            <h1 className="text-2xl font-semibold mb-4">{product.name}</h1>
             <div className="flex items-center gap-2">
               <div className="flex">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-primary" />
+                  <Star
+                    key={i}
+                    className={`w-4 h-4 ${
+                      i < Math.round(product.averageRating)
+                        ? "text-primary fill-primary"
+                        : "text-gray-300"
+                    }`}
+                  />
                 ))}
               </div>
               <span className="text-sm text-muted-foreground">
-                (494 reviews)
+                ({product.reviews.length} reviews)
               </span>
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold">$4.36</span>
-              <span className="text-sm text-muted-foreground line-through">
-                $8.99
+              <span className="text-3xl font-bold">
+                {new Intl.NumberFormat("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                  minimumFractionDigits: 0,
+                }).format(product.price)}
               </span>
             </div>
 
@@ -154,25 +226,34 @@ export default function ProductDetail() {
       {/* Reviews Section */}
       <div className="mt-12 border-t pt-8">
         <h2 className="text-2xl font-semibold mb-6">Customer Reviews</h2>
-        <div className="space-y-6">
-          <div className="border-b pb-6">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="flex">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-primary" />
-                ))}
+        {product.reviews.length > 0 ? (
+          <div className="space-y-6">
+            {product.reviews.map((review) => (
+              <div key={review.id} className="border-b pb-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-4 h-4 ${
+                          i < review.rating
+                            ? "text-primary fill-primary"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    {new Date(review.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <p className="text-sm">{review.comment}</p>
               </div>
-              <span className="text-sm text-muted-foreground">
-                January 11, 2025
-              </span>
-            </div>
-            <p className="text-sm">
-              Very handy, works well so nice not to have all that noise from the
-              shoes going around and around in the dryer plus it doesn't end up
-              jerking the soul of your shoe out, nicely priced useful!
-            </p>
+            ))}
           </div>
-        </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">No reviews yet</p>
+        )}
       </div>
     </div>
   );

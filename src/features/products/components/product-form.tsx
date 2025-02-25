@@ -31,7 +31,7 @@ const CATEGORY_OPTIONS = [
   { label: "Health & Medicine", value: "health" },
   { label: "Beauty", value: "beauty" },
   { label: "Electronics", value: "electronics" },
-  { label: "Clothing", value: "clothing" },
+  { label: "Laptop", value: "laptop" },
   { label: "Home & Garden", value: "home" },
 ];
 
