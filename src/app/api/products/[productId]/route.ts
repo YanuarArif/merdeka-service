@@ -5,10 +5,10 @@ import { auth } from "@/lib/auth";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { productId: string } }
+  { params }: { params: Promise<{ productId: string }> } // Type params as a Promise
 ) {
   try {
-    const { productId } = params;
+    const { productId } = await params; // Await the params Promise
 
     if (!productId) {
       return new NextResponse("Product ID is required", { status: 400 });
