@@ -3,6 +3,56 @@ import { NextRequest, NextResponse } from "next/server";
 import { del } from "@vercel/blob";
 import { auth } from "@/lib/auth";
 
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { productId: string } }
+) {
+  try {
+    const { productId } = params;
+
+    if (!productId) {
+      return new NextResponse("Product ID is required", { status: 400 });
+    }
+
+    const product = await database.product.findUnique({
+      where: {
+        id: productId,
+      },
+      include: {
+        reviews: {
+          include: {
+            user: {
+              select: {
+                name: true,
+                image: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!product) {
+      return new NextResponse("Product not found", { status: 404 });
+    }
+
+    // Calculate average rating
+    const averageRating =
+      product.reviews.length > 0
+        ? product.reviews.reduce((acc, review) => acc + review.rating, 0) /
+          product.reviews.length
+        : 0;
+
+    return NextResponse.json({
+      ...product,
+      averageRating,
+    });
+  } catch (error) {
+    console.error("[PRODUCT_GET]", error);
+    return new NextResponse("Internal error", { status: 500 });
+  }
+}
+
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ productId: string }> }

@@ -50,7 +50,8 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
     const fetchProduct = async () => {
       try {
         const response = await fetch(`/api/products/${productId}`);
-        if (!response.ok) throw new Error("Failed to fetch product");
+        if (!response.ok)
+          throw new Error("Failed to fetch product (this product detail)");
         const data = await response.json();
         setProduct(data);
         setMainImage(data.imageUrl || "/images/laptops/lenovo-laptop.jpg");
