@@ -161,8 +161,28 @@ const Header = () => {
                 />
               </div>
             </div>
-            {/* Auth + Cart */}
+            {/* Cart + Auth */}
             <div className="flex flex-none items-center sm:gap-2">
+              {/* Cart Icon with Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 text-sm mr-2">
+                    <FiShoppingCart className="text-xl" />
+                    <span className="hidden md:inline">Keranjang</span>
+                    {cartItemCount > 0 && (
+                      <div className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-destructive text-white text-xs rounded-full px-2 py-0.5">
+                        {cartItemCount}
+                      </div>
+                    )}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <ShoppingCart />
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <span className="dark:text-gray-500">|</span>
+
               {status === "loading" ? (
                 <span>Loading...</span>
               ) : session?.user ? (
@@ -187,7 +207,7 @@ const Header = () => {
                       onClick={() => route.push("/dashboard")}
                       className="hover:cursor-pointer"
                     >
-                      Profile
+                      Dashboard
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
@@ -201,7 +221,6 @@ const Header = () => {
                 </DropdownMenu>
               ) : (
                 // Jika user belum masuk
-
                 <button
                   onClick={() => {
                     route.push("/login");
@@ -212,24 +231,6 @@ const Header = () => {
                   <span className="hidden md:inline">Masuk/Daftar</span>
                 </button>
               )}
-              <span className="dark:text-gray-500">|</span>
-              {/* Cart Icon with Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 text-sm ml-2">
-                    <FiShoppingCart className="text-xl" />
-                    <span className="hidden md:inline">Keranjang</span>
-                    {cartItemCount > 0 && (
-                      <div className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-destructive text-white text-xs rounded-full px-2 py-0.5">
-                        {cartItemCount}
-                      </div>
-                    )}
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <ShoppingCart />
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
           </div>
         </div>

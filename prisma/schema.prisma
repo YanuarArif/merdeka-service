@@ -83,7 +83,7 @@ model Product {
   description String?  @map("description")
   price       Decimal  @map("price")
   stock       Int      @default(0) @map("stock")
-  imageUrl    String?  @map("image_url")
+  imageUrls   String[] @map("image_urls")
   category    String?  @map("category") // Main category, e.g., "Laptop"
   subCategory String?  @map("sub_category") // Subcategory, e.g., "Gaming Laptop"
   attributes  Json?    @map("attributes")
