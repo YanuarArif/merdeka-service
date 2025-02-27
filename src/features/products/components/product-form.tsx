@@ -2,17 +2,18 @@
 
 import { createProduct } from "@/app/actions/create-product";
 import { updateProduct } from "@/app/actions/update-product";
+import { getCategories } from "@/app/actions/get-categories"; // Import the new action
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Upload, ArrowLeft, Info } from "lucide-react";
+import { Upload, ArrowLeft, Info, Edit, Trash } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition, DragEvent } from "react";
+import { useState, useTransition, DragEvent, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -27,23 +28,11 @@ const ACCEPTED_IMAGE_TYPES = [
   "image/webp",
 ];
 
-const CATEGORY_OPTIONS = [
-  { label: "Health & Medicine", value: "health" },
-  { label: "Beauty", value: "beauty" },
-  { label: "Electronics", value: "electronics" },
-  { label: "Laptop", value: "laptop" },
-  { label: "Home & Garden", value: "home" },
-];
-
 const formSchema = z.object({
   images: z
     .custom<File[]>()
     .optional()
     .default([])
-    .refine(
-      (files) => files.length <= 1,
-      "Only one image can be uploaded at a time"
-    )
     .refine(
       (files) => files.every((file) => file.size <= MAX_FILE_SIZE),
       `Max file size is 5MB`
@@ -64,10 +53,15 @@ const formSchema = z.object({
   width: z.coerce.number().min(0).optional(),
   stock: z.coerce.number().int().min(0).default(0),
   sku: z.string().optional(),
-  imageUrls: z.array(z.string()).optional(),
+  imageUrls: z.array(z.string()).min(1, "At least one image is required"),
 });
 
 type FormData = z.infer<typeof formSchema>;
+
+type CategoryOption = {
+  label: string;
+  value: string;
+};
 
 export default function ProductForm({
   initialData,
@@ -82,7 +76,7 @@ export default function ProductForm({
     subCategory: initialData?.subCategory || "",
     price: initialData?.price || 0,
     description: initialData?.description || "",
-    imageUrls: initialData?.imageUrl ? [initialData.imageUrl] : [],
+    imageUrls: initialData?.imageUrls || [],
     weight: initialData?.weight || undefined,
     length: initialData?.length || undefined,
     breadth: initialData?.breadth || undefined,
@@ -101,12 +95,29 @@ export default function ProductForm({
   const router = useRouter();
   const [uploadingImg, setUploadingImg] = useState(false);
   const [images, setImages] = useState<string[]>(defaultValues.imageUrls);
-  const [customCategory, setCustomCategory] = useState("");
+  const [categoryOptions, setCategoryOptions] = useState<CategoryOption[]>([]);
+  const [newCategory, setNewCategory] = useState("");
+  const [newSubCategory, setNewSubCategory] = useState("");
+  const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+
+  // Fetch categories from the database on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setIsLoadingCategories(true);
+      const fetchedCategories = await getCategories();
+      setCategoryOptions(fetchedCategories);
+      setIsLoadingCategories(false);
+    };
+    fetchCategories();
+  }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files.length > 0) {
-      await handleFileUpload(files[0]);
+    if (files) {
+      await Promise.all(
+        Array.from(files).map((file) => handleFileUpload(file))
+      );
     }
   };
 
@@ -114,7 +125,9 @@ export default function ProductForm({
     e.preventDefault();
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
-      await handleFileUpload(files[0]);
+      await Promise.all(
+        Array.from(files).map((file) => handleFileUpload(file))
+      );
     }
   };
 
@@ -126,14 +139,18 @@ export default function ProductForm({
     setUploadingImg(true);
     try {
       const currentFiles = form.getValues("images") || [];
-      form.setValue("images", [file], { shouldValidate: true });
+      form.setValue("images", [...currentFiles, file], {
+        shouldValidate: true,
+      });
       const blob = await put(file.name, file, {
         access: "public",
         token: process.env.NEXT_PUBLIC_BLOB_READ_WRITE_TOKEN,
       });
       const newImageUrl = blob.url;
-      setImages([newImageUrl]);
-      form.setValue("imageUrls", [newImageUrl], { shouldValidate: true });
+      setImages((prev) => [...prev, newImageUrl]);
+      form.setValue("imageUrls", [...images, newImageUrl], {
+        shouldValidate: true,
+      });
     } catch (error) {
       console.error("Error uploading image:", error);
       toast.error("Error uploading image");
@@ -172,33 +189,77 @@ export default function ProductForm({
     }
   };
 
-  const handleAddCustomCategory = () => {
-    if (customCategory.trim()) {
-      form.setValue("subCategory", customCategory);
-      setCustomCategory("");
+  const handleAddCategory = () => {
+    if (newCategory.trim()) {
+      const newOption: CategoryOption = {
+        label: newCategory,
+        value: newCategory.toLowerCase().replace(/\s+/g, "-"),
+      };
+      if (editIndex !== null) {
+        setCategoryOptions((prev) =>
+          prev.map((opt, i) => (i === editIndex ? newOption : opt))
+        );
+        setEditIndex(null);
+      } else {
+        setCategoryOptions((prev) => [...prev, newOption]);
+      }
+      form.setValue("category", newOption.value);
+      setNewCategory("");
+    }
+  };
+
+  const handleAddSubCategory = () => {
+    if (newSubCategory.trim()) {
+      const newOption: CategoryOption = {
+        label: newSubCategory,
+        value: newSubCategory.toLowerCase().replace(/\s+/g, "-"),
+      };
+      if (editIndex !== null) {
+        setCategoryOptions((prev) =>
+          prev.map((opt, i) => (i === editIndex ? newOption : opt))
+        );
+        setEditIndex(null);
+      } else {
+        setCategoryOptions((prev) => [...prev, newOption]);
+      }
+      form.setValue("subCategory", newOption.value);
+      setNewSubCategory("");
+    }
+  };
+
+  const handleEditCategory = (index: number) => {
+    const option = categoryOptions[index];
+    setNewCategory(option.label);
+    setEditIndex(index);
+  };
+
+  const handleEditSubCategory = (index: number) => {
+    const option = categoryOptions[index];
+    setNewSubCategory(option.label);
+    setEditIndex(index);
+  };
+
+  const handleRemoveCategory = (index: number) => {
+    const optionToRemove = categoryOptions[index];
+    setCategoryOptions((prev) => prev.filter((_, i) => i !== index));
+    if (form.getValues("category") === optionToRemove.value) {
+      form.setValue("category", categoryOptions[0]?.value || "");
+    }
+    if (form.getValues("subCategory") === optionToRemove.value) {
+      form.setValue("subCategory", "");
     }
   };
 
   async function onSubmit(values: FormData) {
     startTransition(async () => {
       try {
-        // Ensure imageUrlToUse is string | undefined, not null
-        const imageUrlToUse =
-          values.imageUrls?.[0] ||
-          (initialData ? initialData.imageUrl ?? undefined : undefined);
-
-        if (!initialData && !imageUrlToUse) {
-          toast.error("An image is required for new products");
-          return;
-        }
-
         const result = initialData
           ? await updateProduct(initialData.id, {
               name: values.name,
               description: values.description || undefined,
               price: values.price,
               stock: values.stock || 0,
-              imageUrl: imageUrlToUse, // Now correctly typed as string | undefined
+              imageUrls: values.imageUrls,
               category: values.category,
               subCategory: values.subCategory || undefined,
               weight: values.weight || undefined,
@@ -212,7 +273,7 @@ export default function ProductForm({
               description: values.description || undefined,
               price: values.price,
               stock: values.stock || 0,
-              imageUrl: imageUrlToUse,
+              imageUrls: values.imageUrls,
               category: values.category,
               subCategory: values.subCategory || undefined,
               weight: values.weight || undefined,
@@ -260,7 +321,7 @@ export default function ProductForm({
       </div>
 
       <div className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-8">
           {/* Left Column - Description and Shipping */}
           <div className="space-y-6">
             <div className="space-y-4 border p-4 rounded-md shadow-sm">
@@ -376,13 +437,14 @@ export default function ProductForm({
                   <span className="text-sm text-gray-500 text-center">
                     {uploadingImg
                       ? "Uploading..."
-                      : "Click to upload or drag and drop"}
+                      : "Click to upload or drag and drop (multiple allowed)"}
                   </span>
                   <input
                     type="file"
                     className="hidden"
                     onChange={handleImageUpload}
                     accept="image/*"
+                    multiple
                     disabled={uploadingImg}
                   />
                 </label>
@@ -410,63 +472,108 @@ export default function ProductForm({
                   </div>
                 ))}
               </div>
-              {form.formState.errors.images?.message && (
+              {form.formState.errors.imageUrls?.message && (
                 <p className="text-sm text-red-500 mt-1">
-                  {form.formState.errors.images?.message}
+                  {form.formState.errors.imageUrls.message}
                 </p>
               )}
             </div>
 
             <div className="space-y-4 border p-4 rounded-md shadow-sm">
               <h2 className="text-lg font-medium">Categories</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Category</Label>
-                  <select
-                    className="w-full border rounded-md p-2"
-                    {...form.register("category")}
-                  >
-                    <option value="">Select category</option>
-                    {CATEGORY_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                  {form.formState.errors.category?.message && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {form.formState.errors.category.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label>Sub Category</Label>
-                  <select
-                    className="w-full border rounded-md p-2"
-                    {...form.register("subCategory")}
-                  >
-                    <option value="">Select sub category (optional)</option>
-                    {CATEGORY_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                  {form.formState.errors.subCategory?.message && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {form.formState.errors.subCategory.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Input
-                  placeholder="Add custom sub category"
-                  value={customCategory}
-                  onChange={(e) => setCustomCategory(e.target.value)}
-                />
-                <Button onClick={handleAddCustomCategory}>Add</Button>
-              </div>
+              {isLoadingCategories ? (
+                <p>Loading categories...</p>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Category</Label>
+                      <select
+                        className="w-full border rounded-md p-2"
+                        {...form.register("category")}
+                      >
+                        <option value="">Select category</option>
+                        {categoryOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      {form.formState.errors.category?.message && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {form.formState.errors.category.message}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <Input
+                          placeholder="Add or edit category"
+                          value={newCategory}
+                          onChange={(e) => setNewCategory(e.target.value)}
+                        />
+                        <Button onClick={handleAddCategory}>
+                          {editIndex !== null ? "Update" : "Add"}
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Sub Category</Label>
+                      <select
+                        className="w-full border rounded-md p-2"
+                        {...form.register("subCategory")}
+                      >
+                        <option value="">Select sub category (optional)</option>
+                        {categoryOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      {form.formState.errors.subCategory?.message && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {form.formState.errors.subCategory.message}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <Input
+                          placeholder="Add or edit sub category"
+                          value={newSubCategory}
+                          onChange={(e) => setNewSubCategory(e.target.value)}
+                        />
+                        <Button onClick={handleAddSubCategory}>
+                          {editIndex !== null ? "Update" : "Add"}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="text-sm font-medium">Manage Categories</h3>
+                    <ul className="space-y-2 mt-2">
+                      {categoryOptions.map((option, index) => (
+                        <li
+                          key={option.value}
+                          className="flex items-center gap-2"
+                        >
+                          <span>{option.label}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditCategory(index)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveCategory(index)}
+                          >
+                            <Trash className="w-4 h-4" />
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="space-y-4 border p-4 rounded-md shadow-sm">

@@ -28,7 +28,7 @@ export const updateProduct = async (
       description,
       price,
       stock,
-      imageUrl,
+      imageUrls,
       category,
       subCategory,
       weight,
@@ -49,7 +49,7 @@ export const updateProduct = async (
     // Fetch existing product to preserve imageUrl if not provided
     const existingProduct = await database.product.findUnique({
       where: { id: productId, userId: user.id },
-      select: { imageUrl: true },
+      select: { imageUrls: true },
     });
 
     if (!existingProduct) {
@@ -63,7 +63,7 @@ export const updateProduct = async (
         description: description || null, // Prisma allows null
         price,
         stock: stock || 0,
-        imageUrl: imageUrl || existingProduct.imageUrl || null, // Preserve or allow null
+        imageUrls: imageUrls || existingProduct.imageUrls || null, // Preserve or allow null
         category: category || null, // Prisma allows null, though form requires it
         subCategory: subCategory || null,
         weight: weight || null,

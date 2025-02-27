@@ -32,11 +32,15 @@ export const columns: ColumnDef<Product>[] = [
     header: "Product Name",
     cell: ({ row }) => {
       const name = row.getValue("name") as string;
-      const imageUrl = row.original.imageUrl;
+      const imageUrls = row.original.imageUrls ?? []; // Changed to array
       return (
         <div className="w-[250px] flex items-center space-x-2">
-          {imageUrl ? (
-            <img src={imageUrl} alt={name} className="h-10 w-10 object-cover" />
+          {imageUrls.length > 0 ? (
+            <img
+              src={imageUrls[0]}
+              alt={name}
+              className="h-10 w-10 object-cover"
+            />
           ) : (
             <div className="h-10 w-10 bg-gray-200 flex items-center justify-center">
               -

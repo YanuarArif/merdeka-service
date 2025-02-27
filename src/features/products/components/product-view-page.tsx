@@ -17,7 +17,6 @@ export default async function ProductViewPage({
     redirect("/auth/login");
   }
 
-  // Get current user
   const user = await database.user.findUnique({
     where: { email: session.user.email },
   });
@@ -33,7 +32,7 @@ export default async function ProductViewPage({
     const dbProduct = await database.product.findUnique({
       where: {
         id: productId,
-        userId: user.id, // Only allow viewing user's own products
+        userId: user.id,
       },
     });
 
@@ -41,14 +40,13 @@ export default async function ProductViewPage({
       notFound();
     }
 
-    // Transform database product to match the updated Product interface
     product = {
       id: dbProduct.id,
       name: dbProduct.name,
       description: dbProduct.description || null,
-      price: dbProduct.price.toNumber(), // Convert Decimal to number
+      price: dbProduct.price.toNumber(),
       stock: dbProduct.stock,
-      imageUrl: dbProduct.imageUrl || null,
+      imageUrls: dbProduct.imageUrls || [], // Changed to array
       category: dbProduct.category || "",
       subCategory: dbProduct.subCategory || undefined,
       weight: dbProduct.weight || null,

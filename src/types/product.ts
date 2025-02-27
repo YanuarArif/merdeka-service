@@ -5,7 +5,7 @@ export interface Product {
   description?: string | null;
   price: number;
   stock: number;
-  imageUrl?: string | null;
+  imageUrls?: string[];
   category: string;
   subCategory?: string;
   weight?: number | null;

@@ -27,7 +27,7 @@ export const ProductSchema = z.object({
     .int()
     .min(0, "Stock must be a non-negative integer")
     .optional(),
-  imageUrl: z.string().url().optional(),
+  imageUrls: z.array(z.string()).min(1, "At least one image is required"),
   category: z.string().optional(), // New main category
   subCategory: z.string().optional(), // New subcategory
   weight: z.number().min(0).optional(),
