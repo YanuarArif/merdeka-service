@@ -33,6 +33,9 @@ export const columns: ColumnDef<Product>[] = [
     cell: ({ row }) => {
       const name = row.getValue("name") as string;
       const imageUrls = row.original.imageUrls ?? []; // Changed to array
+
+      console.log("imageURL:", imageUrls);
+
       return (
         <div className="w-[250px] flex items-center space-x-2">
           {imageUrls.length > 0 ? (

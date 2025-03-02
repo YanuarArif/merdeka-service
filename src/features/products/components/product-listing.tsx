@@ -80,7 +80,7 @@ export default async function ProductListingPage({}: ProductListingPage) {
     description: product.description || null,
     price: product.price.toNumber(),
     stock: product.stock,
-    imageUrl: product.imageUrl || null,
+    imageUrls: product.imageUrls || [],
     category: product.category || "",
     subCategory: product.subCategory || undefined,
     weight: product.weight || null,

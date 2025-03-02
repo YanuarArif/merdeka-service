@@ -101,9 +101,9 @@ export async function DELETE(
     }
 
     // If product has an image URL, delete it from blob storage
-    if (product.imageUrl) {
+    if (product.imageUrls) {
       try {
-        await del(product.imageUrl, {
+        await del(product.imageUrls, {
           token: process.env.NEXT_PUBLIC_BLOB_READ_WRITE_TOKEN,
         });
       } catch (error) {
