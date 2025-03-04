@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, Star, Truck, Shield, Clock } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -15,7 +14,8 @@ import {
 } from "@/components/ui/select";
 
 interface ProductDetailProps {
-  productId: string;
+  maincategory: string; // Changed from productId
+  nameproduct: string; // Added
 }
 
 interface ProductData {
@@ -23,7 +23,7 @@ interface ProductData {
   name: string;
   description: string | null;
   price: number;
-  imageUrl: string | null;
+  imageUrls: string[];
   category: string | null;
   subCategory: string | null;
   stock: number;
@@ -40,21 +40,32 @@ interface ProductData {
   }>;
 }
 
-export default function ProductDetail({ productId }: ProductDetailProps) {
+export default function ProductDetail({
+  maincategory,
+  nameproduct,
+}: ProductDetailProps) {
   const [product, setProduct] = useState<ProductData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mainImage, setMainImage] = useState<string | null>(null);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`/api/products/${productId}`);
+        // Fetch using maincategory and nameproduct
+        const response = await fetch(
+          `/api/products?category=${encodeURIComponent(maincategory)}&name=${encodeURIComponent(nameproduct)}`
+        );
         if (!response.ok)
           throw new Error("Failed to fetch product (this product detail)");
-        const data = await response.json();
-        setProduct(data);
-        setMainImage(data.imageUrl || "/images/laptops/lenovo-laptop.jpg");
+        const productData = await response.json();
+        if (!productData || typeof productData === "string")
+          throw new Error("Product not found");
+        setProduct(productData);
+        setMainImage(
+          productData.imageUrls[0] || "/images/laptops/lenovo-laptop.jpg"
+        );
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load product");
       } finally {
@@ -63,7 +74,15 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
     };
 
     fetchProduct();
-  }, [productId]);
+  }, [maincategory, nameproduct]);
+
+  const handleImageClick = () => {
+    setIsPopupOpen(true);
+  };
+
+  const handleClosePopup = () => {
+    setIsPopupOpen(false);
+  };
 
   if (isLoading) {
     return (
@@ -91,7 +110,10 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
     );
   }
 
-  const thumbnails = [mainImage || "/images/laptops/lenovo-laptop.jpg"];
+  const thumbnails =
+    product.imageUrls.length > 0
+      ? product.imageUrls
+      : ["/images/laptops/lenovo-laptop.jpg"];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -101,8 +123,8 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
           Home
         </Link>
         <ChevronRight className="h-4 w-4" />
-        <Link href="/category" className="hover:text-primary">
-          {product.category || "All Products"}
+        <Link href={`/${maincategory}`} className="hover:text-primary">
+          {maincategory || "All Products"}
         </Link>
         <ChevronRight className="h-4 w-4" />
         <span className="text-foreground">{product.name}</span>
@@ -120,24 +142,27 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
                 onMouseEnter={() => setMainImage(thumb)}
               >
                 <Image
-                  src={thumb || "/placeholder.svg"}
+                  src={thumb}
                   alt={`Product thumbnail ${idx + 1}`}
                   width={80}
                   height={80}
-                  className="object-cover w-full h-full"
+                  className="object-contain w-full h-auto"
                 />
               </div>
             ))}
           </div>
 
           {/* Main Image */}
-          <div className="flex-1 border rounded-lg overflow-hidden">
+          <div
+            className="flex-1 border rounded-lg overflow-hidden relative cursor-zoom-in"
+            onClick={handleImageClick}
+          >
             <Image
-              src={mainImage || "/placeholder.svg"}
+              src={mainImage || "/images/laptops/lenovo-laptop.jpg"}
               alt="Product main image"
               width={600}
               height={600}
-              className="object-cover w-full h-full"
+              className="object-contain w-full h-auto"
             />
           </div>
         </div>
@@ -223,6 +248,32 @@ export default function ProductDetail({ productId }: ProductDetailProps) {
           </div>
         </div>
       </div>
+
+      {/* Popup Image Preview */}
+      {isPopupOpen && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          onClick={handleClosePopup}
+        >
+          <div className="relative max-w-4xl max-h-[90vh]">
+            <Image
+              src={mainImage || "/images/laptops/lenovo-laptop.jpg"}
+              alt="Product preview"
+              width={800}
+              height={800}
+              className="object-contain w-full h-auto"
+            />
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute top-2 right-2 bg-white text-black hover:bg-gray-200"
+              onClick={handleClosePopup}
+            >
+              <span className="text-2xl">×</span>
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Reviews Section */}
       <div className="mt-12 border-t pt-8">

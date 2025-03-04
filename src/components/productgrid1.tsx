@@ -49,7 +49,7 @@ export default function LaptopGrid() {
       productId: product.id,
       name: product.name,
       price: price,
-      image: product.imageUrl || "/images/laptops/lenovo-laptop.jpg",
+      image: product.imageUrls[0] || "/images/laptops/lenovo-laptop.jpg", // Use first image
       quantity: 1,
     });
     alert(`${product.name} ditambah ke Keranjang!`);
@@ -63,7 +63,6 @@ export default function LaptopGrid() {
             Tawaran terbaik untuk {""}
             <span className="text-blue-500 ">Laptop Berkualitas</span>
           </h2>
-          {/* <Separator className="w-full bottom-3" /> */}
           <Link
             href="#"
             className="text-sm text-muted-foreground hover:text-blue-500 flex items-center"
@@ -104,7 +103,7 @@ export default function LaptopGrid() {
                 }}
               >
                 <Link
-                  href={`/product/${product.id}`}
+                  href={`/${(product.category || "product").toLowerCase()}/${encodeURIComponent(product.name.trim().replace(/\s+/g, " "))}`}
                   className="cursor-pointer"
                 >
                   <CardContent className="p-2 flex flex-col justify-between h-full">
@@ -112,14 +111,13 @@ export default function LaptopGrid() {
                       <div className="absolute top-0 left-0 z-10 bg-blue-500 text-white text-xs px-2 py-1 rounded-br-lg"></div>
                       <Image
                         src={
-                          product.imageUrl ||
+                          product.imageUrls[0] || // Use the first image from imageUrls
                           "/images/laptops/lenovo-laptop.jpg"
                         }
                         alt={product.name}
                         width={200}
-                        height={500}
-                        className="mx-auto mb-4 h-30 w-auto"
-                        // style={{ width: "auto", height: "auto" }}
+                        height={200}
+                        className="mx-auto mb-4 h-auto w-auto object-contain"
                       />
                     </div>
                     <div className="space-y-2">
@@ -136,7 +134,6 @@ export default function LaptopGrid() {
                               : parseFloat(product.price.toString())
                           )}
                         </span>
-                        {/* Tombol tambah ke Keranjang */}
                         <Button
                           variant="outline"
                           className="p-2 m-1 rounded-lg !w-10 !h-8"
@@ -145,7 +142,6 @@ export default function LaptopGrid() {
                           <ShoppingCart className="" />
                         </Button>
                       </div>
-                      {/* ⭐ Rating */}
                       <div className="flex items-center gap-1">
                         {[...Array(5)].map((_, index) => (
                           <Star

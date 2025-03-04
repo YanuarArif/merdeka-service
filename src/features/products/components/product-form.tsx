@@ -2,7 +2,7 @@
 
 import { createProduct } from "@/app/actions/create-product";
 import { updateProduct } from "@/app/actions/update-product";
-import { getCategories } from "@/app/actions/get-categories"; // Import the new action
+import { getCategories } from "@/app/actions/get-categories";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -101,7 +101,6 @@ export default function ProductForm({
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
 
-  // Fetch categories from the database on mount
   useEffect(() => {
     const fetchCategories = async () => {
       setIsLoadingCategories(true);
@@ -299,6 +298,8 @@ export default function ProductForm({
       }
     });
   }
+
+  const isEditMode = !!initialData; // Determine if in edit mode based on initialData
 
   return (
     <div className="container max-w-full px-4 py-6 md:max-w-4xl lg:max-w-7xl space-y-6">
@@ -638,7 +639,13 @@ export default function ProductForm({
           disabled={isPending || uploadingImg}
           onClick={() => form.handleSubmit(onSubmit)()}
         >
-          {isPending ? "Adding Product..." : "Add Product"}
+          {isPending
+            ? isEditMode
+              ? "Updating Product..."
+              : "Adding Product..."
+            : isEditMode
+              ? "Update Product"
+              : "Add Product"}
         </Button>
       </div>
     </div>
