@@ -9,11 +9,13 @@ export const columns: ColumnDef<Product>[] = [
   {
     id: "select",
     header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
+      <div className="flex text-center justify-center items-center w-[40px]">
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      </div>
     ),
     cell: ({ row }) => (
       <div className="w-[40px] flex justify-center">
@@ -33,8 +35,6 @@ export const columns: ColumnDef<Product>[] = [
     cell: ({ row }) => {
       const name = row.getValue("name") as string;
       const imageUrls = row.original.imageUrls ?? []; // Changed to array
-
-      console.log("imageURL:", imageUrls);
 
       return (
         <div className="w-[250px] flex items-center space-x-2">
@@ -58,7 +58,7 @@ export const columns: ColumnDef<Product>[] = [
     accessorKey: "price",
     header: "Price",
     cell: ({ row }) => (
-      <div className="w-[50px]">
+      <div className="w-[100px]">
         {new Intl.NumberFormat("id-ID", {
           style: "currency",
           currency: "IDR",
@@ -71,14 +71,14 @@ export const columns: ColumnDef<Product>[] = [
     accessorKey: "category",
     header: "Category",
     cell: ({ row }) => (
-      <div className="w-[100px]">{row.getValue("category") || "-"}</div>
+      <div className="w-[30px]">{row.getValue("category") || "-"}</div>
     ),
   },
   {
     accessorKey: "subCategory",
     header: "Subcategory",
     cell: ({ row }) => (
-      <div className="w-[100px]">{row.getValue("subCategory") || "-"}</div>
+      <div className="w-[30px]">{row.getValue("subCategory") || "-"}</div>
     ),
   },
   {
@@ -90,13 +90,13 @@ export const columns: ColumnDef<Product>[] = [
     accessorKey: "sku",
     header: "SKU",
     cell: ({ row }) => (
-      <div className="w-[20px]">{row.getValue("sku") || "-"}</div>
+      <div className="w-[50px]">{row.getValue("sku") || "-"}</div>
     ),
   },
   {
     id: "actions",
     cell: ({ row }) => (
-      <div className="w-[10px]">
+      <div className="w-[20px]">
         <CellAction data={row.original} />
       </div>
     ),
