@@ -2,7 +2,7 @@
 
 import { createProduct } from "@/app/actions/create-product";
 import { updateProduct } from "@/app/actions/update-product";
-import { getCategories } from "@/app/actions/get-categories";
+import { getCategories, addCategory } from "@/app/actions/get-categories";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -67,10 +67,11 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-type CategoryOption = {
+interface CategoryOption {
   label: string;
   value: string;
-};
+  isSubCategory: boolean;
+}
 
 export default function ProductForm({
   initialData,
@@ -237,41 +238,51 @@ export default function ProductForm({
     }
   };
 
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     if (newCategory.trim()) {
-      const newOption: CategoryOption = {
-        label: newCategory,
-        value: newCategory.toLowerCase().replace(/\s+/g, "-"),
-      };
-      if (editIndex !== null) {
-        setCategoryOptions((prev) =>
-          prev.map((opt, i) => (i === editIndex ? newOption : opt))
-        );
-        setEditIndex(null);
-      } else {
-        setCategoryOptions((prev) => [...prev, newOption]);
+      try {
+        const result = await addCategory(newCategory, false);
+        if (result.success) {
+          // Refresh categories list
+          const updatedCategories = await getCategories();
+          setCategoryOptions(updatedCategories);
+          form.setValue(
+            "category",
+            newCategory.toLowerCase().replace(/\s+/g, "-")
+          );
+          setNewCategory("");
+          toast.success("Category added successfully");
+        } else {
+          toast.error(result.error || "Failed to add category");
+        }
+      } catch (error) {
+        console.error("Error adding category:", error);
+        toast.error("Error adding category");
       }
-      form.setValue("category", newOption.value);
-      setNewCategory("");
     }
   };
 
-  const handleAddSubCategory = () => {
+  const handleAddSubCategory = async () => {
     if (newSubCategory.trim()) {
-      const newOption: CategoryOption = {
-        label: newSubCategory,
-        value: newSubCategory.toLowerCase().replace(/\s+/g, "-"),
-      };
-      if (editIndex !== null) {
-        setCategoryOptions((prev) =>
-          prev.map((opt, i) => (i === editIndex ? newOption : opt))
-        );
-        setEditIndex(null);
-      } else {
-        setCategoryOptions((prev) => [...prev, newOption]);
+      try {
+        const result = await addCategory(newSubCategory, true);
+        if (result.success) {
+          // Refresh categories list
+          const updatedCategories = await getCategories();
+          setCategoryOptions(updatedCategories);
+          form.setValue(
+            "subCategory",
+            newSubCategory.toLowerCase().replace(/\s+/g, "-")
+          );
+          setNewSubCategory("");
+          toast.success("Sub category added successfully");
+        } else {
+          toast.error(result.error || "Failed to add sub category");
+        }
+      } catch (error) {
+        console.error("Error adding sub category:", error);
+        toast.error("Error adding sub category");
       }
-      form.setValue("subCategory", newOption.value);
-      setNewSubCategory("");
     }
   };
 
@@ -372,7 +383,7 @@ export default function ProductForm({
 
       <div className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-8">
-          {/* Left Column - Description and Shipping */}
+          {/* Left Column - Description, Categories and Shipping */}
           <div className="space-y-6">
             <div className="space-y-4 border p-4 rounded-md shadow-sm">
               <h2 className="text-lg font-medium">Description</h2>
@@ -417,6 +428,146 @@ export default function ProductForm({
                   )}
                 </div>
               </div>
+            </div>
+
+            <div className="space-y-4 border p-4 rounded-md shadow-sm">
+              <h2 className="text-lg font-medium">Categories</h2>
+              {isLoadingCategories ? (
+                <p>Loading categories...</p>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Category</Label>
+                      <select
+                        className="w-full border rounded-md p-2"
+                        {...form.register("category")}
+                      >
+                        <option value="">Select category</option>
+                        {categoryOptions
+                          .filter((option) => !option.isSubCategory)
+                          .map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                      </select>
+                      {form.formState.errors.category?.message && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {form.formState.errors.category.message}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <Input
+                          placeholder="Add or edit category"
+                          value={newCategory}
+                          onChange={(e) => setNewCategory(e.target.value)}
+                        />
+                        <Button onClick={handleAddCategory}>
+                          {editIndex !== null ? "Update" : "Add"}
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Sub Category</Label>
+                      <select
+                        className="w-full border rounded-md p-2"
+                        {...form.register("subCategory")}
+                      >
+                        <option value="">Select sub category (optional)</option>
+                        {categoryOptions
+                          .filter((option) => option.isSubCategory)
+                          .map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                      </select>
+                      {form.formState.errors.subCategory?.message && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {form.formState.errors.subCategory.message}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <Input
+                          placeholder="Add or edit sub category"
+                          value={newSubCategory}
+                          onChange={(e) => setNewSubCategory(e.target.value)}
+                        />
+                        <Button onClick={handleAddSubCategory}>
+                          {editIndex !== null ? "Update" : "Add"}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4 space-y-4">
+                    <div>
+                      <h3 className="text-sm font-medium">Main Categories</h3>
+                      <ul className="space-y-2 mt-2">
+                        {categoryOptions.map((option, index) => {
+                          if (!option.isSubCategory) {
+                            return (
+                              <li
+                                key={option.value}
+                                className="flex items-center gap-2"
+                              >
+                                <span>{option.label}</span>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleEditCategory(index)}
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleRemoveCategory(index)}
+                                >
+                                  <Trash className="w-4 h-4" />
+                                </Button>
+                              </li>
+                            );
+                          }
+                          return null;
+                        })}
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium">Sub Categories</h3>
+                      <ul className="space-y-2 mt-2">
+                        {categoryOptions.map((option, index) => {
+                          if (option.isSubCategory) {
+                            return (
+                              <li
+                                key={option.value}
+                                className="flex items-center gap-2"
+                              >
+                                <span>{option.label}</span>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleEditSubCategory(index)}
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleRemoveCategory(index)}
+                                >
+                                  <Trash className="w-4 h-4" />
+                                </Button>
+                              </li>
+                            );
+                          }
+                          return null;
+                        })}
+                      </ul>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="space-y-4 border p-4 rounded-md shadow-sm">
@@ -523,103 +674,6 @@ export default function ProductForm({
                 <p className="text-sm text-red-500 mt-1">
                   {form.formState.errors.imageUrls.message}
                 </p>
-              )}
-            </div>
-
-            <div className="space-y-4 border p-4 rounded-md shadow-sm">
-              <h2 className="text-lg font-medium">Categories</h2>
-              {isLoadingCategories ? (
-                <p>Loading categories...</p>
-              ) : (
-                <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Category</Label>
-                      <select
-                        className="w-full border rounded-md p-2"
-                        {...form.register("category")}
-                      >
-                        <option value="">Select category</option>
-                        {categoryOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                      {form.formState.errors.category?.message && (
-                        <p className="text-sm text-red-500 mt-1">
-                          {form.formState.errors.category.message}
-                        </p>
-                      )}
-                      <div className="flex items-center gap-2">
-                        <Input
-                          placeholder="Add or edit category"
-                          value={newCategory}
-                          onChange={(e) => setNewCategory(e.target.value)}
-                        />
-                        <Button onClick={handleAddCategory}>
-                          {editIndex !== null ? "Update" : "Add"}
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Sub Category</Label>
-                      <select
-                        className="w-full border rounded-md p-2"
-                        {...form.register("subCategory")}
-                      >
-                        <option value="">Select sub category (optional)</option>
-                        {categoryOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                      {form.formState.errors.subCategory?.message && (
-                        <p className="text-sm text-red-500 mt-1">
-                          {form.formState.errors.subCategory.message}
-                        </p>
-                      )}
-                      <div className="flex items-center gap-2">
-                        <Input
-                          placeholder="Add or edit sub category"
-                          value={newSubCategory}
-                          onChange={(e) => setNewSubCategory(e.target.value)}
-                        />
-                        <Button onClick={handleAddSubCategory}>
-                          {editIndex !== null ? "Update" : "Add"}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <h3 className="text-sm font-medium">Manage Categories</h3>
-                    <ul className="space-y-2 mt-2">
-                      {categoryOptions.map((option, index) => (
-                        <li
-                          key={option.value}
-                          className="flex items-center gap-2"
-                        >
-                          <span>{option.label}</span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditCategory(index)}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRemoveCategory(index)}
-                          >
-                            <Trash className="w-4 h-4" />
-                          </Button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </>
               )}
             </div>
 
