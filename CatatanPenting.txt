@@ -3,3 +3,6 @@ Catatan Penting Menganai Project ini
   File tampilan untuk create dan edit produk
 2. data-table.tsx
   Blueprint table product list
+3. Rich Text Editing to Product Description: Untuk fitur editing lebih lengkap
+  react-quill
+4. 

@@ -1,3 +1,4 @@
+@import "quill/dist/quill.snow.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -98,7 +99,7 @@ body {
 .custom-scroll {
   -ms-overflow-style: none; /* Hides scrollbar in IE/Edge */
   scrollbar-width: none; /* Hides scrollbar in Firefox */
-  overflow-x: scroll
+  overflow-x: scroll;
 }
 .scrollbar-hide {
   -ms-overflow-style: none;
@@ -115,4 +116,17 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.quill-editor {
+  @apply w-full rounded-md border border-input focus-visible:outline-none;
+}
+
+.quill-editor .ql-toolbar {
+  @apply border-b rounded-t-md bg-muted/20;
+}
+
+.quill-editor .ql-container {
+  @apply rounded-b-md min-h-[120px];
+  font-family: inherit;
 }
