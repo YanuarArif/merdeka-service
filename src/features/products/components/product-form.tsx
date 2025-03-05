@@ -71,14 +71,14 @@ export default function ProductForm({
         } else if (result?.success) {
           toast.success(
             initialData
-              ? "Product updated successfully"
-              : "Product added successfully"
+              ? "Produk berhasil diperbarui"
+              : "Produk berhasil ditambahkan"
           );
           form.reset();
           router.push("/dashboard/products");
         }
       } catch (error) {
-        toast.error("An error occurred while saving the product");
+        toast.error("Terjadi kesalahan saat menyimpan produk");
       }
     });
   }
@@ -99,13 +99,13 @@ export default function ProductForm({
           href="/shop"
           className="text-sm text-muted-foreground hover:text-primary"
         >
-          View Shop
+          Lihat Toko
         </Link>
       </div>
 
       <div className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-8">
-          {/* Left Column - Description, Categories and Shipping */}
+          {/* Kolom Kiri - Deskripsi, Kategori dan Pengiriman */}
           <div className="space-y-6">
             <ProductDescription
               form={form}
@@ -115,7 +115,7 @@ export default function ProductForm({
             <ProductShipping form={form} />
           </div>
 
-          {/* Right Column - Images, Categories, Inventory, Pricing */}
+          {/* Kolom Kanan - Gambar, Kategori, Inventaris, Harga */}
           <div className="space-y-6">
             <ProductImages form={form} initialImages={initialData?.imageUrls} />
             <ProductInventory form={form} />
@@ -128,7 +128,7 @@ export default function ProductForm({
 
       <div className="flex justify-end gap-4">
         <Button variant="outline" disabled={isPending}>
-          Discard
+          Batal
         </Button>
         <Button
           type="submit"
@@ -137,11 +137,11 @@ export default function ProductForm({
         >
           {isPending
             ? isEditMode
-              ? "Updating Product..."
-              : "Adding Product..."
+              ? "Memperbarui Produk..."
+              : "Menambah Produk..."
             : isEditMode
-              ? "Update Product"
-              : "Add Product"}
+              ? "Perbarui Produk"
+              : "Tambah Produk"}
         </Button>
       </div>
     </div>

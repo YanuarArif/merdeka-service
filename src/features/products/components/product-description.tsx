@@ -20,13 +20,13 @@ export function ProductDescription({
 
   return (
     <div className="space-y-4 border p-4 rounded-md shadow-sm">
-      <h2 className="text-lg font-medium">Description</h2>
+      <h2 className="text-lg font-medium">Deskripsi</h2>
       <div className="space-y-4">
         <div>
-          <Label htmlFor="productName">Product Name</Label>
+          <Label htmlFor="productName">Nama Produk</Label>
           <Input
             id="productName"
-            placeholder="Enter product name"
+            placeholder="Masukkan nama produk"
             {...form.register("name")}
           />
           {form.formState.errors.name?.message && (
@@ -37,12 +37,12 @@ export function ProductDescription({
         </div>
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <Label htmlFor="description">Product Description</Label>
+            <Label htmlFor="description">Deskripsi Produk</Label>
             <Label
               htmlFor="descriptionFile"
               className="text-sm text-muted-foreground cursor-pointer hover:text-primary"
             >
-              Upload .txt file
+              Unggah file .txt
               <input
                 type="file"
                 id="descriptionFile"

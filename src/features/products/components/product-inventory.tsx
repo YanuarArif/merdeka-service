@@ -10,14 +10,14 @@ interface ProductInventoryProps {
 export function ProductInventory({ form }: ProductInventoryProps) {
   return (
     <div className="space-y-4 border p-4 rounded-md shadow-sm">
-      <h2 className="text-lg font-medium">Inventory</h2>
+      <h2 className="text-lg font-medium">Inventaris</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <Label htmlFor="stock">Stock</Label>
+          <Label htmlFor="stock">Stok</Label>
           <Input
             id="stock"
             type="number"
-            placeholder="Enter stock"
+            placeholder="Masukkan jumlah stok"
             {...form.register("stock")}
           />
           {form.formState.errors.stock?.message && (
@@ -27,8 +27,12 @@ export function ProductInventory({ form }: ProductInventoryProps) {
           )}
         </div>
         <div>
-          <Label htmlFor="sku">SKU (Optional)</Label>
-          <Input id="sku" placeholder="Enter SKU" {...form.register("sku")} />
+          <Label htmlFor="sku">SKU (Opsional)</Label>
+          <Input
+            id="sku"
+            placeholder="Masukkan SKU"
+            {...form.register("sku")}
+          />
           {form.formState.errors.sku?.message && (
             <p className="text-sm text-red-500 mt-1">
               {form.formState.errors.sku.message}

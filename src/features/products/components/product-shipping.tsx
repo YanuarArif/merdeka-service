@@ -2,7 +2,13 @@ import { UseFormReturn } from "react-hook-form";
 import { ProductFormData } from "../hooks/use-product-form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ProductShippingProps {
   form: UseFormReturn<ProductFormData>;
@@ -11,11 +17,11 @@ interface ProductShippingProps {
 export function ProductShipping({ form }: ProductShippingProps) {
   return (
     <div className="space-y-4 border p-4 rounded-md shadow-sm">
-      <h2 className="text-lg font-medium">Shipping and Delivery</h2>
-      
+      <h2 className="text-lg font-medium">Pengiriman dan Pengantaran</h2>
+
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="weight">Items Weight</Label>
+          <Label htmlFor="weight">Berat Barang</Label>
           <div className="flex items-center">
             <Input
               id="weight"
@@ -42,11 +48,13 @@ export function ProductShipping({ form }: ProductShippingProps) {
         </div>
 
         <div className="space-y-2">
-          <Label>Package Size(The package you use to ship your product)</Label>
-          
+          <Label>
+            Ukuran Paket (Paket yang Anda gunakan untuk mengirim produk)
+          </Label>
+
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="length">Length</Label>
+              <Label htmlFor="length">Panjang</Label>
               <div className="flex items-center">
                 <Input
                   id="length"
@@ -66,9 +74,9 @@ export function ProductShipping({ form }: ProductShippingProps) {
                 </Select>
               </div>
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="breadth">Breadth</Label>
+              <Label htmlFor="breadth">Lebar</Label>
               <div className="flex items-center">
                 <Input
                   id="breadth"
@@ -88,9 +96,9 @@ export function ProductShipping({ form }: ProductShippingProps) {
                 </Select>
               </div>
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="width">Width</Label>
+              <Label htmlFor="width">Tinggi</Label>
               <div className="flex items-center">
                 <Input
                   id="width"

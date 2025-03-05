@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { put } from "@vercel/blob";
 import { UseFormReturn } from "react-hook-form";
@@ -15,14 +15,30 @@ export const useImageUpload = ({
 }: UseImageUploadProps) => {
   const [uploadingImg, setUploadingImg] = useState(false);
   const [images, setImages] = useState<string[]>(initialImages);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [replaceIndex, setReplaceIndex] = useState<number | null>(null);
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = async (file: File, index?: number) => {
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload only image files');
+      return;
+    }
+
     setUploadingImg(true);
     try {
       const currentFiles = form.getValues("images") || [];
-      form.setValue("images", [...currentFiles, file], {
-        shouldValidate: true,
-      });
+      
+      if (index !== undefined) {
+        // Replace existing file
+        const newFiles = [...currentFiles];
+        newFiles[index] = file;
+        form.setValue("images", newFiles, { shouldValidate: true });
+      } else {
+        // Add new file
+        form.setValue("images", [...currentFiles, file], {
+          shouldValidate: true,
+        });
+      }
 
       const blob = await put(file.name, file, {
         access: "public",
@@ -30,12 +46,25 @@ export const useImageUpload = ({
       });
 
       const newImageUrl = blob.url;
-      const updatedImages = [...images, newImageUrl];
-
-      setImages(updatedImages);
-      form.setValue("imageUrls", updatedImages, {
-        shouldValidate: true,
-      });
+      
+      if (index !== undefined) {
+        // Replace existing image URL
+        setImages(prev => {
+          const newImages = [...prev];
+          newImages[index] = newImageUrl;
+          form.setValue("imageUrls", newImages, { shouldValidate: true });
+          return newImages;
+        });
+      } else {
+        // Add new image URL
+        const updatedImages = [...images, newImageUrl];
+        setImages(updatedImages);
+        form.setValue("imageUrls", updatedImages, {
+          shouldValidate: true,
+        });
+      }
+      
+      setReplaceIndex(null);
     } catch (error) {
       console.error("Error uploading image:", error);
       toast.error("Error uploading image");
@@ -47,19 +76,34 @@ export const useImageUpload = ({
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
-      await Promise.all(
-        Array.from(files).map((file) => handleFileUpload(file))
-      );
+      if (replaceIndex !== null && files.length > 0) {
+        await handleFileUpload(files[0], replaceIndex);
+      } else {
+        // Handle multiple uploads sequentially to avoid overwhelming the server
+        for (const file of Array.from(files)) {
+          await handleFileUpload(file);
+        }
+      }
+      
+      if (e.target) {
+        e.target.value = '';
+      }
     }
   };
 
   const handleDrop = async (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     const files = e.dataTransfer.files;
+    
     if (files && files.length > 0) {
-      await Promise.all(
-        Array.from(files).map((file) => handleFileUpload(file))
-      );
+      if (replaceIndex !== null) {
+        await handleFileUpload(files[0], replaceIndex);
+      } else {
+        // Handle multiple files sequentially
+        for (const file of Array.from(files)) {
+          await handleFileUpload(file);
+        }
+      }
     }
   };
 
@@ -81,6 +125,13 @@ export const useImageUpload = ({
       { shouldValidate: true }
     );
   };
+  
+  const handleReplaceImage = (index: number) => {
+    setReplaceIndex(index);
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
 
   return {
     images,
@@ -89,5 +140,7 @@ export const useImageUpload = ({
     handleDrop,
     handleDragOver,
     handleRemoveImage,
+    handleReplaceImage,
+    fileInputRef,
   };
 };
