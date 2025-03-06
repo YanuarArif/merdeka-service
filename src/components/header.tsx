@@ -47,6 +47,11 @@ const Header = () => {
   const { data: session, status } = useSession();
   const cartItemCount = useCartStore((state) => state.totalItems());
   const [isSticky, setIsSticky] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -169,7 +174,7 @@ const Header = () => {
                   <button className="flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 text-sm mr-2">
                     <FiShoppingCart className="text-xl" />
                     <span className="hidden md:inline">Keranjang</span>
-                    {cartItemCount > 0 && (
+                    {mounted && cartItemCount > 0 && (
                       <div className="relative top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-destructive text-white text-xs rounded-full px-2 py-0.5">
                         {cartItemCount}
                       </div>
@@ -177,7 +182,7 @@ const Header = () => {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <ShoppingCart />
+                  {mounted && <ShoppingCart />}
                 </DropdownMenuContent>
               </DropdownMenu>
 
