@@ -51,12 +51,20 @@ export const sidebarItems: SideItem[] = [
     ],
   },
   {
+    title: "Shopping Cart",
+    url: "/dashboard/cart",
+    icon: "cart",
+    shortcut: ["s", "c"],
+    isActive: false,
+    items: [],
+  },
+  {
     title: "Orders",
     url: "/dashboard/orders",
     icon: "orders",
     shortcut: ["k", "k"],
     isActive: false,
-    items: [], // No child items
+    items: [],
   },
   {
     title: "Home",

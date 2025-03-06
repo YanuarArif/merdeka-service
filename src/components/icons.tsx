@@ -18,6 +18,7 @@ import {
   LucideIcon,
   LucideProps,
   LucideShoppingBag,
+  ShoppingCart,
   Moon,
   MoreVertical,
   Pizza,
@@ -66,6 +67,7 @@ export const Icons = {
   sun: SunMedium,
   moon: Moon,
   laptop: Laptop,
+  cart: ShoppingCart,
   gitHub: ({ ...props }: LucideProps) => (
     <svg
       aria-hidden="true"

@@ -1,6 +1,6 @@
 import { create, StateCreator } from "zustand";
 import { CartSlice } from "@/types/cart";
-import { persist, PersistOptions } from "zustand/middleware";
+import { persist, createJSONStorage, PersistOptions } from "zustand/middleware";
 import { createCartItemsSlice } from "./slices/cartItemsSlice";
 import { createCartActionsSlice } from "./slices/cartActionsSlice";
 
@@ -20,8 +20,7 @@ export const useCartStore = create<CartSlice>()(
     }),
     {
       name: "merdeka-service-cart",
-      storage:
-        typeof window !== "undefined" ? (localStorage as any) : undefined,
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );
