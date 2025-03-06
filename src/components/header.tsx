@@ -170,7 +170,7 @@ const Header = () => {
                     <FiShoppingCart className="text-xl" />
                     <span className="hidden md:inline">Keranjang</span>
                     {cartItemCount > 0 && (
-                      <div className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-destructive text-white text-xs rounded-full px-2 py-0.5">
+                      <div className="relative top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-destructive text-white text-xs rounded-full px-2 py-0.5">
                         {cartItemCount}
                       </div>
                     )}

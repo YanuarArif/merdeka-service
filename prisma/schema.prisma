@@ -26,6 +26,7 @@ model User {
   sessions      Session[]
   products      Product[]
   reviews       Review[]
+  orders        Order[]
 
   @@map("users")
 }
@@ -78,25 +79,26 @@ enum Category {
 }
 
 model Product {
-  id          String   @id @default(cuid())
-  name        String   @map("name")
-  description String?  @map("description")
-  price       Decimal  @map("price")
-  stock       Int      @default(0) @map("stock")
-  imageUrls   String[] @map("image_urls")
-  category    String?  @map("category") // Main category, e.g., "Laptop"
-  subCategory String?  @map("sub_category") // Subcategory, e.g., "Gaming Laptop"
-  attributes  Json?    @map("attributes")
-  weight      Float?   @map("weight")
-  length      Float?   @map("length")
-  breadth     Float?   @map("breadth")
-  width       Float?   @map("width")
-  sku         String?  @map("sku")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  userId      String   @map("user_id")
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String      @id @default(cuid())
+  name        String      @map("name")
+  description String?     @map("description")
+  price       Decimal     @map("price")
+  stock       Int         @default(0) @map("stock")
+  imageUrls   String[]    @map("image_urls")
+  category    String?     @map("category") // Main category, e.g., "Laptop"
+  subCategory String?     @map("sub_category") // Subcategory, e.g., "Gaming Laptop"
+  attributes  Json?       @map("attributes")
+  weight      Float?      @map("weight")
+  length      Float?      @map("length")
+  breadth     Float?      @map("breadth")
+  width       Float?      @map("width")
+  sku         String?     @map("sku")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  userId      String      @map("user_id")
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   reviews     Review[]
+  OrderItem   OrderItem[]
 
   @@index([category]) // Index on category for faster filtering
   @@map("products")
@@ -116,4 +118,47 @@ model Review {
   @@unique([userId, productId]) // Optional: one review per user per product
   @@index([productId])
   @@map("reviews")
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  orderNumber     String        @unique
+  status          OrderStatus   @default(PENDING)
+  totalAmount     Decimal
+  items           OrderItem[]
+  userId          String        @map("user_id")
+  user            User          @relation(fields: [userId], references: [id])
+  shippingAddress Json
+  paymentStatus   PaymentStatus @default(PENDING)
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String  @map("order_id")
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Decimal
+
+  @@map("order_items")
 }
