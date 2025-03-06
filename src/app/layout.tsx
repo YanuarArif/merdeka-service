@@ -25,11 +25,19 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const session = await auth();
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${rubik.className}`}>
+      <body className={`${rubik.className} light`}>
         <NuqsAdapter>
           <Providers session={session}>
             <Toaster />
-            {children}
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="light"
+              enableSystem={false}
+              forcedTheme="light"
+              disableTransitionOnChange
+            >
+              {children}
+            </ThemeProvider>
           </Providers>
         </NuqsAdapter>
       </body>

@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { useTheme } from "next-themes"; // Add this import at the top
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,16 +46,8 @@ import {
 import { Separator } from "./ui/separator";
 
 function FooterComponent() {
-  const [isDarkMode, setIsDarkMode] = React.useState(false);
+  const { theme, setTheme } = useTheme();
   const [isChatOpen, setIsChatOpen] = React.useState(false);
-
-  React.useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [isDarkMode]);
 
   return (
     <footer className="container relative border-t bg-background text-foreground transition-colors duration-300">
@@ -285,8 +279,8 @@ function FooterComponent() {
               <Sun className="h-4 w-4" />
               <Switch
                 id="dark-mode"
-                checked={isDarkMode}
-                onCheckedChange={setIsDarkMode}
+                checked={theme === 'dark'}
+                onCheckedChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               />
               <Moon className="h-4 w-4" />
               <Label htmlFor="dark-mode" className="sr-only">
