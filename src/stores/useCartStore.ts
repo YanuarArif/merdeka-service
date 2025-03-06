@@ -1,26 +1,31 @@
-import { create, StateCreator } from "zustand";
+import { create } from "zustand";
 import { CartSlice } from "@/types/cart";
-import { persist, createJSONStorage, PersistOptions } from "zustand/middleware";
-import { createCartItemsSlice } from "./slices/cartItemsSlice";
+import { createCartItemsSlice, initializeCart } from "./slices/cartItemsSlice";
 import { createCartActionsSlice } from "./slices/cartActionsSlice";
 
-// define persist options type explicitly
-type PersistType = (
-  config: StateCreator<CartSlice>,
-  option: PersistOptions<CartSlice>
-) => StateCreator<CartSlice>;
+export const useCartStore = create<CartSlice>((set, get) => ({
+  ...createCartItemsSlice(set, get),
+  ...createCartActionsSlice(set, get),
+}));
 
-const persistFn = persist as PersistType;
+// Initialize cart from database on app startup
+if (typeof window !== "undefined") {
+  // Check if user is logged in before initializing cart
+  const isLoggedIn = document.cookie.includes("next-auth.session-token");
+  if (isLoggedIn) {
+    initializeCart(useCartStore.setState);
+  }
+}
 
-export const useCartStore = create<CartSlice>()(
-  persistFn(
-    (...set) => ({
-      ...createCartItemsSlice(...set),
-      ...createCartActionsSlice(...set),
-    }),
-    {
-      name: "merdeka-service-cart",
-      storage: createJSONStorage(() => localStorage),
+// Subscribe to changes and sync with database
+useCartStore.subscribe((state) => {
+  if (typeof window !== "undefined") {
+    const isLoggedIn = document.cookie.includes("next-auth.session-token");
+    if (isLoggedIn) {
+      // You might want to debounce this in a real application
+      console.log("Cart updated:", state);
     }
-  )
-);
+  }
+});
+
+export { useCartStore as cartStore };

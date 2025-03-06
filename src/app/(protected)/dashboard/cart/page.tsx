@@ -1,30 +1,44 @@
-"use client";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { database } from "@/lib/database";
+import { CartList, CartActions, CartWithItems } from "@/features/cart";
 
-import { CartList } from "@/features/cart/components/cart-list";
-import { CartSummary } from "@/features/cart/components/cart-summary";
-import { Heading } from "@/components/ui/heading";
-import { Suspense } from "react";
+export default async function CartPage() {
+  const session = await auth();
 
-export default function CartPage() {
+  if (!session?.user) {
+    redirect("/login");
+  }
+
+  const cart = (await database.cart.findFirst({
+    where: {
+      userId: session.user.id,
+    },
+    include: {
+      items: {
+        include: {
+          product: true,
+        },
+      },
+    },
+  })) as CartWithItems | null;
+
   return (
-    <div className="flex flex-col gap-8 p-8">
-      <div className="flex justify-between">
-        <Heading
-          title="Shopping Cart"
-          description="Manage your cart items and proceed to checkout"
-        />
+    <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
+        <h2 className="text-3xl font-bold tracking-tight">Shopping Cart</h2>
       </div>
-      <div className="grid gap-8 md:grid-cols-[1fr,400px]">
-        <div className="space-y-4">
-          <Suspense fallback={<div>Loading cart items...</div>}>
-            <CartList />
-          </Suspense>
-        </div>
-        <div className="space-y-4">
-          <Suspense fallback={<div>Loading summary...</div>}>
-            <CartSummary />
-          </Suspense>
-        </div>
+      <div className="grid gap-4">
+        {cart ? (
+          <>
+            <CartList cart={cart} />
+            <CartActions cartId={cart.id} />
+          </>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">Your cart is empty</p>
+          </div>
+        )}
       </div>
     </div>
   );

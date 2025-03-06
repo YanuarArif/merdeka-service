@@ -15,19 +15,20 @@ export interface CartState {
 }
 
 export interface CartActionsSlice {
-  addItem: (item: CartItem) => void;
-  removeItem: (productId: string) => void;
-  increaseQuantity: (productId: string) => void;
-  decreaseQuantity: (productId: string) => void;
-  clearCart: () => void;
+  addItem: (item: CartItem) => Promise<void>;
+  removeItem: (productId: string) => Promise<void>;
+  increaseQuantity: (productId: string) => Promise<void>;
+  decreaseQuantity: (productId: string) => Promise<void>;
+  clearCart: () => Promise<void>;
 }
 
-// define typess for slices to be used in create<>()
 export type CartSlice = CartState & CartActionsSlice;
-export type CartItemsSliceType = StateCreator<CartSlice, [], [], CartState>;
-export type CartActionsSliceType = StateCreator<
-  CartSlice,
-  [],
-  [],
-  CartActionsSlice
->;
+
+export type CartStore = {
+  state: CartState;
+  actions: CartActionsSlice;
+};
+
+export type BoundCartState = StateCreator<CartSlice>;
+export type CartItemsSliceType = (set: any, get: any) => CartState;
+export type CartActionsSliceType = (set: any, get: any) => CartActionsSlice;

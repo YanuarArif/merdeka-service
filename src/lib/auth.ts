@@ -3,6 +3,20 @@ import Resend from "next-auth/providers/resend";
 import { database } from "@/lib/database";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import authConfig from "./auth.config";
+import { JWT } from "next-auth/jwt";
+
+type ExtendedToken = JWT & {
+  role?: string;
+  id?: string;
+};
+
+type ExtendedUser = {
+  id: string;
+  role: string;
+  email: string;
+  name?: string;
+  image?: string;
+};
 
 const combinedProviders = [
   ...authConfig.providers,
@@ -19,7 +33,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   pages: { signIn: "/login" },
-  // Callbacks untuk pengganti middleware
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
@@ -45,16 +58,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
-        token.id = user.id;
+        token.role = (user as ExtendedUser).role;
+        token.id = (user as ExtendedUser).id;
       }
-      return token;
+      return token as ExtendedToken;
     },
 
     async session({ session, token }) {
       if (session.user) {
-        session.user.role = token.role;
-        // session.user.id = token.id; // aku belum tahu masalahnya dimana, jadi sementara di komen(offkan) aja dulu dan masih aman tidak ada error
+        session.user.role = (token as ExtendedToken).role as string;
+        session.user.id = (token as ExtendedToken).id as string;
       }
       return session;
     },
