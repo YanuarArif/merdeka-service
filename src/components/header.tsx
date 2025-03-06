@@ -45,7 +45,7 @@ import { useEffect, useState } from "react";
 const Header = () => {
   const route = useRouter();
   const { data: session, status } = useSession();
-  const cartItemCount = useCartStore((state) => state.getTotalPrice());
+  const cartItemCount = useCartStore((state) => state.totalItems());
   const [isSticky, setIsSticky] = useState(false);
 
   useEffect(() => {

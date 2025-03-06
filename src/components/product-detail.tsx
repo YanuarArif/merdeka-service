@@ -12,10 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCartStore } from "@/stores/useCartStore";
+import { toast } from "@/hooks/use-toast";
 
 interface ProductDetailProps {
-  maincategory: string; // Changed from productId
-  nameproduct: string; // Added
+  maincategory: string;
+  nameproduct: string;
 }
 
 interface ProductData {
@@ -49,11 +51,12 @@ export default function ProductDetail({
   const [error, setError] = useState<string | null>(null);
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const addItemToCart = useCartStore((state) => state.addItem);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        // Fetch using maincategory and nameproduct
         const response = await fetch(
           `/api/products?category=${encodeURIComponent(maincategory)}&name=${encodeURIComponent(nameproduct)}`
         );
@@ -75,6 +78,22 @@ export default function ProductDetail({
 
     fetchProduct();
   }, [maincategory, nameproduct]);
+
+  const handleAddToCart = () => {
+    if (!product) return;
+
+    addItemToCart({
+      productId: product.id,
+      name: product.name,
+      price: Number(product.price),
+      image: product.imageUrls[0] || "/images/laptops/lenovo-laptop.jpg",
+      quantity: quantity,
+    });
+
+    toast({
+      description: `${product.name} added to cart!`,
+    });
+  };
 
   const handleImageClick = () => {
     setIsPopupOpen(true);
@@ -214,7 +233,10 @@ export default function ProductDetail({
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Quantity</label>
-              <Select defaultValue="1">
+              <Select
+                value={quantity.toString()}
+                onValueChange={(value) => setQuantity(parseInt(value))}
+              >
                 <SelectTrigger className="w-24">
                   <SelectValue />
                 </SelectTrigger>
@@ -229,7 +251,9 @@ export default function ProductDetail({
             </div>
 
             <div className="flex gap-4">
-              <Button className="flex-1">Add to cart</Button>
+              <Button className="flex-1" onClick={handleAddToCart}>
+                Add to cart
+              </Button>
               <Button className="flex-1" variant="secondary">
                 Buy now
               </Button>
