@@ -6,22 +6,23 @@ import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-// Update the interface to match Next.js page props pattern
+// Define the page props according to Next.js 15 requirements
 interface OrderPageProps {
   params: {
     id: string;
   };
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Record<string, string | string[] | undefined>;
 }
 
-export default async function OrderPage({ params }: OrderPageProps) {
+export default async function OrderPage({ 
+  params 
+}: OrderPageProps) {
   const { order, error } = await getOrder(params.id);
 
   if (error || !order) {
     return notFound();
   }
 
-  // Rest of your component remains the same
   return (
     <div className="flex flex-col gap-8 p-8">
       <div className="flex items-center justify-between">

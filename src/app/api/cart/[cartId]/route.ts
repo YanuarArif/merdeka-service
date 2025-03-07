@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { database } from "@/lib/database";
 import { auth } from "@/lib/auth";
+import { serializePrismaObject } from "@/lib/prisma-serializer";
 
 // PUT /api/cart/[cartId] - Update cart item
 export async function PUT(
@@ -46,7 +47,7 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json(updatedItem);
+    return NextResponse.json(serializePrismaObject(updatedItem));
   } catch (error) {
     console.error("[CART_UPDATE]", error);
     return new NextResponse("Internal error", { status: 500 });

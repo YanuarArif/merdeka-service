@@ -1,7 +1,9 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { database } from "@/lib/database";
-import { CartList, CartActions, CartWithItems } from "@/features/cart";
+import { CartList, CartActions } from "@/features/cart";
+import { CartWithItems } from "@/types/db";
+import { serializePrismaObject } from "@/lib/prisma-serializer";
 
 export default async function CartPage() {
   const session = await auth();
@@ -10,7 +12,7 @@ export default async function CartPage() {
     redirect("/login");
   }
 
-  const cart = (await database.cart.findFirst({
+  const cartData = await database.cart.findFirst({
     where: {
       userId: session.user.id,
     },
@@ -21,7 +23,10 @@ export default async function CartPage() {
         },
       },
     },
-  })) as CartWithItems | null;
+  });
+
+  // Serialize Prisma objects (like Decimal) to plain JavaScript types
+  const cart = cartData ? serializePrismaObject(cartData) : null;
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
@@ -31,7 +36,7 @@ export default async function CartPage() {
       <div className="grid gap-4">
         {cart ? (
           <>
-            <CartList cart={cart} />
+            <CartList cart={cart as CartWithItems} />
             <CartActions cartId={cart.id} />
           </>
         ) : (

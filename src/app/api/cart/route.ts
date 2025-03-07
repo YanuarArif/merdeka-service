@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { database } from "@/lib/database";
 import { auth } from "@/lib/auth";
+import { serializePrismaObject } from "@/lib/prisma-serializer";
 
 // GET /api/cart - Get user's cart
 export async function GET(req: NextRequest) {
@@ -10,7 +11,7 @@ export async function GET(req: NextRequest) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const cart = await database.cart.findFirst({
+    const cartData = await database.cart.findFirst({
       where: {
         userId: session.user.id,
       },
@@ -23,9 +24,9 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    if (!cart) {
+    if (!cartData) {
       // Create new cart if none exists
-      const newCart = await database.cart.create({
+      const newCartData = await database.cart.create({
         data: {
           userId: session.user.id as string,
         },
@@ -33,10 +34,10 @@ export async function GET(req: NextRequest) {
           items: true,
         },
       });
-      return NextResponse.json(newCart);
+      return NextResponse.json(serializePrismaObject(newCartData));
     }
 
-    return NextResponse.json(cart);
+    return NextResponse.json(serializePrismaObject(cartData));
   } catch (error) {
     console.error("[CART_GET]", error);
     return new NextResponse("Internal error", { status: 500 });
@@ -59,14 +60,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Get or create cart
-    let cart = await database.cart.findFirst({
+    let cartData = await database.cart.findFirst({
       where: {
         userId: session.user.id,
       },
     });
 
-    if (!cart) {
-      cart = await database.cart.create({
+    if (!cartData) {
+      cartData = await database.cart.create({
         data: {
           userId: session.user.id as string,
         },
@@ -87,7 +88,7 @@ export async function POST(req: NextRequest) {
     // Check if item already exists in cart
     const existingItem = await database.cartItem.findFirst({
       where: {
-        cartId: cart.id,
+        cartId: cartData.id,
         productId,
       },
     });
@@ -105,13 +106,13 @@ export async function POST(req: NextRequest) {
           product: true,
         },
       });
-      return NextResponse.json(updatedItem);
+      return NextResponse.json(serializePrismaObject(updatedItem));
     }
 
     // Create new cart item
     const cartItem = await database.cartItem.create({
       data: {
-        cartId: cart.id,
+        cartId: cartData.id,
         productId,
         quantity,
         price: product.price,
@@ -121,7 +122,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(cartItem);
+    return NextResponse.json(serializePrismaObject(cartItem));
   } catch (error) {
     console.error("[CART_POST]", error);
     return new NextResponse("Internal error", { status: 500 });
