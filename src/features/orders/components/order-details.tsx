@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { PaymentSection } from "./payment-section";
 
 const statusColorMap: Record<OrderStatus, string> = {
   [OrderStatus.PENDING]: "bg-yellow-500",
@@ -83,6 +84,9 @@ export function OrderDetails({ order }: OrderDetailsProps) {
           </div>
         </Card>
       </div>
+
+      {/* Add Payment Section */}
+      <PaymentSection order={order} />
 
       <Card className="p-4">
         <div className="space-y-2">
