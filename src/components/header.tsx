@@ -41,6 +41,7 @@ import { MegaDropDownMenu } from "./megadrop-menu";
 import { Separator } from "./ui/separator";
 import { MegaDropDownMenuMobile } from "./megadropmenu-mobile";
 import { useEffect, useState } from "react";
+import { initializeCart } from "@/stores/slices/cartItemsSlice";
 
 const Header = () => {
   const route = useRouter();
@@ -48,6 +49,13 @@ const Header = () => {
   const cartItemCount = useCartStore((state) => state.totalItems());
   const [isSticky, setIsSticky] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  // Initialize cart when component mounts and user is logged in
+  useEffect(() => {
+    if (mounted && session?.user) {
+      initializeCart(useCartStore.setState);
+    }
+  }, [mounted, session]);
 
   useEffect(() => {
     setMounted(true);
@@ -146,7 +154,7 @@ const Header = () => {
                 alt="Logo"
                 width={200}
                 height={100}
-                className="w-40 h-auto"
+                className="w-32 h-auto"
               />
             </div>
           </div>
@@ -171,11 +179,11 @@ const Header = () => {
               {/* Cart Icon with Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 text-sm mr-2">
+                  <button className="flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 text-sm mx-2">
                     <FiShoppingCart className="text-xl" />
                     <span className="hidden md:inline">Keranjang</span>
                     {mounted && cartItemCount > 0 && (
-                      <div className="relative top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-destructive text-white text-xs rounded-full px-2 py-0.5">
+                      <div className="relative top-0 right-4 translate-x-1/2 -translate-y-1/2 bg-destructive text-white text-xs rounded-full px-2 py-0.5">
                         {cartItemCount}
                       </div>
                     )}
@@ -194,7 +202,7 @@ const Header = () => {
                 // Jika user sudah login, tampilkan dropdown component
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex items-center text-sm hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300">
+                    <button className="flex items-center text-sm hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 mx-2">
                       <Image
                         src={session.user.image || "/images/default-avatar.png"}
                         alt="User Avatar"

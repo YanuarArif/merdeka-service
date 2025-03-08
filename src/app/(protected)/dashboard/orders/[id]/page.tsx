@@ -8,16 +8,13 @@ import { notFound } from "next/navigation";
 
 // Define the page props according to Next.js 15 requirements
 interface OrderPageProps {
-  params: {
-    id: string;
-  };
-  searchParams: Record<string, string | string[] | undefined>;
+  params: Promise<{ id: string }>; // params is a Promise in Next.js 15
+  searchParams: Promise<Record<string, string | string[] | undefined>>; // searchParams is also a Promise
 }
 
-export default async function OrderPage({ 
-  params 
-}: OrderPageProps) {
-  const { order, error } = await getOrder(params.id);
+export default async function OrderPage({ params }: OrderPageProps) {
+  const resolvedParams = await params; // Resolve the Promise to get the id
+  const { order, error } = await getOrder(resolvedParams.id);
 
   if (error || !order) {
     return notFound();

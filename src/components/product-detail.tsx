@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
+import { ErrorMessage } from "@/components/ui/errormessage";
 import Link from "next/link";
 import { ChevronRight, Star, Truck, Shield, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { useCartStore } from "@/stores/useCartStore";
 import { toast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface ProductDetailProps {
   maincategory: string;
@@ -49,6 +51,7 @@ export default function ProductDetail({
   const [product, setProduct] = useState<ProductData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [cartError, setCartError] = useState<string | undefined>(undefined);
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -79,21 +82,32 @@ export default function ProductDetail({
     fetchProduct();
   }, [maincategory, nameproduct]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = useCallback(async () => {
     if (!product) return;
+    try {
+      await addItemToCart({
+        productId: product.id,
+        name: product.name,
+        price: Number(product.price),
+        image: product.imageUrls[0] || "/images/laptops/lenovo-laptop.jpg",
+        quantity: quantity,
+      });
 
-    addItemToCart({
-      productId: product.id,
-      name: product.name,
-      price: Number(product.price),
-      image: product.imageUrls[0] || "/images/laptops/lenovo-laptop.jpg",
-      quantity: quantity,
-    });
+      toast({
+        description: `${product.name} added to cart!`,
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        setCartError(err.message);
+      } else {
+        setCartError("Failed to add item to cart");
+      }
+    }
+  }, [product, quantity, addItemToCart, toast]);
 
-    toast({
-      description: `${product.name} added to cart!`,
-    });
-  };
+  const handleCartErrorClose = useCallback(() => {
+    setCartError(undefined);
+  }, []);
 
   const handleImageClick = () => {
     setIsPopupOpen(true);
@@ -134,16 +148,24 @@ export default function ProductDetail({
       ? product.imageUrls
       : ["/images/laptops/lenovo-laptop.jpg"];
 
+  const capitalizeFirstLetter = (str: string) =>
+    str.charAt(0).toUpperCase() + str.slice(1);
+
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto py-8">
+      <ErrorMessage
+        error={cartError}
+        onClose={handleCartErrorClose}
+        duration={3000}
+      />
       {/* Breadcrumb */}
       <nav className="flex items-center space-x-2 text-sm text-muted-foreground mb-8">
         <Link href="/" className="hover:text-primary">
-          Home
+          {capitalizeFirstLetter("home")}
         </Link>
         <ChevronRight className="h-4 w-4" />
         <Link href={`/${maincategory}`} className="hover:text-primary">
-          {maincategory || "All Products"}
+          {capitalizeFirstLetter(maincategory || "all products")}
         </Link>
         <ChevronRight className="h-4 w-4" />
         <span className="text-foreground">{product.name}</span>
@@ -152,28 +174,28 @@ export default function ProductDetail({
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Product Images */}
         <div className="flex gap-4">
-          {/* Thumbnails */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 w-24 shrink-0">
             {thumbnails.map((thumb, idx) => (
               <div
                 key={idx}
-                className="w-20 h-20 border rounded-lg overflow-hidden cursor-pointer hover:border-primary"
+                className={cn(
+                  "w-full aspect-square border rounded-lg overflow-hidden cursor-pointer hover:border-primary",
+                  mainImage === thumb && "border-primary"
+                )}
                 onMouseEnter={() => setMainImage(thumb)}
               >
                 <Image
                   src={thumb}
                   alt={`Product thumbnail ${idx + 1}`}
-                  width={80}
-                  height={80}
-                  className="object-contain w-full h-auto"
+                  width={96}
+                  height={96}
+                  className="object-contain w-full h-full p-1"
                 />
               </div>
             ))}
           </div>
-
-          {/* Main Image */}
           <div
-            className="flex-1 border rounded-lg overflow-hidden relative cursor-zoom-in"
+            className="flex-1 border rounded-lg overflow-hidden relative cursor-zoom-in aspect-square"
             onClick={handleImageClick}
           >
             <Image
@@ -181,7 +203,7 @@ export default function ProductDetail({
               alt="Product main image"
               width={600}
               height={600}
-              className="object-contain w-full h-auto"
+              className="object-contain w-full h-full p-4"
             />
           </div>
         </div>
@@ -279,13 +301,13 @@ export default function ProductDetail({
           className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
           onClick={handleClosePopup}
         >
-          <div className="relative max-w-4xl max-h-[90vh]">
+          <div className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center">
             <Image
               src={mainImage || "/images/laptops/lenovo-laptop.jpg"}
               alt="Product preview"
               width={800}
               height={800}
-              className="object-contain w-full h-auto"
+              className="object-contain w-full h-full p-4"
             />
             <Button
               variant="outline"
@@ -298,6 +320,20 @@ export default function ProductDetail({
           </div>
         </div>
       )}
+
+      {/* Description Section */}
+      <div className="mt-12 border-t pt-8">
+        <h2 className="text-2xl font-semibold mb-6">Description</h2>
+        <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300">
+          {product.description ? (
+            <p>{product.description}</p>
+          ) : (
+            <p className="text-muted-foreground">
+              No description available for this product.
+            </p>
+          )}
+        </div>
+      </div>
 
       {/* Reviews Section */}
       <div className="mt-12 border-t pt-8">

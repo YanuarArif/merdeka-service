@@ -33,7 +33,12 @@ export const createCartActionsSlice: CartActionsSliceType = (set, get) => ({
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to add item to cart");
+      if (response.status === 401) {
+        throw new Error("Please login to add items to cart");
+      }
+      if (!response.ok) {
+        throw new Error("Failed to add item to cart");
+      }
 
       // Refetch cart to update state
       const cartResponse = await fetch("/api/cart", {
@@ -56,6 +61,10 @@ export const createCartActionsSlice: CartActionsSliceType = (set, get) => ({
       });
     } catch (error) {
       console.error("Error adding item to cart:", error);
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error("Failed to add item to cart");
     }
   },
 

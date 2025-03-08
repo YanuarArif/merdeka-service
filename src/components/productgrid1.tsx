@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { useCartStore } from "@/stores/useCartStore";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
+import { ErrorMessage } from "./ui/errormessage";
 
 interface ProductWithRating extends Product {
   rating: number;
@@ -19,6 +20,7 @@ export default function LaptopGrid() {
   const [products, setProducts] = useState<ProductWithRating[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [cartError, setCartError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -39,24 +41,34 @@ export default function LaptopGrid() {
     fetchProducts();
   }, []);
 
-  const handleAddToCart = (product: ProductWithRating) => {
-    const price =
-      typeof product.price === "number"
-        ? product.price
-        : parseFloat(product.price.toString());
+  const handleAddToCart = async (product: ProductWithRating) => {
+    try {
+      const price =
+        typeof product.price === "number"
+          ? product.price
+          : parseFloat(product.price.toString());
 
-    addItemToCart({
-      productId: product.id,
-      name: product.name,
-      price: price,
-      image: product.imageUrls[0] || "/images/laptops/lenovo-laptop.jpg", // Use first image
-      quantity: 1,
-    });
-    alert(`${product.name} ditambah ke Keranjang!`);
+      await addItemToCart({
+        productId: product.id,
+        name: product.name,
+        price: price,
+        image: product.imageUrls[0] || "/images/laptops/lenovo-laptop.jpg",
+        quantity: 1,
+      });
+    } catch (err) {
+      setCartError(
+        err instanceof Error ? err.message : "Failed to add item to cart"
+      );
+    }
   };
 
   return (
     <section className="w-full py-6">
+      <ErrorMessage
+        error={cartError}
+        onClose={() => setCartError(undefined)}
+        duration={3000}
+      />
       <div className="container">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm md:text-lg font-medium md:underline decoration-4 decoration-blue-500 underline-offset-8">
