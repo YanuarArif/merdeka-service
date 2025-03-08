@@ -6,9 +6,10 @@ import { serializePrismaObject } from "@/lib/prisma-serializer";
 // PUT /api/cart/[cartId] - Update cart item
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { cartId: string } }
+  { params }: { params: Promise<{ cartId: string }> } // Fix: params is a Promise
 ) {
   try {
+    const resolvedParams = await params; // Fix: Await the Promise
     const session = await auth();
     if (!session?.user) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -24,7 +25,7 @@ export async function PUT(
     // Verify cart belongs to user
     const cart = await database.cart.findFirst({
       where: {
-        id: params.cartId,
+        id: resolvedParams.cartId, // Use resolved params
         userId: session.user.id,
       },
     });
@@ -57,9 +58,10 @@ export async function PUT(
 // DELETE /api/cart/[cartId] - Remove item from cart or clear cart
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { cartId: string } }
+  { params }: { params: Promise<{ cartId: string }> } // Fix: params is a Promise
 ) {
   try {
+    const resolvedParams = await params; // Fix: Await the Promise
     const session = await auth();
     if (!session?.user) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -68,7 +70,7 @@ export async function DELETE(
     // Verify cart belongs to user
     const cart = await database.cart.findFirst({
       where: {
-        id: params.cartId,
+        id: resolvedParams.cartId, // Use resolved params
         userId: session.user.id,
       },
     });

@@ -6,15 +6,15 @@ import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-// Define the page props according to Next.js 15 requirements
+// Use Next.js built-in PageProps type if available, or define explicitly
 interface OrderPageProps {
-  params: Promise<{ id: string }>; // params is a Promise in Next.js 15
-  searchParams: Promise<Record<string, string | string[] | undefined>>; // searchParams is also a Promise
+  params: Promise<{ id: string }>; // Explicitly a Promise for Next.js 15
+  searchParams?: Promise<Record<string, string | string[] | undefined>>; // Optional, since unused
 }
 
 export default async function OrderPage({ params }: OrderPageProps) {
-  const resolvedParams = await params; // Resolve the Promise to get the id
-  const { order, error } = await getOrder(resolvedParams.id);
+  const { id } = await params; // Destructure after awaiting
+  const { order, error } = await getOrder(id);
 
   if (error || !order) {
     return notFound();
