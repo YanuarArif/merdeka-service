@@ -8,12 +8,12 @@ import { notFound } from "next/navigation";
 
 // Use Next.js built-in PageProps type if available, or define explicitly
 interface OrderPageProps {
-  params: Promise<{ id: string }>; // Explicitly a Promise for Next.js 15
-  searchParams?: Promise<Record<string, string | string[] | undefined>>; // Optional, since unused
+  params: { id: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
 export default async function OrderPage({ params }: OrderPageProps) {
-  const { id } = await params; // Destructure after awaiting
+  const { id } = params;
   const { order, error } = await getOrder(id);
 
   if (error || !order) {

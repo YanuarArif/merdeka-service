@@ -13,7 +13,7 @@ export const metadata = {
 export default async function OrdersPage() {
   const { orders, error } = await getOrders();
 
-  console.log("Orders page data:", { orders, error });
+  // console.log("Orders page data:", { orders, error });
 
   if (error) {
     return (
@@ -28,22 +28,20 @@ export default async function OrdersPage() {
     );
   }
 
-  console.log("All orders from getOrders:", orders);
-
   // Count orders by status
   const pendingOrders =
     orders?.filter((order) => order.status === "PENDING") || [];
-  console.log("Filtered pending orders:", pendingOrders);
+  // console.log("Filtered pending orders:", pendingOrders);
 
   const processingOrders =
     orders?.filter((order) => order.status === "PROCESSING") || [];
-  console.log("Filtered processing orders:", processingOrders);
+  // console.log("Filtered processing orders:", processingOrders);
 
   const completedOrders =
     orders?.filter((order) =>
       ["DELIVERED", "SHIPPED"].includes(order.status)
     ) || [];
-  console.log("Filtered completed orders:", completedOrders);
+  // console.log("Filtered completed orders:", completedOrders);
 
   return (
     <div className="flex flex-col gap-8 p-8">

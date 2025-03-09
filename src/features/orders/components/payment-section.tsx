@@ -55,12 +55,13 @@ export function PaymentSection({ order }: PaymentSectionProps) {
               orderId: order.id,
               amount: order.totalAmount,
               customerDetails: {
-                firstName: order.shippingAddress.fullName.split(" ")[0],
-                lastName: order.shippingAddress.fullName
-                  .split(" ")
-                  .slice(1)
-                  .join(" "),
-                phone: order.shippingAddress.phone,
+                firstName: order.shippingAddress?.fullName
+                  ? order.shippingAddress.fullName.split(" ")[0]
+                  : "Guest",
+                lastName: order.shippingAddress?.fullName
+                  ? order.shippingAddress.fullName.split(" ").slice(1).join(" ")
+                  : "Customer",
+                phone: order.shippingAddress?.phone || "-",
               },
             }}
             onSuccess={handlePaymentSuccess}
