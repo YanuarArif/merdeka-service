@@ -2,10 +2,21 @@
 
 import { database } from "@/lib/database";
 import { Order, OrderStatus, PaymentStatus } from "@/types/order";
+import { auth } from "@/lib/auth";
 
 export async function getOrders() {
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    return { error: "Not authenticated" };
+  }
+
   try {
     const orders = await database.order.findMany({
+      where: {
+        userId: userId,
+      },
       include: {
         items: {
           include: {

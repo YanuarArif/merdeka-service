@@ -6,8 +6,14 @@ import { Order, OrderStatus, PaymentStatus } from "@/types/order";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
+import { Eye, Package, ShoppingCart, Truck } from "lucide-react";
 import Link from "next/link";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const statusColorMap: Record<OrderStatus, string> = {
   [OrderStatus.PENDING]: "bg-yellow-500",
@@ -15,6 +21,14 @@ const statusColorMap: Record<OrderStatus, string> = {
   [OrderStatus.SHIPPED]: "bg-purple-500",
   [OrderStatus.DELIVERED]: "bg-green-500",
   [OrderStatus.CANCELLED]: "bg-red-500",
+};
+
+const statusIconMap: Record<OrderStatus, React.ReactNode> = {
+  [OrderStatus.PENDING]: <ShoppingCart className="h-3 w-3 mr-1" />,
+  [OrderStatus.PROCESSING]: <Package className="h-3 w-3 mr-1" />,
+  [OrderStatus.SHIPPED]: <Truck className="h-3 w-3 mr-1" />,
+  [OrderStatus.DELIVERED]: <Package className="h-3 w-3 mr-1" />,
+  [OrderStatus.CANCELLED]: <Package className="h-3 w-3 mr-1" />,
 };
 
 const paymentStatusColorMap: Record<PaymentStatus, string> = {
@@ -28,6 +42,10 @@ export const columns: ColumnDef<Order>[] = [
   {
     accessorKey: "orderNumber",
     header: "Order Number",
+    cell: ({ row }) => {
+      const orderNumber = row.getValue("orderNumber") as string;
+      return <div className="font-medium">#{orderNumber}</div>;
+    },
   },
   {
     accessorKey: "status",
@@ -35,7 +53,10 @@ export const columns: ColumnDef<Order>[] = [
     cell: ({ row }) => {
       const status = row.getValue("status") as OrderStatus;
       return (
-        <Badge className={`${statusColorMap[status]} text-white`}>
+        <Badge
+          className={`${statusColorMap[status]} text-white inline-flex items-center`}
+        >
+          {statusIconMap[status]}
           {status}
         </Badge>
       );
@@ -47,9 +68,42 @@ export const columns: ColumnDef<Order>[] = [
     cell: ({ row }) => {
       const status = row.getValue("paymentStatus") as PaymentStatus;
       return (
-        <Badge className={`${paymentStatusColorMap[status]} text-white`}>
-          {status}
-        </Badge>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Badge className={`${paymentStatusColorMap[status]} text-white`}>
+                {status}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Payment {status.toLowerCase()}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    },
+  },
+  {
+    accessorKey: "items",
+    header: "Items",
+    cell: ({ row }) => {
+      const items = row.original.items;
+      const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+      const itemsList = items
+        .map((item) => `${item.quantity}x ${item.product.name}`)
+        .join("\n");
+
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <span className="text-sm">{totalItems} items</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <pre className="whitespace-pre text-sm">{itemsList}</pre>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       );
     },
   },
@@ -62,14 +116,26 @@ export const columns: ColumnDef<Order>[] = [
         style: "currency",
         currency: "IDR",
       }).format(amount);
-      return formatted;
+      return <div className="font-medium">{formatted}</div>;
     },
   },
   {
     accessorKey: "createdAt",
     header: "Date",
     cell: ({ row }) => {
-      return format(new Date(row.getValue("createdAt")), "PPP");
+      const date = new Date(row.getValue("createdAt"));
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <span>{format(date, "PP")}</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{format(date, "PPpp")}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
     },
   },
   {
