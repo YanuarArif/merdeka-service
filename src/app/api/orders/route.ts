@@ -29,10 +29,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
-    // Calculate total amount (ensure amounts are in the smallest currency unit, e.g., cents)
+    // Calculate total amount
     const totalAmount = cart.items.reduce(
-      (sum, item) =>
-        sum + item.quantity * Math.round(item.price.toNumber() * 100),
+      (sum, item) => sum + item.quantity * item.price.toNumber(),
       0
     );
 
@@ -44,7 +43,7 @@ export async function POST(request: NextRequest) {
       data: {
         orderNumber,
         userId,
-        totalAmount: totalAmount / 100, // Convert back to decimal for database storage
+        totalAmount: totalAmount,
         shippingAddress: {}, // Will be updated during checkout
         items: {
           create: cart.items.map((item) => ({

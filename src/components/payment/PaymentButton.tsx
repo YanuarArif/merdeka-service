@@ -197,13 +197,21 @@ export function PaymentButton({
 
     setIsLoading(true);
     try {
+      // Create a copy of payment details with the correct amount format
+      const paymentPayload = {
+        ...paymentDetails,
+        // Ensure we're sending the exact amount without any conversion
+        // Midtrans expects the amount in the smallest currency unit (IDR)
+        amount: Math.round(paymentDetails.amount)
+      };
+
       const response = await fetch("/api/payment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Idempotency-Key": `payment_${paymentDetails.orderId}_${Date.now()}`,
         },
-        body: JSON.stringify(paymentDetails),
+        body: JSON.stringify(paymentPayload),
       });
 
       if (!response.ok) {

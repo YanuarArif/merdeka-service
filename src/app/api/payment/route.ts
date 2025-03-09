@@ -85,8 +85,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert amount to cents (Midtrans expects amount in smallest currency unit)
-    const amount = Math.round(order.totalAmount.toNumber() * 100);
+    // Use the raw amount for IDR (no cents conversion needed)
+    const amount = Math.round(order.totalAmount.toNumber());
 
     // Prepare customer info from order
     const customerDetails = {
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
       try {
         transaction = await createTransaction({
           orderId,
-          amount, // Amount in cents
+          amount, // Amount in Rupiah
           customerDetails,
         });
         break;
