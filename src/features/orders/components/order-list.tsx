@@ -40,6 +40,7 @@ const paymentStatusColorMap: Record<PaymentStatus, string> = {
 
 export const columns: ColumnDef<Order>[] = [
   {
+    id: "orderNumber",
     accessorKey: "orderNumber",
     header: "Order Number",
     cell: ({ row }) => {
@@ -48,6 +49,7 @@ export const columns: ColumnDef<Order>[] = [
     },
   },
   {
+    id: "status",
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
@@ -63,6 +65,7 @@ export const columns: ColumnDef<Order>[] = [
     },
   },
   {
+    id: "paymentStatus",
     accessorKey: "paymentStatus",
     header: "Payment",
     cell: ({ row }) => {
@@ -84,6 +87,7 @@ export const columns: ColumnDef<Order>[] = [
     },
   },
   {
+    id: "items",
     accessorKey: "items",
     header: "Items",
     cell: ({ row }) => {
@@ -108,6 +112,7 @@ export const columns: ColumnDef<Order>[] = [
     },
   },
   {
+    id: "totalAmount",
     accessorKey: "totalAmount",
     header: "Total",
     cell: ({ row }) => {
@@ -120,6 +125,7 @@ export const columns: ColumnDef<Order>[] = [
     },
   },
   {
+    id: "createdAt",
     accessorKey: "createdAt",
     header: "Date",
     cell: ({ row }) => {
@@ -160,11 +166,15 @@ interface OrderListProps {
 }
 
 export function OrderList({ orders }: OrderListProps) {
-  return (
-    <DataTable<Order, any>
-      columns={columns}
-      data={orders}
-      totalItems={orders.length}
-    />
-  );
+  console.log("OrderList component rendering with:", {
+    ordersLength: orders.length,
+    firstOrder: orders[0],
+    orderStatus: orders.map((order) => order.status),
+    columns: columns.map((col) => ({
+      id: col.id,
+      accessorKey: "accessorKey" in col ? col.accessorKey : undefined,
+    })),
+  });
+
+  return <DataTable<Order, any> columns={columns} data={orders} />;
 }

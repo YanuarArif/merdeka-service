@@ -28,15 +28,22 @@ export default async function OrdersPage() {
     );
   }
 
+  console.log("All orders from getOrders:", orders);
+
   // Count orders by status
   const pendingOrders =
     orders?.filter((order) => order.status === "PENDING") || [];
+  console.log("Filtered pending orders:", pendingOrders);
+
   const processingOrders =
     orders?.filter((order) => order.status === "PROCESSING") || [];
+  console.log("Filtered processing orders:", processingOrders);
+
   const completedOrders =
     orders?.filter((order) =>
       ["DELIVERED", "SHIPPED"].includes(order.status)
     ) || [];
+  console.log("Filtered completed orders:", completedOrders);
 
   return (
     <div className="flex flex-col gap-8 p-8">
@@ -86,22 +93,30 @@ export default async function OrdersPage() {
       <Card className="p-6">
         <Tabs defaultValue="all" className="w-full">
           <TabsList>
-            <TabsTrigger value="all">All Orders</TabsTrigger>
-            <TabsTrigger value="pending">Pending</TabsTrigger>
-            <TabsTrigger value="processing">Processing</TabsTrigger>
-            <TabsTrigger value="completed">Completed</TabsTrigger>
+            <TabsTrigger value="all">
+              All Orders ({orders?.length || 0})
+            </TabsTrigger>
+            <TabsTrigger value="pending">
+              Pending ({pendingOrders.length})
+            </TabsTrigger>
+            <TabsTrigger value="processing">
+              Processing ({processingOrders.length})
+            </TabsTrigger>
+            <TabsTrigger value="completed">
+              Completed ({completedOrders.length})
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="all">
-            <OrderList orders={orders || []} />
+            <OrderList orders={orders || []} key="all" />
           </TabsContent>
           <TabsContent value="pending">
-            <OrderList orders={pendingOrders} />
+            <OrderList orders={pendingOrders} key="pending" />
           </TabsContent>
           <TabsContent value="processing">
-            <OrderList orders={processingOrders} />
+            <OrderList orders={processingOrders} key="processing" />
           </TabsContent>
           <TabsContent value="completed">
-            <OrderList orders={completedOrders} />
+            <OrderList orders={completedOrders} key="completed" />
           </TabsContent>
         </Tabs>
         {orders?.length === 0 && (
