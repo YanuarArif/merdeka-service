@@ -1,8 +1,32 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { NextRequest } from "next/server";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+export function getClientIp(request: NextRequest): string | undefined {
+  // Check X-Forwarded-For header
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  if (forwardedFor) {
+    return forwardedFor.split(",")[0].trim();
+  }
+
+  // Check Real IP header
+  const realIp = request.headers.get("x-real-ip");
+  if (realIp) {
+    return realIp;
+  }
+
+  // Return the first available header or default IP
+  return (
+    request.headers.get("x-forwarded-for") ??
+    request.headers.get("x-real-ip") ??
+    request.headers.get("true-client-ip") ??
+    request.headers.get("cf-connecting-ip") ??
+    "127.0.0.1"
+  );
 }
 
 export function formatCurrency(amount: number) {

@@ -43,9 +43,21 @@ export function CartActions({ cartId }: CartActionsProps) {
       setLoading("checkout");
       setError(null);
 
-      // Here you would implement checkout logic
-      // For example, create an order from cart items
-      router.push("/checkout");
+      // Create order from cart
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to create order");
+      }
+
+      const { orderId } = await response.json();
+
+      // Redirect to checkout page with order ID
+      router.push(`/dashboard/checkout?orderId=${orderId}`);
     } catch (error) {
       console.error("Error during checkout:", error);
       setError(
