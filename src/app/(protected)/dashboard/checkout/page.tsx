@@ -127,7 +127,7 @@ export default function CheckoutPage() {
             <PaymentButton
               paymentDetails={{
                 orderId: orderDetails.id,
-                amount: Math.round(orderDetails.total * 100), // Convert to cents
+                amount: Math.round(orderDetails.total), // Convert to cents
               }}
               onSuccess={handlePaymentSuccess}
               onError={handlePaymentError}
