@@ -3,6 +3,14 @@ import { SideItem } from "@/types";
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const sidebarItems: SideItem[] = [
   {
+    title: "Home",
+    url: "/",
+    icon: "home",
+    shortcut: ["k", "k"],
+    isActive: false,
+    items: [], // No child items
+  },
+  {
     title: "Dashboard",
     url: "/dashboard/overview",
     icon: "dashboard",
@@ -30,35 +38,6 @@ export const sidebarItems: SideItem[] = [
     ], // No child items
   },
   {
-    title: "Settings",
-    url: "#", // Placeholder as there is no direct link for the parent
-    icon: "settings",
-    isActive: false,
-
-    items: [
-      {
-        title: "Account",
-        shortcut: ["l", "l"],
-        url: "/dashboard/account",
-        icon: "login",
-      },
-      {
-        title: "Profile",
-        url: "/dashboard/profile",
-        icon: "userPen",
-        shortcut: ["m", "m"],
-      },
-    ],
-  },
-  {
-    title: "Shopping Cart",
-    url: "/dashboard/cart",
-    icon: "cart",
-    shortcut: ["s", "c"],
-    isActive: false,
-    items: [],
-  },
-  {
     title: "Orders",
     url: "/dashboard/orders",
     icon: "orders",
@@ -67,11 +46,11 @@ export const sidebarItems: SideItem[] = [
     items: [],
   },
   {
-    title: "Home",
-    url: "/",
-    icon: "home",
-    shortcut: ["k", "k"],
+    title: "Shopping Cart",
+    url: "/dashboard/cart",
+    icon: "cart",
+    shortcut: ["s", "c"],
     isActive: false,
-    items: [], // No child items
+    items: [],
   },
 ];
