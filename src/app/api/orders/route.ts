@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { database } from "@/lib/database";
+import { generateOrderNumber } from "@/lib/order-number";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -35,8 +36,8 @@ export async function POST(request: NextRequest) {
       0
     );
 
-    // Generate order number (current timestamp + random string)
-    const orderNumber = `ORD${Date.now()}${Math.random().toString(36).substr(2, 5)}`;
+    // Generate readable order number
+    const orderNumber = await generateOrderNumber(database);
 
     // Create order with items
     const order = await database.order.create({
