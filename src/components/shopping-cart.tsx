@@ -43,14 +43,18 @@ const ShoppingCart = () => {
 
   if (cartItems.length === 0) {
     return (
-      <Card className="w-full h-full">
-        <CardHeader>
-          <CardTitle>Your Cart</CardTitle>
-          <CardDescription>Your cart is empty.</CardDescription>
+      <Card className="w-full h-full bg-white shadow-lg border-0 rounded-xl">
+        <CardHeader className="text-center py-6">
+          <CardTitle className="text-2xl font-bold text-gray-800">
+            Your Cart
+          </CardTitle>
+          <CardDescription className="text-gray-500 mt-2">
+            Your cart is empty.
+          </CardDescription>
         </CardHeader>
-        <CardContent className="p-6">
-          <p className="text-muted-foreground">
-            Add items to your cart to proceed.
+        <CardContent className="p-6 text-center">
+          <p className="text-gray-600">
+            Add items to your cart to proceed with your shopping.
           </p>
         </CardContent>
       </Card>
@@ -58,18 +62,23 @@ const ShoppingCart = () => {
   }
 
   return (
-    <Card className="w-full h-full max-h-[80vh] flex flex-col">
-      <CardHeader>
-        <CardTitle>Your Cart</CardTitle>
-        <CardDescription>{cartItems.length} items in your cart</CardDescription>
+    <Card className="w-full h-full max-h-[80vh] flex flex-col bg-white shadow-lg border-0 rounded-xl overflow-hidden">
+      <CardHeader className="bg-gray-50 py-4 px-6 border-b">
+        <CardTitle className="text-xl font-semibold text-gray-800">
+          Your Cart
+        </CardTitle>
+        <CardDescription className="text-gray-500">
+          {cartItems.length} item{cartItems.length !== 1 ? "s" : ""} in your
+          cart
+        </CardDescription>
       </CardHeader>
-      <CardContent className="flex-grow overflow-hidden">
-        <ScrollArea className="h-full">
-          <div className="space-y-4">
+      <CardContent className="flex-grow p-4 overflow-hidden">
+        <ScrollArea className="h-full pr-4">
+          <div className="space-y-6">
             {cartItems.map((item) => (
               <div
                 key={item.productId}
-                className="flex items-center justify-between"
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
               >
                 <div className="flex items-center space-x-4">
                   {item.image && (
@@ -78,27 +87,31 @@ const ShoppingCart = () => {
                       alt={item.name}
                       width={80}
                       height={80}
-                      className="rounded-md aspect-square object-cover"
+                      className="rounded-md aspect-square object-cover border border-gray-200"
                     />
                   )}
-                  <div>
-                    <p className="font-semibold">{item.name}</p>
-                    <p className="text-muted-foreground text-sm">
+                  <div className="space-y-1">
+                    <p className="font-medium text-gray-800">{item.name}</p>
+                    <p className="text-sm text-gray-600">
                       {formatCurrency(item.price)}
                     </p>
-                    <div className="flex items-center space-x-2 mt-1">
+                    <div className="flex items-center space-x-2 mt-2">
                       <Button
                         variant="outline"
-                        size="icon"
+                        size="sm"
+                        className="h-8 w-8 rounded-full"
                         onClick={() => handleDecreaseQuantity(item.productId)}
                         disabled={item.quantity <= 1}
                       >
                         -
                       </Button>
-                      <span>{item.quantity}</span>
+                      <span className="text-sm font-medium text-gray-700">
+                        {item.quantity}
+                      </span>
                       <Button
                         variant="outline"
-                        size="icon"
+                        size="sm"
+                        className="h-8 w-8 rounded-full"
                         onClick={() => handleIncreaseQuantity(item.productId)}
                       >
                         +
@@ -109,29 +122,32 @@ const ShoppingCart = () => {
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="text-red-500 hover:text-red-700 hover:bg-red-100 rounded-full h-10 w-10"
                   onClick={() => handleRemoveItem(item.productId)}
                   aria-label={`Remove ${item.name} from cart`}
                 >
-                  <XCircle className="h-4 w-4" />
+                  <XCircle className="h-5 w-5" />
                 </Button>
               </div>
             ))}
           </div>
         </ScrollArea>
       </CardContent>
-      <CardFooter className="flex flex-col space-y-4 border-t py-4">
-        <div className="flex justify-between font-semibold">
+      <CardFooter className="bg-gray-50 p-4 border-t flex flex-col space-y-4">
+        <div className="flex justify-between items-center text-lg font-semibold text-gray-800">
           <span>Subtotal</span>
           <span>{formatCurrency(totalPrice)}</span>
         </div>
         <Button
           variant="destructive"
+          className="w-full rounded-lg hover:bg-red-600 transition-colors"
           onClick={handleClearCart}
-          className="w-full"
         >
           Clear Cart
         </Button>
-        <Button className="w-full">Checkout</Button>
+        <Button className="w-full bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          Proceed to Checkout
+        </Button>
       </CardFooter>
     </Card>
   );

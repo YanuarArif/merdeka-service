@@ -1,4 +1,5 @@
 import midtransClient from "midtrans-client";
+import { PAYMENT_URLS } from "../config/payment";
 
 // Create Snap API instance
 export const snap = new midtransClient.Snap({
@@ -35,6 +36,11 @@ export async function createTransaction(paymentDetails: PaymentDetails) {
       secure: true,
     },
     customer_details: paymentDetails.customerDetails,
+    callbacks: {
+      finish: PAYMENT_URLS.MIDTRANS_SETTINGS.SUCCESS_REDIRECT,
+      error: PAYMENT_URLS.MIDTRANS_SETTINGS.ERROR_REDIRECT,
+      pending: PAYMENT_URLS.MIDTRANS_SETTINGS.UNFINISH_REDIRECT,
+    },
   };
 
   try {

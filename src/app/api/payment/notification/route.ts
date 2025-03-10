@@ -1,84 +1,74 @@
 import { coreApi } from "@/lib/midtrans";
-import { NextRequest, NextResponse } from "next/server";
 import { database } from "@/lib/database";
+import { NextRequest, NextResponse } from "next/server";
 import { OrderStatus, PaymentStatus } from "@/types/order";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    const statusResponse = await coreApi.transaction.notification(body);
-    const orderId = statusResponse.order_id;
-    const transactionStatus = statusResponse.transaction_status;
-    const fraudStatus = statusResponse.fraud_status;
-    const paymentType = statusResponse.payment_type;
+    // Verify the notification is from Midtrans
+    try {
+      const notificationObject = await coreApi.transaction.notification(body);
+      const orderId = notificationObject.order_id;
+      const transactionStatus = notificationObject.transaction_status;
+      const fraudStatus = notificationObject.fraud_status;
 
-    console.log(
-      `Transaction notification received. Order ID: ${orderId}. Transaction status: ${transactionStatus}. Payment type: ${paymentType}. Fraud status: ${fraudStatus}`
-    );
+      // Default status
+      let paymentStatus: PaymentStatus = PaymentStatus.PENDING;
+      let orderStatus: OrderStatus = OrderStatus.PENDING;
 
-    const order = await database.order.findUnique({
-      where: { id: orderId },
-    });
-
-    if (!order) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
-    }
-
-    // Handle the transaction status
-    if (transactionStatus === "capture") {
-      if (fraudStatus === "challenge") {
-        await database.order.update({
-          where: { id: orderId },
-          data: {
-            paymentStatus: PaymentStatus.PENDING,
-            status: OrderStatus.PENDING,
-          },
-        });
-      } else if (fraudStatus === "accept") {
-        await database.order.update({
-          where: { id: orderId },
-          data: {
-            paymentStatus: PaymentStatus.PAID,
-            status: OrderStatus.PROCESSING,
-          },
-        });
+      // Update status based on Midtrans response
+      if (transactionStatus === "capture") {
+        if (fraudStatus === "challenge") {
+          // Do nothing, wait for manual review
+          paymentStatus = PaymentStatus.PENDING;
+          orderStatus = OrderStatus.PENDING;
+        } else if (fraudStatus === "accept") {
+          paymentStatus = PaymentStatus.PAID;
+          orderStatus = OrderStatus.PROCESSING;
+        }
+      } else if (transactionStatus === "settlement") {
+        paymentStatus = PaymentStatus.PAID;
+        orderStatus = OrderStatus.PROCESSING;
+      } else if (
+        transactionStatus === "cancel" ||
+        transactionStatus === "deny"
+      ) {
+        paymentStatus = PaymentStatus.FAILED;
+        orderStatus = OrderStatus.CANCELLED;
+      } else if (transactionStatus === "pending") {
+        paymentStatus = PaymentStatus.PENDING;
+        orderStatus = OrderStatus.PENDING;
+      } else if (transactionStatus === "expire") {
+        paymentStatus = PaymentStatus.FAILED;
+        orderStatus = OrderStatus.CANCELLED;
+      } else if (transactionStatus === "refund") {
+        paymentStatus = PaymentStatus.REFUNDED;
+        orderStatus = OrderStatus.CANCELLED;
       }
-    } else if (transactionStatus === "settlement") {
-      await database.order.update({
-        where: { id: orderId },
-        data: {
-          paymentStatus: PaymentStatus.PAID,
-          status: OrderStatus.PROCESSING,
-        },
-      });
-    } else if (
-      transactionStatus === "cancel" ||
-      transactionStatus === "deny" ||
-      transactionStatus === "expire"
-    ) {
-      await database.order.update({
-        where: { id: orderId },
-        data: {
-          paymentStatus: PaymentStatus.FAILED,
-          status: OrderStatus.CANCELLED,
-        },
-      });
-    } else if (transactionStatus === "pending") {
-      await database.order.update({
-        where: { id: orderId },
-        data: {
-          paymentStatus: PaymentStatus.PENDING,
-          status: OrderStatus.PENDING,
-        },
-      });
-    }
 
-    return NextResponse.json({ success: true });
+      // Update order status in database
+      await database.order.update({
+        where: { id: orderId },
+        data: {
+          paymentStatus,
+          status: orderStatus,
+        },
+      });
+
+      return NextResponse.json({ success: true });
+    } catch (error) {
+      console.error("Error processing Midtrans notification:", error);
+      return NextResponse.json(
+        { error: "Invalid notification" },
+        { status: 400 }
+      );
+    }
   } catch (error) {
-    console.error("Notification error:", error);
+    console.error("Error handling payment notification:", error);
     return NextResponse.json(
-      { error: "Failed to process notification" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
