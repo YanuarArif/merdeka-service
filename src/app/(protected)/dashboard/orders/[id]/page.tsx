@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { getOrder } from "@/app/actions/get-order";
 import { OrderDetails } from "@/features/orders/components/order-details";
 import { Button } from "@/components/ui/button";
@@ -5,19 +8,35 @@ import { Card } from "@/components/ui/card";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { useParams } from "next/navigation";
 
-// Use Next.js built-in PageProps type if available, or define explicitly
-interface OrderPageProps {
-  params: { id: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
-}
+export default function OrderPage() {
+  const params = useParams(); // Get dynamic params client-side
+  const [order, setOrder] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
-export default async function OrderPage({ params }: OrderPageProps) {
-  const { id } = params;
-  const { order, error } = await getOrder(id);
+  useEffect(() => {
+    async function fetchOrder() {
+      const id = params?.id as string;
+      if (!id) return;
 
-  if (error || !order) {
+      const { order, error } = await getOrder(id);
+      if (error || !order) {
+        setError("Order not found");
+      } else {
+        setOrder(order);
+      }
+    }
+
+    fetchOrder();
+  }, [params]);
+
+  if (error) {
     return notFound();
+  }
+
+  if (!order) {
+    return <div>Loading...</div>; // Optional loading state
   }
 
   return (

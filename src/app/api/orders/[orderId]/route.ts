@@ -4,10 +4,11 @@ import { serializePrismaObject } from "@/lib/prisma-serializer";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { orderId: string } }
+  { params }: { params: Promise<{ orderId: string }> } // Fix: params is a Promise
 ) {
   try {
-    const orderId = params.orderId;
+    const resolvedParams = await params; // Fix: Await the Promise
+    const orderId = resolvedParams.orderId; // Access orderId after awaiting
 
     const order = await database.order.findUnique({
       where: { id: orderId },
