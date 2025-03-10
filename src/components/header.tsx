@@ -1,3 +1,4 @@
+// src/components/header.tsx
 "use client";
 
 import { FiSearch, FiUser, FiShoppingCart, FiMapPin } from "react-icons/fi";
@@ -44,16 +45,26 @@ import { useEffect, useState } from "react";
 import { initializeCart } from "@/stores/slices/cartItemsSlice";
 
 const Header = () => {
-  const route = useRouter();
+  const router = useRouter();
   const { data: session, status } = useSession();
   const cartItemCount = useCartStore((state) => state.totalItems());
   const [isSticky, setIsSticky] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isCartLoading, setIsCartLoading] = useState(false); // Added for cart robustness
+  const [cartError, setCartError] = useState<string | null>(null); // Added for cart robustness
 
   // Initialize cart when component mounts and user is logged in
   useEffect(() => {
     if (mounted && session?.user) {
-      initializeCart(useCartStore.setState);
+      setIsCartLoading(true);
+      try {
+        initializeCart(useCartStore.setState);
+      } catch (error) {
+        setCartError("Failed to load cart items. Please try again.");
+        console.error("Cart initialization error:", error);
+      } finally {
+        setIsCartLoading(false);
+      }
     }
   }, [mounted, session]);
 
@@ -80,7 +91,9 @@ const Header = () => {
 
   return (
     <nav
-      className={`sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-md dark:shadow-lg ${isSticky ? "sticky top-0" : ""}`}
+      className={`sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-md dark:shadow-lg ${
+        isSticky ? "sticky top-0" : ""
+      }`}
     >
       {/* Main Header */}
       <div className="px-4 py-1">
@@ -104,7 +117,13 @@ const Header = () => {
                     <SheetHeader>
                       <SheetTitle>
                         <a href={logo.url} className="flex items-center gap-2">
-                          <img src={logo.src} className="w-8" alt={logo.alt} />
+                          <Image
+                            src={logo.src}
+                            width={32}
+                            height={32}
+                            className="w-8"
+                            alt={logo.alt}
+                          />
                           <span className="text-lg font-semibold">
                             {logo.title}
                           </span>
@@ -147,7 +166,7 @@ const Header = () => {
             </div>
             <div
               className="cursor-pointer mx-1 my-1"
-              onClick={() => route.push("/")}
+              onClick={() => router.push("/")}
             >
               <Image
                 src="/images/merdeka-logo-cut.png"
@@ -179,18 +198,38 @@ const Header = () => {
               {/* Cart Icon with Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 text-sm mx-2">
+                  <button className="flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 text-sm mx-2 relative">
                     <FiShoppingCart className="text-xl" />
                     <span className="hidden md:inline">Keranjang</span>
                     {mounted && cartItemCount > 0 && (
-                      <div className="relative top-0 right-4 translate-x-1/2 -translate-y-1/2 bg-destructive text-white text-xs rounded-full px-2 py-0.5">
+                      <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {cartItemCount}
                       </div>
                     )}
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {mounted && <ShoppingCart />}
+                <DropdownMenuContent
+                  className="w-[90vw] sm:w-[400px] md:w-[450px] lg:w-[500px] max-h-[70vh] p-2 bg-white shadow-xl rounded-xl border border-gray-200 overflow-auto"
+                  align="end"
+                >
+                  {isCartLoading ? (
+                    <div className="p-4 text-center text-gray-600">
+                      Loading cart...
+                    </div>
+                  ) : cartError ? (
+                    <div className="p-4 text-center text-red-500">
+                      {cartError}
+                      <Button
+                        variant="link"
+                        onClick={() => window.location.reload()}
+                        className="mt-2 text-blue-500"
+                      >
+                        Retry
+                      </Button>
+                    </div>
+                  ) : (
+                    <ShoppingCart />
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
 
@@ -199,46 +238,29 @@ const Header = () => {
               {status === "loading" ? (
                 <span>Loading...</span>
               ) : session?.user ? (
-                // Jika user sudah login, tampilkan dropdown component
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="flex items-center text-sm hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 mx-2">
-                      <Image
-                        src={session.user.image || "/images/default-avatar.png"}
-                        alt="User Avatar"
-                        width={30}
-                        height={30}
-                        className="rounded-full mr-2"
-                      />
-                      <span className="hidden md:inline">
-                        {session.user.email}
-                      </span>
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-45" align="end">
-                    <DropdownMenuItem
-                      onClick={() => route.push("/dashboard")}
-                      className="hover:cursor-pointer"
-                    >
-                      Dashboard
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => {
-                        handleLogout();
-                      }}
-                      className="hover:cursor-pointer"
-                    >
-                      Logout
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                // Direct navigation to dashboard instead of dropdown
+                <button
+                  onClick={() => router.push("/dashboard")}
+                  className="flex items-center hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 mx-2 transition-colors duration-200"
+                >
+                  <Image
+                    src={session.user.image || "/images/default-avatar.png"}
+                    alt="User Avatar"
+                    width={32}
+                    height={32}
+                    className="rounded-full mr-2 border-2 border-gray-200 hover:border-gray-300 transition-all duration-200"
+                  />
+                  <span className="hidden md:inline text-sm font-medium">
+                    {session.user.email?.split("@")[0] || "User"}
+                  </span>
+                </button>
               ) : (
                 // Jika user belum masuk
                 <button
                   onClick={() => {
-                    route.push("/login");
+                    router.push("/login");
                   }}
-                  className="flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 text-sm"
+                  className="flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 text-sm transition-colors duration-200"
                 >
                   <FiUser className="text-xl" />
                   <span className="hidden md:inline">Masuk/Daftar</span>

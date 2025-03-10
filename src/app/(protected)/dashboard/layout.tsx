@@ -1,3 +1,4 @@
+// src/components/layout/dashboard-layout.tsx
 import KBar from "@/components/kbar";
 import AppSidebar from "@/components/layout/app-sidebar";
 import DashboardHeader from "@/components/layout/dashboard-header";
@@ -12,11 +13,13 @@ export default async function DashboardLayout({
 }) {
   // Persisting the sidebar state in the cookie
   const cookieStore = await cookies();
-  const defaultOpen = cookieStore.get("sidebar:state")?.value === "true";
+  const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false"; // Default to true unless cookie is explicitly "false"
 
   return (
     <KBar>
-      <SidebarProvider defaultOpen={defaultOpen}>
+      <SidebarProvider defaultOpen={defaultOpen !== false}>
+        {" "}
+        {/* Default to true unless cookie says otherwise */}
         <NextTopLoader showSpinner={false} />
         <AppSidebar />
         <SidebarInset>

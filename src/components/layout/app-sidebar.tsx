@@ -49,7 +49,7 @@ import { Icons } from "../icons";
 export const company = {
   name: "Merdeka Service",
   logo: GalleryVerticalEnd,
-  plan: "Admin Dashboard",
+  plan: "Dashboard",
 };
 
 export default function AppSidebar() {
