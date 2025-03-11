@@ -5,15 +5,12 @@ import { FiSearch, FiUser, FiShoppingCart, FiMapPin } from "react-icons/fi";
 import { BiMenuAltLeft } from "react-icons/bi";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { LucidePackageSearch, Menu } from "lucide-react";
-import { TbRosetteDiscount } from "react-icons/tb";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/stores/useCartStore";
 import ShoppingCart from "./shopping-cart";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useSession, signOut } from "next-auth/react";
@@ -32,17 +29,16 @@ import {
 } from "./ui/sheet";
 import {
   auth,
-  DropDownProps,
   logo,
   menu,
-  MenuItem,
   mobileExtraLinks,
-} from "@/constants/menu-links";
-import { MegaDropDownMenu } from "./megadrop-menu";
+} from "@/constants/header-nav-links";
+import { DesktopDropDown } from "./desktop-dropdown";
 import { Separator } from "./ui/separator";
-import { MegaDropDownMenuMobile } from "./megadropmenu-mobile";
+import { MobileDropDown } from "./mobile-dropdown";
 import { useEffect, useState } from "react";
 import { initializeCart } from "@/stores/slices/cartItemsSlice";
+import { SideMobileNavItem } from "@/types/navigation";
 
 const Header = () => {
   const router = useRouter();
@@ -95,12 +91,12 @@ const Header = () => {
         isSticky ? "sticky top-0" : ""
       }`}
     >
-      {/* Main Header */}
+      {/* Main Header & SideMobile Navigation */}
       <div className="px-4 py-1">
         <div className="flex items-center justify-between gap-4 container">
           {/* Logo */}
           <div className="flex flex-[1] items-center gap-2">
-            {/* Menu icon mobile */}
+            {/* Mobile SideMenu Button */}
             <div className="lg:hidden">
               <div className="flex items-center justify-between">
                 <Sheet>
@@ -136,7 +132,7 @@ const Header = () => {
                         collapsible
                         className="flex w-full flex-col gap-4"
                       >
-                        {menu?.map((item) => renderMobileMenuItem(item))}
+                        {menu?.map((item) => renderSideMobileMenuItem(item))}
                       </Accordion>
                       <div className="border-t py-4">
                         <div className="grid grid-cols-2 justify-start">
@@ -271,18 +267,19 @@ const Header = () => {
         </div>
       </div>
       <Separator />
-      {/* Categories Header */}
+      {/* Desktop DropDown Navigation */}
       <div className="hidden md:block">
-        <MegaDropDownMenu />
+        <DesktopDropDown />
       </div>
+      {/* Mobile DropDown Navigation */}
       <div className="md:hidden">
-        <MegaDropDownMenuMobile />
+        <MobileDropDown />
       </div>
     </nav>
   );
 };
 
-const renderMobileMenuItem = (item: MenuItem) => {
+const renderSideMobileMenuItem = (item: SideMobileNavItem) => {
   if (item.items) {
     return (
       <AccordionItem key={item.title} value={item.title} className="border-b-0">

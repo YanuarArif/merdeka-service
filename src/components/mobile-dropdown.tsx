@@ -1,24 +1,9 @@
-import {
-  Cpu,
-  Globe,
-  Eye,
-  Shield,
-  Rocket,
-  Box,
-  Search,
-  Palette,
-  BookOpen,
-  FileText,
-  Newspaper,
-  ChevronDown,
-  ChevronRight,
-  ChevronLeft,
-} from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronLeft } from "lucide-react";
 import { useRef, useState } from "react";
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { mobileMenuItems } from "@/constants/header-nav-links";
 
-// Define the types for navigation items and submenus
 interface MenuItem {
   label: string;
   description: string;
@@ -41,7 +26,7 @@ interface Props {
   navItems: NavItem[];
 }
 
-function MegaDropDownMenuMobile() {
+function MobileDropDown() {
   return (
     <div className="relative gap-5 flex flex-col items-center justify-center py-2 ">
       <NavigationMenuItems />
@@ -128,13 +113,13 @@ function DropdownNavigation({ navItems }: Props) {
           >
             {navItems
               .find((item) => item.label === openMenu)
-              ?.subMenus?.map((sub) => (
+              ?.subMenus?.map((sub: SubMenu) => (
                 <div key={sub.title} className="mb-6">
                   <h3 className="text-sm font-medium text-muted-foreground mb-3">
                     {sub.title}
                   </h3>
                   <ul className="space-y-4">
-                    {sub.items.map((item) => {
+                    {sub.items.map((item: MenuItem) => {
                       const Icon = item.icon;
                       return (
                         <li key={item.label}>
@@ -168,183 +153,7 @@ function DropdownNavigation({ navItems }: Props) {
 }
 
 function NavigationMenuItems() {
-  const NAV_ITEMS = [
-    {
-      id: 1,
-      label: "Products",
-      subMenus: [
-        {
-          title: "DX Platform",
-          items: [
-            {
-              label: "Previews",
-              description: "Helping teams ship 6× faster",
-              icon: Cpu,
-            },
-            {
-              label: "AI",
-              description: "Powering breakthroughs",
-              icon: Search,
-            },
-          ],
-        },
-        {
-          title: "Managed Infrastructure",
-          items: [
-            {
-              label: "Rendering",
-              description: "Fast, scalable, and reliable",
-              icon: Globe,
-            },
-            {
-              label: "Observability",
-              description: "Trace every step",
-              icon: Eye,
-            },
-            {
-              label: "Security",
-              description: "Scale without compromising",
-              icon: Shield,
-            },
-          ],
-        },
-        {
-          title: "Open Source",
-          items: [
-            {
-              label: "Next.js",
-              description: "The native Next.js platform",
-              icon: Rocket,
-            },
-            {
-              label: "Turborepo",
-              description: "Speed with Enterprise scale",
-              icon: Box,
-            },
-            {
-              label: "AI SDK",
-              description: "The AI Toolkit for TypeScript",
-              icon: Palette,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 2,
-      label: "Solutions",
-      subMenus: [
-        {
-          title: "Use Cases",
-          items: [
-            {
-              label: "AI Apps",
-              description: "Deploy at the speed of AI",
-              icon: Cpu,
-            },
-            {
-              label: "Composable Commerce",
-              description: "Power storefronts that convert",
-              icon: Box,
-            },
-            {
-              label: "Marketing Sites",
-              description: "Launch campaigns fast",
-              icon: Rocket,
-            },
-            {
-              label: "Multi-tenant Platforms",
-              description: "Scale apps with one codebase",
-              icon: Globe,
-            },
-            {
-              label: "Web Apps",
-              description: "Ship features, not infrastructure",
-              icon: Search,
-            },
-          ],
-        },
-        {
-          title: "Users",
-          items: [
-            {
-              label: "Platform Engineers",
-              description: "Automate away repetition",
-              icon: Cpu,
-            },
-            {
-              label: "Design Engineers",
-              description: "Deploy for every idea",
-              icon: Palette,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 3,
-      label: "Resources",
-      subMenus: [
-        {
-          title: "Tools",
-          items: [
-            {
-              label: "Resource Center",
-              description: "Today's best practices",
-              icon: BookOpen,
-            },
-            {
-              label: "Marketplace",
-              description: "Extend and automate workflows",
-              icon: Search,
-            },
-            {
-              label: "Templates",
-              description: "Jumpstart app development",
-              icon: FileText,
-            },
-            {
-              label: "Guides",
-              description: "Find help quickly",
-              icon: BookOpen,
-            },
-            {
-              label: "Partner Finder",
-              description: "Get help from solution partners",
-              icon: Search,
-            },
-          ],
-        },
-        {
-          title: "Company",
-          items: [
-            {
-              label: "Customers",
-              description: "Trusted by the best teams",
-              icon: Newspaper,
-            },
-            {
-              label: "Blog",
-              description: "The latest posts and changes",
-              icon: FileText,
-            },
-            {
-              label: "Changelog",
-              description: "See what shipped",
-              icon: BookOpen,
-            },
-            {
-              label: "Press",
-              description: "Read the latest news",
-              icon: Newspaper,
-            },
-          ],
-        },
-      ],
-    },
-  ];
-
-  return <DropdownNavigation navItems={NAV_ITEMS} />;
+  return <DropdownNavigation navItems={mobileMenuItems} />;
 }
 
-export { MegaDropDownMenuMobile };
+export { MobileDropDown };
