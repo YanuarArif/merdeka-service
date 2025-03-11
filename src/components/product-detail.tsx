@@ -250,90 +250,121 @@ export default function ProductDetail({
         </div>
 
         {/* Product Info */}
-        <div className="flex flex-col gap-6">
-          <div>
-            <div className="inline-flex items-center px-2 py-1 bg-primary/10 text-primary rounded-full text-sm mb-4">
-              <Truck className="w-4 h-4 mr-1" />
-              Local warehouse
+        <div className="flex flex-col gap-6 p-6 bg-background rounded-lg border">
+          <div className="space-y-4">
+            <div className="inline-flex items-center px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-sm font-medium">
+              <Truck className="w-4 h-4 mr-2" />
+              Ready to ship
             </div>
-            <h1 className="text-2xl font-semibold mb-4">{product.name}</h1>
-            <div className="flex items-center gap-2">
+
+            <h1 className="text-2xl font-bold text-foreground">
+              {product.name}
+            </h1>
+
+            <div className="flex items-center gap-3 border-b pb-4">
               <div className="flex">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    className={`w-4 h-4 ${
+                    className={`w-5 h-5 ${
                       i < Math.round(product.averageRating)
-                        ? "text-primary fill-primary"
-                        : "text-gray-300"
+                        ? "text-yellow-400 fill-yellow-400"
+                        : "text-gray-200"
                     }`}
                   />
                 ))}
               </div>
-              <span className="text-sm text-muted-foreground">
-                ({product.reviews.length} reviews)
-              </span>
+              <div className="text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">
+                  {product.averageRating.toFixed(1)}
+                </span>
+                <span className="mx-2">·</span>
+                <span>{product.reviews.length} reviews</span>
+              </div>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <div className="text-4xl font-bold text-foreground">
                 {new Intl.NumberFormat("id-ID", {
                   style: "currency",
                   currency: "IDR",
                   minimumFractionDigits: 0,
                 }).format(product.price)}
-              </span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Inclusive of all taxes
+              </p>
             </div>
 
-            <div className="bg-orange-100 text-orange-700 p-4 rounded-lg">
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                <span>Big sale ends in 17:22:09:52</span>
+            <div className="bg-orange-50 text-orange-800 p-4 rounded-lg border border-orange-100">
+              <div className="flex items-center gap-2 font-medium">
+                <Clock className="w-5 h-5" />
+                <span>Flash Sale Ends in: 17:22:09:52</span>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Quantity</label>
-              <Select
-                value={quantity.toString()}
-                onValueChange={(value) => setQuantity(parseInt(value))}
-              >
-                <SelectTrigger className="w-24">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {[1, 2, 3, 4, 5].map((num) => (
-                    <SelectItem key={num} value={num.toString()}>
-                      {num}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="font-medium">Quantity:</label>
+                <Select
+                  value={quantity.toString()}
+                  onValueChange={(value) => setQuantity(parseInt(value))}
+                >
+                  <SelectTrigger className="w-28">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1, 2, 3, 4, 5].map((num) => (
+                      <SelectItem key={num} value={num.toString()}>
+                        {num} unit{num > 1 ? "s" : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div className="flex gap-4">
-              <Button
-                className="flex-1"
-                onClick={(e) => handleAddToCart(e.currentTarget)}
-              >
-                Add to cart
-              </Button>
-              <Button className="flex-1" variant="secondary">
-                Buy now
-              </Button>
+              <div className="flex gap-4 pt-2">
+                <Button
+                  size="lg"
+                  className="flex-1 text-base font-semibold"
+                  onClick={(e) => handleAddToCart(e.currentTarget)}
+                >
+                  Add to Cart
+                </Button>
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  className="flex-1 text-base font-semibold"
+                >
+                  Buy Now
+                </Button>
+              </div>
             </div>
           </div>
 
           <div className="space-y-4 border-t pt-4">
-            <div className="flex items-center gap-2">
-              <Truck className="w-4 h-4 text-primary" />
-              <span>Free shipping on orders over $30</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-primary" />
-              <span>Secure payment & buyer protection</span>
+            <h3 className="font-medium text-base mb-3">Why buy from us?</h3>
+            <div className="grid gap-4">
+              <div className="flex items-center gap-3 bg-secondary/50 p-3 rounded-lg">
+                <Truck className="w-5 h-5 text-primary shrink-0" />
+                <div>
+                  <p className="font-medium">Free Shipping</p>
+                  <p className="text-sm text-muted-foreground">
+                    On orders over $30
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 bg-secondary/50 p-3 rounded-lg">
+                <Shield className="w-5 h-5 text-primary shrink-0" />
+                <div>
+                  <p className="font-medium">Secure Payment</p>
+                  <p className="text-sm text-muted-foreground">
+                    Protected by Buyer Guarantee
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
