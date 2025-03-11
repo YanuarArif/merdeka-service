@@ -3,19 +3,12 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
+import { Card } from "@/components/ui/card";
+import { Trash2, X } from "lucide-react";
 import { useCartStore } from "@/stores/useCartStore";
-import { XCircle } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { Separator } from "./ui/separator";
+import { useRouter } from "next/navigation";
 
 const ShoppingCart = () => {
   const cartItems = useCartStore((state) => state.items);
@@ -24,131 +17,99 @@ const ShoppingCart = () => {
   const decreaseQuantity = useCartStore((state) => state.decreaseQuantity);
   const clearCart = useCartStore((state) => state.clearCart);
   const totalPrice = useCartStore((state) => state.getTotalPrice());
-
-  const handleRemoveItem = (productId: string) => {
-    removeItem(productId);
-  };
-
-  const handleIncreaseQuantity = (productId: string) => {
-    increaseQuantity(productId);
-  };
-
-  const handleDecreaseQuantity = (productId: string) => {
-    decreaseQuantity(productId);
-  };
-
-  const handleClearCart = () => {
-    clearCart();
-  };
+  const route = useRouter();
 
   if (cartItems.length === 0) {
     return (
-      <Card className="w-full h-full bg-white shadow-lg border-0 rounded-xl">
-        <CardHeader className="text-center py-6">
-          <CardTitle className="text-2xl font-bold text-gray-800">
-            Your Cart
-          </CardTitle>
-          <CardDescription className="text-gray-500 mt-2">
-            Your cart is empty.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-6 text-center">
-          <p className="text-gray-600">
-            Add items to your cart to proceed with your shopping.
-          </p>
-        </CardContent>
+      <Card className="w-full p-6 text-center bg-white shadow-sm rounded-lg">
+        <h2 className="text-xl font-semibold text-gray-800">Keranjang Kamu</h2>
+        <p className="mt-2 text-gray-500">Keranjang kamu Kosong.</p>
       </Card>
     );
   }
 
   return (
-    <Card className="w-full h-full max-h-[80vh] flex flex-col bg-white shadow-lg border-0 rounded-xl overflow-hidden">
-      <CardHeader className="bg-gray-50 py-4 px-6 border-b">
-        <CardTitle className="text-xl font-semibold text-gray-800">
-          Your Cart
-        </CardTitle>
-        <CardDescription className="text-gray-500">
-          {cartItems.length} item{cartItems.length !== 1 ? "s" : ""} in your
-          cart
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex-grow p-4 overflow-hidden">
-        <ScrollArea className="h-full pr-4">
-          <div className="space-y-6">
-            {cartItems.map((item) => (
-              <div
-                key={item.productId}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-              >
-                <div className="flex items-center space-x-4">
-                  {item.image && (
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      width={80}
-                      height={80}
-                      className="rounded-md aspect-square object-cover border border-gray-200"
-                    />
-                  )}
-                  <div className="space-y-1">
-                    <p className="font-medium text-gray-800">{item.name}</p>
-                    <p className="text-sm text-gray-600">
-                      {formatCurrency(item.price)}
-                    </p>
-                    <div className="flex items-center space-x-2 mt-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8 w-8 rounded-full"
-                        onClick={() => handleDecreaseQuantity(item.productId)}
-                        disabled={item.quantity <= 1}
-                      >
-                        -
-                      </Button>
-                      <span className="text-sm font-medium text-gray-700">
-                        {item.quantity}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8 w-8 rounded-full"
-                        onClick={() => handleIncreaseQuantity(item.productId)}
-                      >
-                        +
-                      </Button>
-                    </div>
-                  </div>
+    <Card className="w-full p-4 bg-white shadow-sm rounded-lg flex flex-col">
+      <h2 className="text-xl font-semibold text-gray-800 mb-2">
+        Keranjang Kamu
+      </h2>
+      <Separator className="w-full mb-2" />
+      <div className="flex-grow space-y-1">
+        {cartItems.map((item) => (
+          <div
+            key={item.productId}
+            className="flex items-center justify-between border-b pb-2 last:border-1"
+          >
+            <div className="flex items-center space-x-4">
+              {item.image && (
+                <Image
+                  src={item.image}
+                  alt={item.name}
+                  width={60}
+                  height={60}
+                  className="rounded-md object-cover"
+                />
+              )}
+              <div>
+                <p className="text-gray-800 font-semibold text-sm">
+                  {item.name}
+                </p>
+                <p className="text-sm text-gray-600 font-light">
+                  {formatCurrency(item.price)}
+                </p>
+                <div className="flex items-center space-x-2 mt-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-5 w-5 p-0"
+                    onClick={() => decreaseQuantity(item.productId)}
+                    disabled={item.quantity <= 1}
+                  >
+                    -
+                  </Button>
+                  <span className="text-sm text-gray-700">{item.quantity}</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-5 w-5 p-0"
+                    onClick={() => increaseQuantity(item.productId)}
+                  >
+                    +
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-red-500 hover:text-red-700 hover:bg-red-100 rounded-full h-10 w-10"
-                  onClick={() => handleRemoveItem(item.productId)}
-                  aria-label={`Remove ${item.name} from cart`}
-                >
-                  <XCircle className="h-5 w-5" />
-                </Button>
               </div>
-            ))}
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-gray-500 hover:text-red-600"
+              onClick={() => removeItem(item.productId)}
+              aria-label={`Remove ${item.name}`}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
-        </ScrollArea>
-      </CardContent>
-      <CardFooter className="bg-gray-50 p-4 border-t flex flex-col space-y-4">
-        <div className="flex justify-between items-center text-lg font-semibold text-gray-800">
-          <span>Subtotal</span>
+        ))}
+      </div>
+      <div className="mt-6 space-y-4">
+        <div className="flex justify-between text-lg font-semibold text-gray-800">
+          <span>Total</span>
           <span>{formatCurrency(totalPrice)}</span>
         </div>
         <Button
-          variant="destructive"
-          className="w-full rounded-lg hover:bg-red-600 transition-colors"
-          onClick={handleClearCart}
+          variant="outline"
+          className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+          onClick={clearCart}
         >
           Clear Cart
         </Button>
-        <Button className="w-full bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-          Proceed to Checkout
+        <Button
+          className="w-full bg-black text-white hover:bg-gray-800"
+          onClick={() => route.push("/dashboard/cart")}
+        >
+          Checkout
         </Button>
-      </CardFooter>
+      </div>
     </Card>
   );
 };

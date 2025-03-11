@@ -40,6 +40,7 @@ import { initializeCart } from "@/stores/slices/cartItemsSlice";
 import { SideMobileNavItem } from "@/types/navigation";
 import { Loader2, X } from "lucide-react";
 import { useDebounce } from "use-debounce"; // Assuming you install this package
+import CartPopup from "./cart-popup";
 
 const Header = () => {
   const router = useRouter();
@@ -218,8 +219,8 @@ const Header = () => {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="w-[90vw] sm:w-[400px] md:w-[450px] lg:w-[500px] max-h-[70vh] p-2 bg-white dark:bg-gray-800 shadow-xl rounded-xl border border-gray-200 dark:border-gray-700 overflow-auto"
-                  align="end"
+                  className="w-[70vw] sm:w-[300px] md:w-[400px] lg:w-[400px] max-h-[70vh] dark:bg-gray-800 border-gray-200 dark:border-gray-700 overflow-auto"
+                  align="center"
                 >
                   {isCartLoading ? (
                     <div className="p-4 flex items-center justify-center text-gray-600 dark:text-gray-300">
@@ -245,6 +246,7 @@ const Header = () => {
                     </div>
                   ) : (
                     <ShoppingCart />
+                    // <CartPopup />
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -264,7 +266,7 @@ const Header = () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => router.push("/dashboard")}
-                    className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800 p-1 rounded-md transition-colors duration-200"
+                    className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800 p-2 rounded-md transition-colors duration-200"
                     title={`Welcome, ${session.user.email?.split("@")[0] || "User"}`}
                   >
                     <Image
@@ -274,7 +276,7 @@ const Header = () => {
                       height={32}
                       className="rounded-full border-2 border-gray-200 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-200"
                     />
-                    <span className="hidden md:inline text-sm font-medium dark:text-gray-300">
+                    <span className="hidden lg:inline text-sm font-medium dark:text-gray-300">
                       {session.user.email?.split("@")[0] || "User"}
                     </span>
                   </button>
