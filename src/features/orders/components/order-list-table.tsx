@@ -15,15 +15,15 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-interface DataTableProps<TData, TValue> {
+interface OrderListTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-export function DataTable<TData, TValue>({
+export function OrderListTable<TData, TValue>({
   columns,
   data,
-}: DataTableProps<TData, TValue>) {
+}: OrderListTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,

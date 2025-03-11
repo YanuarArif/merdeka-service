@@ -1,6 +1,5 @@
 "use client";
 
-import { DataTable } from "@/components/ui/table/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Order, OrderStatus, PaymentStatus } from "@/types/order";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +13,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { OrderListTable } from "./order-list-table";
 
 const statusColorMap: Record<OrderStatus, string> = {
   [OrderStatus.PENDING]: "bg-yellow-500",
@@ -176,5 +176,5 @@ export function OrderList({ orders }: OrderListProps) {
     })),
   });
 
-  return <DataTable<Order, any> columns={columns} data={orders} />;
+  return <OrderListTable<Order, any> columns={columns} data={orders} />;
 }

@@ -72,7 +72,7 @@ export default function AppSidebar() {
       </SidebarHeader>
       <SidebarContent className="overflow-x-hidden">
         <SidebarGroup>
-          <SidebarGroupLabel>Overview</SidebarGroupLabel>
+          <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
           <SidebarMenu>
             {sidebarItems.map((item) => {
               const Icon = item.icon ? Icons[item.icon] : Icons.logo;
