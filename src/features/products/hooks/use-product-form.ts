@@ -1,7 +1,9 @@
+// src/hooks/use-product-form.ts
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Product } from "@/types/product";
+import { useEffect } from "react";
 
 const MAX_FILE_SIZE = 5000000;
 const ACCEPTED_IMAGE_TYPES = [
@@ -55,13 +57,19 @@ export const useProductForm = (initialData: Product | null) => {
     width: initialData?.width || undefined,
     stock: initialData?.stock || 0,
     sku: initialData?.sku || "",
-    images: [],
+    images: [], // New images uploaded during editing
   };
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productFormSchema),
     defaultValues,
+    mode: "onChange", // Ensure isDirty updates on every change
   });
+
+  // Reset form with initial data when initialData changes (e.g., if editing a different product)
+  useEffect(() => {
+    form.reset(defaultValues);
+  }, [initialData, form]);
 
   return form;
 };

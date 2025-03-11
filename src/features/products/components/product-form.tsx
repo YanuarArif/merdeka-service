@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Product } from "@/types/product";
 import { useProductForm, ProductFormData } from "../hooks/use-product-form";
@@ -40,8 +40,14 @@ export default function ProductForm({
   const form = useProductForm(initialData);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false); // Track submission state
 
   const isEditMode = !!initialData;
+
+  // Debug log to verify isDirty
+  useEffect(() => {
+    console.log("Form is dirty:", form.formState.isDirty);
+  }, [form.formState.isDirty]);
 
   const {
     showDialog: showConfirmDialog,
@@ -49,13 +55,14 @@ export default function ProductForm({
     confirmNavigation,
     cancelNavigation,
   } = usePreventNavigation({
-    shouldPrevent: form.formState.isDirty,
+    shouldPrevent: form.formState.isDirty && !isSubmitting, // Disable prevention during submission
     onNavigate: () => {
-      form.reset();
+      form.reset(); // Reset form on navigation confirmation
     },
   });
 
   async function onSubmit(values: ProductFormData) {
+    setIsSubmitting(true); // Set submitting state to disable prevention
     startTransition(async () => {
       try {
         const result = initialData
@@ -64,7 +71,7 @@ export default function ProductForm({
               description: values.description || undefined,
               price: values.price,
               stock: values.stock || 0,
-              imageUrls: values.imageUrls,
+              imageUrls: values.imageUrls, // Use existing imageUrls or updated ones
               category: values.category,
               subCategory: values.subCategory || undefined,
               weight: values.weight || undefined,
@@ -96,11 +103,13 @@ export default function ProductForm({
               ? "Produk berhasil diperbarui"
               : "Produk berhasil ditambahkan"
           );
-          form.reset();
-          router.push("/dashboard/products");
+          form.reset(); // Reset form immediately after success
+          router.push("/dashboard/products"); // Navigate only after reset
         }
       } catch (error) {
         toast.error("Terjadi kesalahan saat menyimpan produk");
+      } finally {
+        setIsSubmitting(false); // Reset submitting state
       }
     });
   }
@@ -111,7 +120,7 @@ export default function ProductForm({
         <div className="flex items-center gap-4">
           <button
             onClick={() => {
-              if (form.formState.isDirty) {
+              if (form.formState.isDirty && !isSubmitting) {
                 setShowConfirmDialog(true);
               } else {
                 router.push("/dashboard/products");
@@ -126,7 +135,7 @@ export default function ProductForm({
         <Link
           href="/shop"
           onClick={(e) => {
-            if (form.formState.isDirty) {
+            if (form.formState.isDirty && !isSubmitting) {
               e.preventDefault();
               setShowConfirmDialog(true);
             }
@@ -162,7 +171,7 @@ export default function ProductForm({
           variant="outline"
           disabled={isPending}
           onClick={() => {
-            if (form.formState.isDirty) {
+            if (form.formState.isDirty && !isSubmitting) {
               setShowConfirmDialog(true);
             } else {
               router.push("/dashboard/products");
@@ -186,7 +195,6 @@ export default function ProductForm({
         </Button>
       </div>
 
-      {/* Confirmation Dialog */}
       <Dialog
         open={showConfirmDialog}
         onOpenChange={(open) => {
