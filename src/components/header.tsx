@@ -195,7 +195,7 @@ const Header = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-2 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 text-sm mx-2 relative">
-                    <FiShoppingCart className="text-xl" />
+                    <FiShoppingCart className="text-xl cart-icon" />
                     <span className="hidden md:inline">Keranjang</span>
                     {mounted && cartItemCount > 0 && (
                       <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">

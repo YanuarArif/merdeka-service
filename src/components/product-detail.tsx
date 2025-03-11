@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { ErrorMessage } from "@/components/ui/errormessage";
 import Link from "next/link";
@@ -53,6 +54,11 @@ export default function ProductDetail({
   const [error, setError] = useState<string | null>(null);
   const [cartError, setCartError] = useState<string | undefined>(undefined);
   const [mainImage, setMainImage] = useState<string | null>(null);
+  const [flyingImage, setFlyingImage] = useState<{
+    src: string;
+    startPos: { x: number; y: number };
+    endPos: { x: number; y: number };
+  } | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const addItemToCart = useCartStore((state) => state.addItem);
@@ -82,28 +88,63 @@ export default function ProductDetail({
     fetchProduct();
   }, [maincategory, nameproduct]);
 
-  const handleAddToCart = useCallback(async () => {
-    if (!product) return;
-    try {
-      await addItemToCart({
-        productId: product.id,
-        name: product.name,
-        price: Number(product.price),
-        image: product.imageUrls[0] || "/images/laptops/lenovo-laptop.jpg",
-        quantity: quantity,
-      });
+  const handleAddToCart = useCallback(
+    async (buttonElement: HTMLButtonElement) => {
+      if (!product) return;
+      try {
+        // Get the position of the cart icon in the header
+        const cartIcon = document.querySelector(".cart-icon") as HTMLElement;
+        if (!cartIcon) {
+          throw new Error("Cart icon not found");
+        }
 
-      toast({
-        description: `${product.name} added to cart!`,
-      });
-    } catch (err) {
-      if (err instanceof Error) {
-        setCartError(err.message);
-      } else {
-        setCartError("Failed to add item to cart");
+        // Get the position of the product image
+        const productImage = document.querySelector(
+          ".main-product-image"
+        ) as HTMLElement;
+        if (!productImage) {
+          throw new Error("Product image not found");
+        }
+
+        const imageRect = productImage.getBoundingClientRect();
+        const cartRect = cartIcon.getBoundingClientRect();
+
+        // Set the flying image
+        setFlyingImage({
+          src: product.imageUrls[0] || "/images/laptops/lenovo-laptop.jpg",
+          startPos: {
+            x: imageRect.left,
+            y: imageRect.top,
+          },
+          endPos: {
+            x: cartRect.left,
+            y: cartRect.top,
+          },
+        });
+
+        // Add item to cart after animation
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        await addItemToCart({
+          productId: product.id,
+          name: product.name,
+          price: Number(product.price),
+          image: product.imageUrls[0] || "/images/laptops/lenovo-laptop.jpg",
+          quantity: quantity,
+        });
+
+        toast({
+          description: `${product.name} added to cart!`,
+        });
+      } catch (err) {
+        if (err instanceof Error) {
+          setCartError(err.message);
+        } else {
+          setCartError("Failed to add item to cart");
+        }
       }
-    }
-  }, [product, quantity, addItemToCart, toast]);
+    },
+    [product, quantity, addItemToCart, toast]
+  );
 
   const handleCartErrorClose = useCallback(() => {
     setCartError(undefined);
@@ -203,7 +244,7 @@ export default function ProductDetail({
               alt="Product main image"
               width={600}
               height={600}
-              className="object-contain w-full h-full p-4"
+              className="object-contain w-full h-full p-4 main-product-image"
             />
           </div>
         </div>
@@ -273,7 +314,10 @@ export default function ProductDetail({
             </div>
 
             <div className="flex gap-4">
-              <Button className="flex-1" onClick={handleAddToCart}>
+              <Button
+                className="flex-1"
+                onClick={(e) => handleAddToCart(e.currentTarget)}
+              >
                 Add to cart
               </Button>
               <Button className="flex-1" variant="secondary">
@@ -320,6 +364,61 @@ export default function ProductDetail({
           </div>
         </div>
       )}
+
+      <AnimatePresence>
+        {flyingImage && (
+          <motion.div
+            initial={{
+              scale: 0.8,
+              x: flyingImage.startPos.x,
+              y: flyingImage.startPos.y,
+              opacity: 0,
+              rotate: 0,
+            }}
+            animate={{
+              scale: [0.8, 1.2, 0.3],
+              x: [
+                flyingImage.startPos.x,
+                (flyingImage.startPos.x + flyingImage.endPos.x) / 2 - 50,
+                flyingImage.endPos.x,
+              ],
+              y: [
+                flyingImage.startPos.y,
+                Math.min(flyingImage.startPos.y, flyingImage.endPos.y) - 100,
+                flyingImage.endPos.y,
+              ],
+              opacity: [0, 1, 0],
+              rotate: [0, -10, 10],
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0.5,
+            }}
+            transition={{
+              duration: 0.8,
+              ease: "easeInOut",
+              times: [0, 0.5, 1],
+            }}
+            onAnimationComplete={() => setFlyingImage(null)}
+            className="fixed z-50 pointer-events-none"
+            style={{
+              width: "80px",
+              height: "80px",
+              position: "fixed",
+              top: 0,
+              left: 0,
+            }}
+          >
+            <Image
+              src={flyingImage.src}
+              alt="Flying product"
+              width={100}
+              height={100}
+              className="w-full h-full object-contain"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Description Section */}
       <div className="mt-12 border-t pt-8">
