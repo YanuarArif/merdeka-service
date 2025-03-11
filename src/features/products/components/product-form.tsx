@@ -1,3 +1,4 @@
+// src/components/ProductForm.tsx
 "use client";
 
 import { createProduct } from "@/app/actions/create-product";
@@ -5,6 +6,14 @@ import { updateProduct } from "@/app/actions/update-product";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
@@ -17,6 +26,7 @@ import { ProductShipping } from "./product-shipping";
 import { ProductImages } from "./product-images";
 import { ProductInventory } from "./product-inventory";
 import { ProductPricing } from "./product-pricing";
+import { usePreventNavigation } from "@/hooks/use-prevent-navigation";
 
 interface ProductFormProps {
   initialData: Product | null;
@@ -32,6 +42,18 @@ export default function ProductForm({
   const router = useRouter();
 
   const isEditMode = !!initialData;
+
+  const {
+    showDialog: showConfirmDialog,
+    setShowDialog: setShowConfirmDialog,
+    confirmNavigation,
+    cancelNavigation,
+  } = usePreventNavigation({
+    shouldPrevent: form.formState.isDirty,
+    onNavigate: () => {
+      form.reset();
+    },
+  });
 
   async function onSubmit(values: ProductFormData) {
     startTransition(async () => {
@@ -87,16 +109,28 @@ export default function ProductForm({
     <div className="container max-w-full px-4 py-6 md:max-w-4xl lg:max-w-7xl space-y-6">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <Link
-            href="/dashboard/products"
+          <button
+            onClick={() => {
+              if (form.formState.isDirty) {
+                setShowConfirmDialog(true);
+              } else {
+                router.push("/dashboard/products");
+              }
+            }}
             className="text-muted-foreground hover:text-primary"
           >
             <ArrowLeft className="w-5 h-5" />
-          </Link>
+          </button>
           <h1 className="text-2xl font-bold">{pageTitle}</h1>
         </div>
         <Link
           href="/shop"
+          onClick={(e) => {
+            if (form.formState.isDirty) {
+              e.preventDefault();
+              setShowConfirmDialog(true);
+            }
+          }}
           className="text-sm text-muted-foreground hover:text-primary"
         >
           Lihat Toko
@@ -105,7 +139,6 @@ export default function ProductForm({
 
       <div className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-8">
-          {/* Kolom Kiri - Deskripsi, Kategori dan Pengiriman */}
           <div className="space-y-6">
             <ProductDescription
               form={form}
@@ -114,8 +147,6 @@ export default function ProductForm({
             <ProductCategories form={form} />
             <ProductShipping form={form} />
           </div>
-
-          {/* Kolom Kanan - Gambar, Kategori, Inventaris, Harga */}
           <div className="space-y-6">
             <ProductImages form={form} initialImages={initialData?.imageUrls} />
             <ProductInventory form={form} />
@@ -127,7 +158,17 @@ export default function ProductForm({
       <Separator />
 
       <div className="flex justify-end gap-4">
-        <Button variant="outline" disabled={isPending}>
+        <Button
+          variant="outline"
+          disabled={isPending}
+          onClick={() => {
+            if (form.formState.isDirty) {
+              setShowConfirmDialog(true);
+            } else {
+              router.push("/dashboard/products");
+            }
+          }}
+        >
           Batal
         </Button>
         <Button
@@ -144,6 +185,34 @@ export default function ProductForm({
               : "Tambah Produk"}
         </Button>
       </div>
+
+      {/* Confirmation Dialog */}
+      <Dialog
+        open={showConfirmDialog}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowConfirmDialog(false);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Batalkan Perubahan?</DialogTitle>
+            <DialogDescription>
+              Perubahan yang Anda buat akan hilang. Apakah Anda yakin ingin
+              membatalkan?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={cancelNavigation}>
+              Tidak, Lanjutkan
+            </Button>
+            <Button variant="destructive" onClick={confirmNavigation}>
+              Ya, Batalkan
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
