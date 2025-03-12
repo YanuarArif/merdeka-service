@@ -1,8 +1,8 @@
 "use client";
 
-import { DataTable } from "@/features/orders/components/data-table";
 import { columns } from "./columns";
 import { User } from "@prisma/client";
+import { UserListTable } from "./user-list-table";
 
 interface UserListProps {
   users: User[];
@@ -21,7 +21,7 @@ export function UserList({ users, totalUsers }: UserListProps) {
         </div>
       </div>
 
-      <DataTable
+      <UserListTable
         columns={columns}
         data={users}
         totalItems={totalUsers}

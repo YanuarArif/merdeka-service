@@ -3,7 +3,7 @@ import { searchParamsCache } from "@/lib/searchparams";
 import { database } from "@/lib/database";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { TableListProduct } from "./product-tables/table-list-product";
+import { ProductListTable } from "./product-tables/product-list-table";
 
 type ProductListingPage = {};
 
@@ -95,7 +95,7 @@ export default async function ProductListingPage({}: ProductListingPage) {
   }));
 
   return (
-    <TableListProduct
+    <ProductListTable
       data={products}
       totalItems={totalProducts}
       pageSizeOptions={[10, 20, 30, 40, 50]}

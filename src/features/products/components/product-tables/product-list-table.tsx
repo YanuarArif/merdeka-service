@@ -31,19 +31,19 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { parseAsInteger, useQueryState } from "nuqs";
 import { Product } from "@/types/product";
-import { columns } from "../product-tables/columns"; // Import columns from new file
+import { columns } from "./columns"; // Import columns from new file
 
-interface TableListProductProps {
+interface ProductListTableProps {
   data: Product[];
   totalItems: number;
   pageSizeOptions?: number[];
 }
 
-export function TableListProduct({
+export function ProductListTable({
   data,
   totalItems,
   pageSizeOptions = [10, 20, 30, 40, 50],
-}: TableListProductProps) {
+}: ProductListTableProps) {
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
     parseAsInteger.withOptions({ shallow: false }).withDefault(1)
