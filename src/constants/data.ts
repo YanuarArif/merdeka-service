@@ -53,4 +53,12 @@ export const sidebarItems: SideItem[] = [
     isActive: false,
     items: [],
   },
+  {
+    title: "Users",
+    url: "/dashboard/users",
+    icon: "user",
+    shortcut: ["u", "u"],
+    isActive: false,
+    items: [],
+  },
 ];

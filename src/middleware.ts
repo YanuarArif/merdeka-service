@@ -1,38 +1,57 @@
 import { auth } from "@/lib/auth";
+import { type NextRequest, NextResponse } from "next/server";
 
-export default auth((req) => {
-  const isAuthenticated = !!req.auth;
-  const { nextUrl } = req;
+export async function middleware(request: NextRequest) {
+  try {
+    const session = await auth();
 
-  const isApiRoute = nextUrl.pathname.startsWith("/api");
-  const isPublicRoute = [
-    "/",
-    "/login",
-    "/register",
-    "/verification-email",
-    "/send-verification",
-    "/reset-password",
-  ].includes(nextUrl.pathname);
+    // Auth routes (login, register, etc.)
+    const isAuthRoute = [
+      "/login",
+      "/register",
+      "/send-verification",
+      "/verification-email",
+    ].includes(request.nextUrl.pathname);
 
-  // Allow public routes and API routes
-  if (isPublicRoute || isApiRoute) {
-    return;
+    // Protected routes
+    const isProtectedRoute =
+      request.nextUrl.pathname.startsWith("/dashboard") ||
+      request.nextUrl.pathname.startsWith("/user");
+
+    // Admin-only routes
+    const isAdminRoute =
+      request.nextUrl.pathname.startsWith("/dashboard/users");
+
+    // Redirect from auth routes if logged in
+    if (session && isAuthRoute) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+
+    // Require login for protected routes
+    if (!session && isProtectedRoute) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+
+    // Require admin for admin routes
+    if (session && session.user?.role !== "ADMIN" && isAdminRoute) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+
+    // If all checks pass, continue to the route
+    return NextResponse.next();
+  } catch (error) {
+    console.error("Middleware error:", error);
+    return NextResponse.redirect(new URL("/login", request.url));
   }
+}
 
-  // Redirect to login if accessing protected route while not authenticated
-  // if (!isAuthenticated) {
-  //   const redirectUrl = new URL("/login", nextUrl);
-  //   redirectUrl.searchParams.set("callbackUrl", nextUrl.pathname);
-  //   return Response.redirect(redirectUrl);
-  // }
-
-  return;
-});
-
-// Configure middleware matcher
 export const config = {
   matcher: [
-    // Match all routes except static files and api
-    "/((?!_next/static|_next/image|favicon.ico|images|backgrounds|assets|static|media).*)",
+    "/dashboard/:path*",
+    "/user/:path*",
+    "/login",
+    "/register",
+    "/send-verification",
+    "/verification-email",
   ],
 };
