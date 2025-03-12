@@ -7,8 +7,9 @@ import { database } from "./database";
 import bcrypt from "bcryptjs";
 import { Pool } from "@neondatabase/serverless";
 
-// Import koneksi edge-compatible database
-import { edgeDb, edgePool } from "./db-edge";
+// Koneksi database menggunakan neon untuk edge runtime
+const sql = neon(process.env.DATABASE_URL!);
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 // File ini untuk kompatibilitas dengan edge browser
 export default {
@@ -74,14 +75,14 @@ export default {
       if (account?.provider === "google") {
         try {
           // Cek apakah user sudah ada di database
-          const result = await edgeDb`
+          const result = await sql`
             -- Cari user berdasarkan email
             SELECT * FROM users WHERE email = ${user.email}
           `;
 
           if (result.length === 0) {
             // Buat user baru jika belum ada
-            await edgeDb`
+            await sql`
               INSERT INTO users (
                 id,
                 email, 
@@ -117,7 +118,7 @@ export default {
       // Memperbarui token dengan informasi peran pengguna
       if (account?.provider === "google") {
         // Ambil data JWT untuk user Google
-        const user = await edgeDb`
+        const user = await sql`
           -- Query untuk mendapatkan id dan role dari email
           SELECT id, role FROM users WHERE email = ${token.email}
         `;
@@ -137,7 +138,7 @@ export default {
       if (session.user) {
         if (token.email) {
           // Ambil data sesi dari database
-          const user = await edgeDb`
+          const user = await sql`
             -- Query untuk mendapatkan data lengkap user
             SELECT id, role, email, name, image
             FROM users
