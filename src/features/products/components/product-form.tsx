@@ -27,6 +27,7 @@ import { ProductImages } from "./product-images";
 import { ProductInventory } from "./product-inventory";
 import { ProductPricing } from "./product-pricing";
 import { usePreventNavigation } from "@/hooks/use-prevent-navigation";
+import { FileUploader } from "@/components/file-uploader";
 
 interface ProductFormProps {
   initialData: Product | null;
@@ -41,8 +42,49 @@ export default function ProductForm({
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false); // Track submission state
-
   const isEditMode = !!initialData;
+
+  const handleFileImport = async (files: File[]) => {
+    if (files.length === 0) return;
+
+    const file = files[0];
+    if (file.type !== "text/plain") {
+      toast.error("Please upload a .txt file");
+      return;
+    }
+
+    try {
+      const text = await file.text();
+      const lines = text.split("\n");
+      const data: Record<string, string> = {};
+
+      lines.forEach((line) => {
+        const [key, ...valueParts] = line.split(":");
+        if (key && valueParts.length > 0) {
+          const value = valueParts.join(":").trim();
+          data[key.trim()] = value;
+        }
+      });
+
+      // Update form fields
+      form.setValue("name", data.name || "");
+      form.setValue("description", data.description || "");
+      form.setValue("price", parseFloat(data.price || "0"));
+      form.setValue("stock", parseInt(data.stock || "0"));
+      form.setValue("category", data.category || "");
+      form.setValue("subCategory", data.subCategory || "");
+      form.setValue("weight", parseFloat(data.weight || "0"));
+      form.setValue("length", parseFloat(data.length || "0"));
+      form.setValue("breadth", parseFloat(data.breadth || "0"));
+      form.setValue("width", parseFloat(data.width || "0"));
+      form.setValue("sku", data.sku || "");
+
+      toast.success("Data imported successfully");
+    } catch (error) {
+      toast.error("Failed to parse file. Please check the format.");
+      console.error("File import error:", error);
+    }
+  };
 
   // Debug log to verify isDirty
   useEffect(() => {
@@ -147,6 +189,17 @@ export default function ProductForm({
       </div>
 
       <div className="space-y-6">
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold mb-2">Import Product Data</h2>
+          <FileUploader
+            accept={{ "text/plain": [".txt"] }}
+            maxFiles={1}
+            onUpload={async (files) => {
+              await handleFileImport(files);
+              return; // Return void to satisfy Promise<void>
+            }}
+          />
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-8">
           <div className="space-y-6">
             <ProductDescription

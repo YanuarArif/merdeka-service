@@ -1,0 +1,11 @@
+name: Laptop Gaming MSI
+description: High-performance gaming laptop with latest specs
+price: 15000000
+stock: 10
+category: Electronics
+subCategory: Laptops
+weight: 2.5
+length: 36
+breadth: 26
+width: 2.4
+sku: MSI-GF63-2024
